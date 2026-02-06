@@ -109,10 +109,35 @@ const emptyData: DashboardData = {
 
 const DashboardPage = () => {
   const [isOffersOpen, setIsOffersOpen] = useState(true);
+  const [selectedBakeryId, setSelectedBakeryId] = useState<string | null>(null);
   // Toggle this to see empty state: true = empty, false = with data
   const [isEmpty] = useState(false);
   
-  const data = isEmpty ? emptyData : mockCumulativeData;
+  // Get data based on selection
+  const getData = (): DashboardData => {
+    if (isEmpty) return emptyData;
+    if (selectedBakeryId === null) return mockCumulativeData;
+    
+    const bakery = mockBakeriesStats.find(b => b.id === selectedBakeryId);
+    if (!bakery) return mockCumulativeData;
+    
+    return {
+      responsesReceived: bakery.responsesReceived,
+      emailsSent: bakery.emailsSent,
+      prospectsContacted: bakery.prospectsContacted,
+      responseRate: bakery.responseRate,
+      activeCampaigns: bakery.campaignActive ? 1 : 0,
+      totalBakeries: 1,
+      offers: bakery.offers,
+    };
+  };
+  
+  const data = getData();
+  
+  const filterOptions = [
+    { id: null, label: "Toutes mes boulangeries" },
+    ...mockBakeriesStats.map(b => ({ id: b.id, label: b.name })),
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -126,6 +151,9 @@ const DashboardPage = () => {
             data={data} 
             isOffersOpen={isOffersOpen}
             onToggleOffers={() => setIsOffersOpen(!isOffersOpen)}
+            filterOptions={filterOptions}
+            selectedBakeryId={selectedBakeryId}
+            onBakeryChange={setSelectedBakeryId}
           />
         )}
       </main>
@@ -152,19 +180,47 @@ const EmptyState = () => (
   </div>
 );
 
-// Active Dashboard Component
+interface FilterOption {
+  id: string | null;
+  label: string;
+}
+
 interface ActiveDashboardProps {
   data: DashboardData;
   isOffersOpen: boolean;
   onToggleOffers: () => void;
+  filterOptions: FilterOption[];
+  selectedBakeryId: string | null;
+  onBakeryChange: (id: string | null) => void;
 }
 
 const ActiveDashboard: React.FC<ActiveDashboardProps> = ({ 
   data, 
   isOffersOpen, 
-  onToggleOffers 
+  onToggleOffers,
+  filterOptions,
+  selectedBakeryId,
+  onBakeryChange,
 }) => (
   <div className="space-y-6">
+    {/* Bakery Filter */}
+    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
+      {filterOptions.map((option) => (
+        <button
+          key={option.id ?? "all"}
+          onClick={() => onBakeryChange(option.id)}
+          className={cn(
+            "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
+            selectedBakeryId === option.id
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80"
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+
     {/* Main KPI Block */}
     <div className="bg-primary rounded-xl p-5 text-primary-foreground relative overflow-hidden">
       <div className="relative z-10">
