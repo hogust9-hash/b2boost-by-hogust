@@ -11,11 +11,14 @@ import {
   ChevronDown, 
   ChevronUp,
   Check,
-  Rocket
+  Rocket,
+  Store
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface DashboardData {
+interface BakeryStats {
+  id: string;
+  name: string;
   responsesReceived: number;
   emailsSent: number;
   prospectsContacted: number;
@@ -25,23 +28,82 @@ interface DashboardData {
   offers: string[];
 }
 
-const mockData: DashboardData = {
-  responsesReceived: 3,
-  emailsSent: 47,
-  prospectsContacted: 25,
-  responseRate: 6.4,
-  campaignActive: true,
-  campaignStartDate: "15/01/2026",
-  offers: ["Petit-déjeuner", "Goûter", "Traiteur"],
+interface DashboardData {
+  responsesReceived: number;
+  emailsSent: number;
+  prospectsContacted: number;
+  responseRate: number;
+  activeCampaigns: number;
+  totalBakeries: number;
+  offers: string[];
+}
+
+// Mock data per bakery
+const mockBakeriesStats: BakeryStats[] = [
+  {
+    id: "1",
+    name: "Boulangerie du Centre",
+    responsesReceived: 3,
+    emailsSent: 47,
+    prospectsContacted: 25,
+    responseRate: 6.4,
+    campaignActive: true,
+    campaignStartDate: "15/01/2026",
+    offers: ["Petit-déjeuner", "Goûter"],
+  },
+  {
+    id: "2",
+    name: "Au Pain Doré",
+    responsesReceived: 5,
+    emailsSent: 62,
+    prospectsContacted: 31,
+    responseRate: 8.1,
+    campaignActive: true,
+    campaignStartDate: "20/01/2026",
+    offers: ["Traiteur", "Pain bio"],
+  },
+  {
+    id: "3",
+    name: "La Mie Câline",
+    responsesReceived: 1,
+    emailsSent: 23,
+    prospectsContacted: 12,
+    responseRate: 4.3,
+    campaignActive: false,
+    campaignStartDate: null,
+    offers: ["Viennoiseries"],
+  },
+];
+
+// Calculate cumulative data
+const calculateCumulativeData = (bakeries: BakeryStats[]): DashboardData => {
+  const totalResponses = bakeries.reduce((sum, b) => sum + b.responsesReceived, 0);
+  const totalEmails = bakeries.reduce((sum, b) => sum + b.emailsSent, 0);
+  const totalProspects = bakeries.reduce((sum, b) => sum + b.prospectsContacted, 0);
+  const avgResponseRate = totalEmails > 0 ? (totalResponses / totalEmails) * 100 : 0;
+  const activeCampaigns = bakeries.filter(b => b.campaignActive).length;
+  const allOffers = [...new Set(bakeries.flatMap(b => b.offers))];
+
+  return {
+    responsesReceived: totalResponses,
+    emailsSent: totalEmails,
+    prospectsContacted: totalProspects,
+    responseRate: Math.round(avgResponseRate * 10) / 10,
+    activeCampaigns,
+    totalBakeries: bakeries.length,
+    offers: allOffers,
+  };
 };
+
+const mockCumulativeData = calculateCumulativeData(mockBakeriesStats);
 
 const emptyData: DashboardData = {
   responsesReceived: 0,
   emailsSent: 0,
   prospectsContacted: 0,
   responseRate: 0,
-  campaignActive: false,
-  campaignStartDate: null,
+  activeCampaigns: 0,
+  totalBakeries: 0,
   offers: [],
 };
 
@@ -50,7 +112,7 @@ const DashboardPage = () => {
   // Toggle this to see empty state: true = empty, false = with data
   const [isEmpty] = useState(false);
   
-  const data = isEmpty ? emptyData : mockData;
+  const data = isEmpty ? emptyData : mockCumulativeData;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -132,16 +194,15 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
     </div>
 
     {/* Campaign Status */}
-    <div className="flex items-center gap-2">
-      {data.campaignActive ? (
-        <>
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success/10 text-success">
-            Campagne active
-          </span>
-          <span className="text-sm text-muted-foreground">
-            depuis le {data.campaignStartDate}
-          </span>
-        </>
+    <div className="flex items-center gap-2 flex-wrap">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
+        <Store className="h-3.5 w-3.5" />
+        {data.totalBakeries} boulangerie{data.totalBakeries > 1 ? 's' : ''}
+      </span>
+      {data.activeCampaigns > 0 ? (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success/10 text-success">
+          {data.activeCampaigns} campagne{data.activeCampaigns > 1 ? 's' : ''} active{data.activeCampaigns > 1 ? 's' : ''}
+        </span>
       ) : (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
           Aucune campagne
