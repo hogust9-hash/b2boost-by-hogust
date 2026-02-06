@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { ProspectCard } from "@/components/ProspectCard";
+import { ProspectDetailSheet, ProspectDetail } from "@/components/ProspectDetailSheet";
 import { CategoryType } from "@/components/ui/badge-category";
 import { Mail, ChevronDown, ChevronUp, CheckCircle2, Send, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -195,6 +196,8 @@ const ProspectsPage = () => {
     inProgress: true,
     finished: false,
   });
+  const [selectedProspect, setSelectedProspect] = useState<ProspectDetail | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleFilterChange = (filter: FilterType) => {
     if (filter === activeFilter) return;
@@ -211,7 +214,29 @@ const ProspectsPage = () => {
   };
 
   const handleCardClick = (prospect: Prospect) => {
-    console.log("Prospect clicked:", prospect.name, prospect);
+    // Convert Prospect to ProspectDetail format
+    const detail: ProspectDetail = {
+      id: prospect.id,
+      name: prospect.name,
+      category: prospect.category,
+      categoryLabel: prospect.categoryLabel,
+      hasResponse: prospect.status === "response",
+      currentStage: prospect.stage,
+      currentStageDate: prospect.lastSentDate,
+      totalStages: 5,
+      completedStages: prospect.status === "finished" ? 5 : 
+                       prospect.stage.includes("3") ? 4 :
+                       prospect.stage.includes("2") ? 3 :
+                       prospect.stage.includes("1") ? 2 : 1,
+      emailHistory: [],
+    };
+    setSelectedProspect(detail);
+    setIsSheetOpen(true);
+  };
+
+  const handleCloseSheet = () => {
+    setIsSheetOpen(false);
+    setTimeout(() => setSelectedProspect(null), 300);
   };
 
   // Filter prospects
@@ -305,6 +330,13 @@ const ProspectsPage = () => {
       </main>
 
       <BottomNavigation />
+
+      {/* Prospect Detail Sheet */}
+      <ProspectDetailSheet
+        isOpen={isSheetOpen}
+        onClose={handleCloseSheet}
+        prospect={selectedProspect}
+      />
     </div>
   );
 };
