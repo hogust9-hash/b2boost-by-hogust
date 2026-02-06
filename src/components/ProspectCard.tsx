@@ -36,6 +36,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
         "cursor-pointer transition-all duration-200",
         "hover:shadow-md hover:border-primary/20",
         "active:scale-[0.99]",
+        "md:hover:scale-[1.01]",
         className
       )}
     >

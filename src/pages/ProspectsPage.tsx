@@ -1,9 +1,12 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { ProspectCard } from "@/components/ProspectCard";
 import { ProspectDetailSheet, ProspectDetail } from "@/components/ProspectDetailSheet";
+import { ProspectCardSkeleton } from "@/components/ui/skeleton-card";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import { useCustomToast } from "@/components/ui/custom-toast";
 import { CategoryType } from "@/components/ui/badge-category";
 import { Mail, ChevronDown, ChevronUp, CheckCircle2, Send, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -198,6 +201,7 @@ const ProspectsPage = () => {
   });
   const [selectedProspect, setSelectedProspect] = useState<ProspectDetail | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const { showToast } = useCustomToast();
 
   const handleFilterChange = (filter: FilterType) => {
     if (filter === activeFilter) return;
@@ -239,6 +243,11 @@ const ProspectsPage = () => {
     setTimeout(() => setSelectedProspect(null), 300);
   };
 
+  const handleRefresh = useCallback(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    showToast("success", "Données actualisées !");
+  }, [showToast]);
+
   // Filter prospects
   const filteredProspects = mockProspects.filter(
     (p) => activeFilter === "all" || p.category === activeFilter
@@ -249,7 +258,7 @@ const ProspectsPage = () => {
   const finishedProspects = filteredProspects.filter((p) => p.status === "finished");
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 page-transition">
       <Header notificationCount={responseProspects.length} />
 
       {/* KPI Quick Block */}
@@ -270,7 +279,7 @@ const ProspectsPage = () => {
               key={chip.id}
               onClick={() => handleFilterChange(chip.id)}
               className={cn(
-                "flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200",
+                "flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium filter-chip touch-target",
                 activeFilter === chip.id
                   ? `${chip.activeColor} text-white`
                   : "bg-card border border-border text-muted-foreground hover:border-primary/30"
@@ -283,8 +292,9 @@ const ProspectsPage = () => {
         </div>
       </div>
 
-      {/* Content */}
-      <main className="py-4">
+      {/* Content with Pull to Refresh */}
+      <PullToRefresh onRefresh={handleRefresh} className="h-[calc(100vh-200px)]">
+        <main className="py-4">
         {isLoading ? (
           <LoadingSkeleton />
         ) : (
@@ -326,8 +336,9 @@ const ProspectsPage = () => {
               dimCards
             />
           </div>
-        )}
-      </main>
+          )}
+        </main>
+      </PullToRefresh>
 
       <BottomNavigation />
 
@@ -344,11 +355,12 @@ const ProspectsPage = () => {
 // Loading Skeleton Component
 const LoadingSkeleton = () => (
   <div className="px-4 space-y-4">
-    {[1, 2, 3].map((i) => (
-      <div key={i} className="space-y-3">
+    {[1, 2, 3].map((section) => (
+      <div key={section} className="space-y-3">
         <div className="h-12 bg-muted rounded-lg animate-pulse" />
-        <div className="h-24 bg-muted rounded-xl animate-pulse" />
-        <div className="h-24 bg-muted rounded-xl animate-pulse" />
+        {[1, 2].map((card) => (
+          <ProspectCardSkeleton key={`${section}-${card}`} />
+        ))}
       </div>
     ))}
   </div>
