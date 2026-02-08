@@ -11,12 +11,14 @@ const BadgeNew = React.forwardRef<HTMLSpanElement, BadgeNewProps>(
       <span
         ref={ref}
         className={cn(
-          "absolute -top-1 -right-1 w-2 h-2 rounded-full bg-destructive",
-          "animate-pulse",
+          "absolute -top-2 -right-2 px-2 py-1 rounded-full bg-destructive text-destructive-foreground",
+          "text-xs font-semibold",
           className
         )}
         aria-label="Nouveau"
-      />
+      >
+        NEW
+      </span>
     );
   }
 );
