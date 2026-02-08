@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
-import { ProspectCard } from "@/components/ProspectCard";
+import { ProspectCard, StageType } from "@/components/ProspectCard";
 import { ProspectDetailSheet, ProspectDetail } from "@/components/ProspectDetailSheet";
 import { ProspectCardSkeleton } from "@/components/ui/skeleton-card";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
@@ -17,13 +17,17 @@ interface Prospect {
   category: CategoryType;
   categoryLabel: string;
   stage: string;
-  offer: string;
+  stageType: StageType;
+  currentStep: number;
+  totalSteps: number;
+  context: string;
+  offers: string[];
   lastSentDate: string;
   isNew: boolean;
   status: "response" | "in_progress" | "finished";
 }
 
-// Mock data
+// Mock data with new structure
 const mockProspects: Prospect[] = [
   // Responses received (2)
   {
@@ -32,7 +36,11 @@ const mockProspects: Prospect[] = [
     category: "restauration",
     categoryLabel: "Restaurant",
     stage: "Réponse reçue",
-    offer: "Petit-déjeuner",
+    stageType: "response",
+    currentStep: 3,
+    totalSteps: 5,
+    context: "Restaurant — Orléans, à 2.3 km",
+    offers: ["Petit-déjeuner", "Déjeuner", "Traiteur", "Événementiel"],
     lastSentDate: "05 fév. 2026",
     isNew: true,
     status: "response",
@@ -43,7 +51,11 @@ const mockProspects: Prospect[] = [
     category: "hebergement",
     categoryLabel: "Hôtel",
     stage: "Réponse reçue",
-    offer: "Viennoiseries",
+    stageType: "response",
+    currentStep: 2,
+    totalSteps: 5,
+    context: "Hôtel — Tours, à 15.8 km",
+    offers: ["Viennoiseries", "Petit-déjeuner"],
     lastSentDate: "02 fév. 2026",
     isNew: false,
     status: "response",
@@ -55,7 +67,11 @@ const mockProspects: Prospect[] = [
     category: "education",
     categoryLabel: "Lycée",
     stage: "Email initial",
-    offer: "Pain bio",
+    stageType: "initial",
+    currentStep: 1,
+    totalSteps: 5,
+    context: "Lycée — Orléans, à 1.2 km",
+    offers: ["Pain bio"],
     lastSentDate: "01 fév. 2026",
     isNew: false,
     status: "in_progress",
@@ -65,8 +81,12 @@ const mockProspects: Prospect[] = [
     name: "TechCorp Solutions",
     category: "entreprises",
     categoryLabel: "Entreprise",
-    stage: "Relance 2",
-    offer: "Traiteur",
+    stage: "Relance 2/5",
+    stageType: "relance",
+    currentStep: 2,
+    totalSteps: 5,
+    context: "Entreprise — Orléans, à 3.1 km",
+    offers: ["Traiteur", "Petit-déjeuner", "Goûter"],
     lastSentDate: "28 jan. 2026",
     isNew: false,
     status: "in_progress",
@@ -76,8 +96,12 @@ const mockProspects: Prospect[] = [
     name: "Mairie de Bordeaux",
     category: "collectivites",
     categoryLabel: "Mairie",
-    stage: "Relance 1",
-    offer: "Événementiel",
+    stage: "Relance 1/5",
+    stageType: "relance",
+    currentStep: 1,
+    totalSteps: 5,
+    context: "Mairie — Bordeaux, à 350 km",
+    offers: ["Événementiel"],
     lastSentDate: "25 jan. 2026",
     isNew: false,
     status: "in_progress",
@@ -87,8 +111,12 @@ const mockProspects: Prospect[] = [
     name: "Bistrot du Marché",
     category: "restauration",
     categoryLabel: "Bistrot",
-    stage: "Relance 3",
-    offer: "Petit-déjeuner",
+    stage: "Relance 3/5",
+    stageType: "relance",
+    currentStep: 3,
+    totalSteps: 5,
+    context: "Bistrot — Orléans, à 0.8 km",
+    offers: ["Petit-déjeuner", "Déjeuner"],
     lastSentDate: "24 jan. 2026",
     isNew: false,
     status: "in_progress",
@@ -99,7 +127,11 @@ const mockProspects: Prospect[] = [
     category: "hebergement",
     categoryLabel: "Résidence",
     stage: "Email initial",
-    offer: "Goûter",
+    stageType: "initial",
+    currentStep: 1,
+    totalSteps: 5,
+    context: "Résidence — Blois, à 45 km",
+    offers: ["Goûter"],
     lastSentDate: "23 jan. 2026",
     isNew: false,
     status: "in_progress",
@@ -109,8 +141,12 @@ const mockProspects: Prospect[] = [
     name: "Startup Valley",
     category: "entreprises",
     categoryLabel: "Startup",
-    stage: "Relance 1",
-    offer: "Petit-déjeuner",
+    stage: "Relance 1/5",
+    stageType: "relance",
+    currentStep: 1,
+    totalSteps: 5,
+    context: "Startup — Paris, à 120 km",
+    offers: ["Petit-déjeuner"],
     lastSentDate: "22 jan. 2026",
     isNew: false,
     status: "in_progress",
@@ -120,8 +156,12 @@ const mockProspects: Prospect[] = [
     name: "École Montessori",
     category: "education",
     categoryLabel: "École",
-    stage: "Relance 2",
-    offer: "Goûter",
+    stage: "Relance 2/5",
+    stageType: "relance",
+    currentStep: 2,
+    totalSteps: 5,
+    context: "École — Orléans, à 2.0 km",
+    offers: ["Goûter", "Pain bio"],
     lastSentDate: "21 jan. 2026",
     isNew: false,
     status: "in_progress",
@@ -132,7 +172,11 @@ const mockProspects: Prospect[] = [
     category: "restauration",
     categoryLabel: "Restaurant",
     stage: "Email initial",
-    offer: "Pain artisanal",
+    stageType: "initial",
+    currentStep: 1,
+    totalSteps: 5,
+    context: "Restaurant — Chartres, à 80 km",
+    offers: ["Pain artisanal", "Viennoiseries", "Petit-déjeuner"],
     lastSentDate: "20 jan. 2026",
     isNew: false,
     status: "in_progress",
@@ -144,7 +188,11 @@ const mockProspects: Prospect[] = [
     category: "restauration",
     categoryLabel: "Café",
     stage: "Terminé",
-    offer: "Viennoiseries",
+    stageType: "finished",
+    currentStep: 5,
+    totalSteps: 5,
+    context: "Café — Orléans, à 0.5 km",
+    offers: ["Viennoiseries"],
     lastSentDate: "10 jan. 2026",
     isNew: false,
     status: "finished",
@@ -155,7 +203,11 @@ const mockProspects: Prospect[] = [
     category: "hebergement",
     categoryLabel: "Hôtel",
     stage: "Terminé",
-    offer: "Petit-déjeuner",
+    stageType: "finished",
+    currentStep: 5,
+    totalSteps: 5,
+    context: "Hôtel — Tours, à 18 km",
+    offers: ["Petit-déjeuner"],
     lastSentDate: "08 jan. 2026",
     isNew: false,
     status: "finished",
@@ -166,7 +218,11 @@ const mockProspects: Prospect[] = [
     category: "collectivites",
     categoryLabel: "Centre culturel",
     stage: "Terminé",
-    offer: "Événementiel",
+    stageType: "finished",
+    currentStep: 5,
+    totalSteps: 5,
+    context: "Centre culturel — Orléans, à 1.5 km",
+    offers: ["Événementiel", "Traiteur"],
     lastSentDate: "05 jan. 2026",
     isNew: false,
     status: "finished",
@@ -484,10 +540,12 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
             <ProspectCard
               key={prospect.id}
               name={prospect.name}
-              category={prospect.category}
-              categoryLabel={prospect.categoryLabel}
               stage={prospect.stage}
-              offer={prospect.offer}
+              stageType={prospect.stageType}
+              currentStep={prospect.currentStep}
+              totalSteps={prospect.totalSteps}
+              context={prospect.context}
+              offers={prospect.offers}
               lastSentDate={prospect.lastSentDate}
               isNew={prospect.isNew}
               onClick={() => onCardClick(prospect)}
