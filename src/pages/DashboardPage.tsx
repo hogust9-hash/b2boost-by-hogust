@@ -15,6 +15,12 @@ import {
   Store
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface BakeryStats {
   id: string;
@@ -201,28 +207,61 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   filterOptions,
   selectedBakeryId,
   onBakeryChange,
-}) => (
-  <div className="space-y-6">
-    {/* Bakery Filter */}
-    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
-      {filterOptions.map((option) => (
+}) => {
+  const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
+  
+  return (
+    <div className="space-y-6">
+      {/* Bakery Filter */}
+      <div className="flex gap-2">
         <button
-          key={option.id ?? "all"}
-          onClick={() => onBakeryChange(option.id)}
+          onClick={() => onBakeryChange(null)}
           className={cn(
             "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
-            selectedBakeryId === option.id
+            selectedBakeryId === null
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
           )}
         >
-          {option.label}
+          Toutes mes boulangeries
         </button>
-      ))}
-    </div>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors outline-none",
+              selectedBakeryId !== null
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            )}
+          >
+            <span className="truncate max-w-[160px]">
+              {selectedBakery ? selectedBakery.label : "Sélectionner une boulangerie"}
+            </span>
+            <ChevronDown className="h-4 w-4 flex-shrink-0" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            align="start" 
+            className="w-56 bg-card border border-border shadow-md z-50"
+          >
+            {filterOptions.filter(o => o.id !== null).map((option) => (
+              <DropdownMenuItem
+                key={option.id}
+                onClick={() => onBakeryChange(option.id)}
+                className={cn(
+                  "cursor-pointer",
+                  selectedBakeryId === option.id && "bg-primary/10 text-primary"
+                )}
+              >
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
-    {/* Main KPI Block */}
-    <div className="bg-primary rounded-xl p-5 text-primary-foreground relative overflow-hidden">
+      {/* Main KPI Block */}
+      <div className="bg-primary rounded-xl p-5 text-primary-foreground relative overflow-hidden">
       <div className="relative z-10">
         <p className="text-4xl font-bold mb-1">{data.responsesReceived}</p>
         <p className="text-primary-foreground/90">réponses reçues</p>
@@ -308,8 +347,9 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
         )}
       </div>
     )}
-  </div>
-);
+    </div>
+  );
+};
 
 // KPI Card Component
 interface KpiCardProps {
