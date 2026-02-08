@@ -42,6 +42,7 @@ interface DashboardData {
   activeCampaigns: number;
   totalBakeries: number;
   offers: string[];
+  topCategories: { name: string; responses: number; color: string }[];
 }
 
 // Mock data per bakery
@@ -90,6 +91,13 @@ const calculateCumulativeData = (bakeries: BakeryStats[]): DashboardData => {
   const activeCampaigns = bakeries.filter(b => b.campaignActive).length;
   const allOffers = [...new Set(bakeries.flatMap(b => b.offers))];
 
+  // Mock top responding categories
+  const topCategories = [
+    { name: "Restauration", responses: 4, color: "#F97316" },
+    { name: "Hébergement", responses: 3, color: "#8B5CF6" },
+    { name: "Entreprises", responses: 2, color: "#3B82F6" },
+  ];
+
   return {
     responsesReceived: totalResponses,
     emailsSent: totalEmails,
@@ -98,6 +106,7 @@ const calculateCumulativeData = (bakeries: BakeryStats[]): DashboardData => {
     activeCampaigns,
     totalBakeries: bakeries.length,
     offers: allOffers,
+    topCategories,
   };
 };
 
@@ -111,6 +120,7 @@ const emptyData: DashboardData = {
   activeCampaigns: 0,
   totalBakeries: 0,
   offers: [],
+  topCategories: [],
 };
 
 const DashboardPage = () => {
@@ -135,6 +145,10 @@ const DashboardPage = () => {
       activeCampaigns: bakery.campaignActive ? 1 : 0,
       totalBakeries: 1,
       offers: bakery.offers,
+      topCategories: [
+        { name: "Restauration", responses: bakery.responsesReceived > 2 ? 2 : 1, color: "#F97316" },
+        { name: "Hébergement", responses: 1, color: "#8B5CF6" },
+      ],
     };
   };
   
@@ -305,21 +319,28 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
       )}
     </div>
 
-    {/* Primary CTA */}
-    <Button fullWidth size="lg">
-      {data.responsesReceived > 0 ? (
-        <>
-          <MailOpen className="h-5 w-5" />
-          Voir les réponses
-        </>
-      ) : (
-        <>
-          <Rocket className="h-5 w-5" />
-          Lancer ma campagne
-        </>
+      {/* Top Responding Categories */}
+      {data.topCategories.length > 0 && (
+        <div className="bg-card rounded-xl shadow-sm border border-border p-4">
+          <h3 className="font-medium text-foreground mb-3">Catégories qui ont le plus répondu</h3>
+          <div className="space-y-3">
+            {data.topCategories.map((category, index) => (
+              <div key={category.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: category.color }}
+                  />
+                  <span className="text-sm text-foreground">{category.name}</span>
+                </div>
+                <span className="text-sm font-medium text-foreground">
+                  {category.responses} réponse{category.responses > 1 ? 's' : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
-    </Button>
-
     {/* My Offers Section */}
     {data.offers.length > 0 && (
       <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
