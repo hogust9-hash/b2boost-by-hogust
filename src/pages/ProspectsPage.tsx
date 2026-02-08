@@ -201,6 +201,7 @@ const ProspectsPage = () => {
   });
   const [selectedProspect, setSelectedProspect] = useState<ProspectDetail | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [handledProspects, setHandledProspects] = useState<Record<string, string>>({});
   const { showToast } = useCustomToast();
 
   const handleFilterChange = (filter: FilterType) => {
@@ -215,6 +216,25 @@ const ProspectsPage = () => {
       ...prev,
       [section]: !prev[section],
     }));
+  };
+
+  const handleMarkAsHandled = (prospectId: string) => {
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+    setHandledProspects((prev) => ({ ...prev, [prospectId]: formattedDate }));
+    showToast("success", "Bien noté ! On croise les doigts pour qu'une belle commande soit passée !");
+  };
+
+  const handleMarkAsUnhandled = (prospectId: string) => {
+    setHandledProspects((prev) => {
+      const updated = { ...prev };
+      delete updated[prospectId];
+      return updated;
+    });
   };
 
   const handleCardClick = (prospect: Prospect) => {
@@ -256,6 +276,11 @@ const ProspectsPage = () => {
   const responseProspects = filteredProspects.filter((p) => p.status === "response");
   const inProgressProspects = filteredProspects.filter((p) => p.status === "in_progress");
   const finishedProspects = filteredProspects.filter((p) => p.status === "finished");
+  
+  // Count unhandled responses for badge
+  const unhandledResponseCount = responseProspects.filter(
+    (p) => !handledProspects[p.id]
+  ).length;
 
   return (
     <div className="min-h-screen bg-background pb-20 page-transition">
@@ -303,12 +328,16 @@ const ProspectsPage = () => {
             <ProspectSection
               icon={<CheckCircle2 className="h-5 w-5" />}
               title="Réponses reçues"
-              count={responseProspects.length}
+              count={unhandledResponseCount}
               isExpanded={expandedSections.responses}
               onToggle={() => toggleSection("responses")}
               variant="success"
               prospects={responseProspects}
               onCardClick={handleCardClick}
+              showResponseAction
+              handledProspects={handledProspects}
+              onMarkAsHandled={handleMarkAsHandled}
+              onMarkAsUnhandled={handleMarkAsUnhandled}
             />
 
             {/* In Progress Section */}
@@ -377,6 +406,10 @@ interface ProspectSectionProps {
   prospects: Prospect[];
   onCardClick: (prospect: Prospect) => void;
   dimCards?: boolean;
+  showResponseAction?: boolean;
+  handledProspects?: Record<string, string>;
+  onMarkAsHandled?: (id: string) => void;
+  onMarkAsUnhandled?: (id: string) => void;
 }
 
 const ProspectSection: React.FC<ProspectSectionProps> = ({
@@ -389,6 +422,10 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
   prospects,
   onCardClick,
   dimCards = false,
+  showResponseAction = false,
+  handledProspects = {},
+  onMarkAsHandled,
+  onMarkAsUnhandled,
 }) => {
   if (count === 0) return null;
 
@@ -454,6 +491,11 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
               lastSentDate={prospect.lastSentDate}
               isNew={prospect.isNew}
               onClick={() => onCardClick(prospect)}
+              showResponseAction={showResponseAction}
+              isHandled={!!handledProspects[prospect.id]}
+              handledDate={handledProspects[prospect.id]}
+              onMarkAsHandled={() => onMarkAsHandled?.(prospect.id)}
+              onMarkAsUnhandled={() => onMarkAsUnhandled?.(prospect.id)}
             />
           ))}
         </div>
