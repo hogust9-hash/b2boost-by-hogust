@@ -382,20 +382,20 @@ const ProspectsPage = () => {
       </div>
 
       {/* Filter Chips - Sticky */}
-      <div className="sticky top-14 bg-background z-40 py-2 border-b border-border">
-        <div className="flex gap-2 px-4 overflow-x-auto scrollbar-hide">
+      <div className="sticky top-14 bg-background z-40 py-1.5 border-b border-border">
+        <div className="flex gap-1.5 px-4 overflow-x-auto scrollbar-hide">
           {filterChips.map((chip) => (
             <button
               key={chip.id}
               onClick={() => handleFilterChange(chip.id)}
               className={cn(
-                "flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium filter-chip touch-target",
+                "flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium filter-chip",
                 activeFilter === chip.id
                   ? `${chip.activeColor} text-white`
                   : "bg-card border border-border text-muted-foreground hover:border-primary/30"
               )}
             >
-              {chip.emoji && <span>{chip.emoji}</span>}
+              {chip.emoji && <span className="text-xs">{chip.emoji}</span>}
               <span>{chip.label}</span>
             </button>
           ))}
