@@ -597,9 +597,9 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
           <span className="text-sm font-semibold text-foreground tracking-tight">{title}</span>
           <span
             className={cn(
-              "px-1.5 py-0.5 rounded text-xs font-medium",
+              "text-xs font-medium",
               variant === "success"
-                ? "bg-destructive text-destructive-foreground"
+                ? "text-success"
                 : "text-muted-foreground"
             )}
           >
