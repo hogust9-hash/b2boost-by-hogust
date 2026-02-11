@@ -8,8 +8,14 @@ import { ProspectCardSkeleton } from "@/components/ui/skeleton-card";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useCustomToast } from "@/components/ui/custom-toast";
 import { CategoryType } from "@/components/ui/badge-category";
-import { Mail, ChevronDown, ChevronUp, CheckCircle2, Send, Clock } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu";
 
 interface Prospect {
   id: string;
@@ -229,26 +235,30 @@ const mockProspects: Prospect[] = [
   },
 ];
 
-type FilterType = "all" | CategoryType;
+type CategoryFilterType = CategoryType;
 
-interface FilterChip {
-  id: FilterType;
-  label: string;
-  emoji?: string;
-  activeColor: string;
-}
+const categoryOptions: { id: CategoryFilterType; label: string; emoji: string }[] = [
+  { id: "restauration", label: "Restauration", emoji: "🍽" },
+  { id: "hebergement", label: "Hébergement", emoji: "🏨" },
+  { id: "education", label: "Éducation", emoji: "🏫" },
+  { id: "entreprises", label: "Entreprises", emoji: "🏢" },
+  { id: "collectivites", label: "Collectivités", emoji: "🏛" },
+];
 
-const filterChips: FilterChip[] = [
-  { id: "all", label: "Tous", activeColor: "bg-primary" },
-  { id: "restauration", label: "Restauration", emoji: "🍽", activeColor: "bg-category-restauration" },
-  { id: "hebergement", label: "Hébergement", emoji: "🏨", activeColor: "bg-category-hebergement" },
-  { id: "education", label: "Éducation", emoji: "🏫", activeColor: "bg-category-education" },
-  { id: "entreprises", label: "Entreprises", emoji: "🏢", activeColor: "bg-category-entreprises" },
-  { id: "collectivites", label: "Collectivités", emoji: "🏛", activeColor: "bg-category-collectivites" },
+const offerOptions = [
+  "Petit-déjeuner",
+  "Déjeuner",
+  "Traiteur",
+  "Événementiel",
+  "Viennoiseries",
+  "Pain bio",
+  "Goûter",
+  "Pain artisanal",
 ];
 
 const ProspectsPage = () => {
-  const [activeFilter, setActiveFilter] = useState<FilterType>("all");
+  const [selectedCategories, setSelectedCategories] = useState<CategoryFilterType[]>([]);
+  const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     responses: true,
@@ -260,12 +270,24 @@ const ProspectsPage = () => {
   const [handledProspects, setHandledProspects] = useState<Record<string, string>>({});
   const { showToast } = useCustomToast();
 
-  const handleFilterChange = (filter: FilterType) => {
-    if (filter === activeFilter) return;
-    setIsLoading(true);
-    setActiveFilter(filter);
-    setTimeout(() => setIsLoading(false), 500);
+  const toggleCategory = (cat: CategoryFilterType) => {
+    setSelectedCategories((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
   };
+
+  const toggleOffer = (offer: string) => {
+    setSelectedOffers((prev) =>
+      prev.includes(offer) ? prev.filter((o) => o !== offer) : [...prev, offer]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedCategories([]);
+    setSelectedOffers([]);
+  };
+
+  const hasActiveFilters = selectedCategories.length > 0 || selectedOffers.length > 0;
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -294,7 +316,6 @@ const ProspectsPage = () => {
   };
 
   const handleCardClick = (prospect: Prospect) => {
-    // Convert Prospect to ProspectDetail format
     const detail: ProspectDetail = {
       id: prospect.id,
       name: prospect.name,
@@ -325,9 +346,11 @@ const ProspectsPage = () => {
   }, [showToast]);
 
   // Filter prospects
-  const filteredProspects = mockProspects.filter(
-    (p) => activeFilter === "all" || p.category === activeFilter
-  );
+  const filteredProspects = mockProspects.filter((p) => {
+    const catMatch = selectedCategories.length === 0 || selectedCategories.includes(p.category);
+    const offerMatch = selectedOffers.length === 0 || p.offers.some((o) => selectedOffers.includes(o));
+    return catMatch && offerMatch;
+  });
 
   // Sort by date (most recent first), then by stage order
   const stageOrder: Record<string, number> = { initial: 0, relance: 1, response: 2, finished: 3 };
@@ -381,25 +404,93 @@ const ProspectsPage = () => {
         </div>
       </div>
 
-      {/* Filter Chips - Sticky */}
+      {/* Filters - Notion style */}
       <div className="sticky top-14 bg-background z-40 py-2.5 border-b border-border">
-        <div className="flex gap-2 px-4 overflow-x-auto scrollbar-hide">
-          {filterChips.map((chip) => (
+        <div className="flex items-center gap-2 px-4">
+          <Filter className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+
+          {/* Category Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium text-primary hover:bg-muted/60 transition-colors">
+              Catégorie
+              <ChevronDown className="h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[180px]">
+              {categoryOptions.map((cat) => (
+                <DropdownMenuCheckboxItem
+                  key={cat.id}
+                  checked={selectedCategories.includes(cat.id)}
+                  onCheckedChange={() => toggleCategory(cat.id)}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <span className="mr-1.5">{cat.emoji}</span>
+                  {cat.label}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Offer Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium text-primary hover:bg-muted/60 transition-colors">
+              Panier
+              <ChevronDown className="h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[180px]">
+              {offerOptions.map((offer) => (
+                <DropdownMenuCheckboxItem
+                  key={offer}
+                  checked={selectedOffers.includes(offer)}
+                  onCheckedChange={() => toggleOffer(offer)}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  {offer}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Clear all */}
+          {hasActiveFilters && (
             <button
-              key={chip.id}
-              onClick={() => handleFilterChange(chip.id)}
-              className={cn(
-                "flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium filter-chip",
-                activeFilter === chip.id
-                  ? `${chip.activeColor} text-white`
-                  : "bg-card border border-border text-muted-foreground hover:border-primary/30"
-              )}
+              onClick={clearAllFilters}
+              className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              {chip.emoji && <span className="text-xs">{chip.emoji}</span>}
-              <span>{chip.label}</span>
+              Réinitialiser
             </button>
-          ))}
+          )}
         </div>
+
+        {/* Active filter tags - Notion style */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap gap-1.5 px-4 pt-2">
+            {selectedCategories.map((catId) => {
+              const cat = categoryOptions.find((c) => c.id === catId);
+              return (
+                <span
+                  key={catId}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium"
+                >
+                  {cat?.emoji} {cat?.label}
+                  <button onClick={() => toggleCategory(catId)} className="hover:text-destructive">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              );
+            })}
+            {selectedOffers.map((offer) => (
+              <span
+                key={offer}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent text-accent-foreground text-xs font-medium"
+              >
+                {offer}
+                <button onClick={() => toggleOffer(offer)} className="hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Content with Pull to Refresh */}
