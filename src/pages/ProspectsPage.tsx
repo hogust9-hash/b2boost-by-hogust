@@ -363,18 +363,18 @@ const ProspectsPage = () => {
 
       {/* Hero KPI Banner - Compact */}
       <div className="mx-4 mt-2">
-        <div className="bg-primary rounded-xl px-4 py-3 text-primary-foreground flex items-center justify-between">
-          <div className="flex items-baseline gap-1.5">
+        <div className="bg-primary rounded-xl px-4 py-3 text-primary-foreground flex items-center justify-evenly">
+          <div className="flex flex-col items-center gap-0.5">
             <span className="text-2xl font-bold">12</span>
             <span className="text-xs opacity-80">emails envoyés</span>
           </div>
-          <div className="w-px h-6 bg-primary-foreground/25" />
-          <div className="flex items-baseline gap-1.5">
+          <div className="w-px h-8 bg-primary-foreground/25" />
+          <div className="flex flex-col items-center gap-0.5">
             <span className="text-2xl font-bold">5</span>
             <span className="text-xs opacity-80">prospects</span>
           </div>
-          <div className="w-px h-6 bg-primary-foreground/25" />
-          <div className="flex items-baseline gap-1.5">
+          <div className="w-px h-8 bg-primary-foreground/25" />
+          <div className="flex flex-col items-center gap-0.5">
             <span className="text-2xl font-bold">3</span>
             <span className="text-xs opacity-80">relances</span>
           </div>
