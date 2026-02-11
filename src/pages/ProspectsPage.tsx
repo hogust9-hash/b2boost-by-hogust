@@ -8,7 +8,7 @@ import { ProspectCardSkeleton } from "@/components/ui/skeleton-card";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useCustomToast } from "@/components/ui/custom-toast";
 import { CategoryType } from "@/components/ui/badge-category";
-import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter, UtensilsCrossed, Bed, GraduationCap, Building2, Landmark, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -59,12 +59,12 @@ const mockProspects: Prospect[] = [
 
 type CategoryFilterType = CategoryType;
 
-const categoryOptions: { id: CategoryFilterType; label: string; emoji: string }[] = [
-  { id: "restauration", label: "Restauration", emoji: "🍽" },
-  { id: "hebergement", label: "Hébergement", emoji: "🏨" },
-  { id: "education", label: "Éducation", emoji: "🏫" },
-  { id: "entreprises", label: "Entreprises", emoji: "🏢" },
-  { id: "collectivites", label: "Collectivités", emoji: "🏛" },
+const categoryOptions: { id: CategoryFilterType; label: string; icon: LucideIcon }[] = [
+  { id: "restauration", label: "Restauration", icon: UtensilsCrossed },
+  { id: "hebergement", label: "Hébergement", icon: Bed },
+  { id: "education", label: "Éducation", icon: GraduationCap },
+  { id: "entreprises", label: "Entreprises", icon: Building2 },
+  { id: "collectivites", label: "Collectivités", icon: Landmark },
 ];
 
 const offerOptions = [
@@ -292,7 +292,7 @@ const ProspectsPage = () => {
                   onCheckedChange={() => toggleCategory(cat.id)}
                   onSelect={(e) => e.preventDefault()}
                 >
-                  <span className="mr-1.5">{cat.emoji}</span>
+                  <cat.icon className="h-3.5 w-3.5 mr-1.5" />
                   {cat.label}
                 </DropdownMenuCheckboxItem>
               ))}
@@ -380,7 +380,7 @@ const ProspectsPage = () => {
                   key={catId}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium"
                 >
-                  {cat?.emoji} {cat?.label}
+                  {cat && <cat.icon className="h-3 w-3" />} {cat?.label}
                   <button onClick={() => toggleCategory(catId)} className="hover:text-destructive">
                     <X className="h-3 w-3" />
                   </button>

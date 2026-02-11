@@ -1,17 +1,17 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check, UtensilsCrossed, Bed, GraduationCap, Building2, Landmark, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { CategoryType } from "@/components/ui/badge-category";
 
 type StageType = "initial" | "relance" | "response" | "finished";
 
-const categoryEmoji: Record<CategoryType, string> = {
-  restauration: "🍽",
-  hebergement: "🏨",
-  education: "🏫",
-  entreprises: "🏢",
-  collectivites: "🏛",
+const categoryIcon: Record<CategoryType, LucideIcon> = {
+  restauration: UtensilsCrossed,
+  hebergement: Bed,
+  education: GraduationCap,
+  entreprises: Building2,
+  collectivites: Landmark,
 };
 
 interface ProspectCardProps {
@@ -173,9 +173,9 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
         />
       </div>
 
-      {/* Line 2: Context with emoji */}
-      <p className="text-xs text-muted-foreground mb-1.5">
-        {category && <span className="mr-1">{categoryEmoji[category]}</span>}
+      {/* Line 2: Context with icon */}
+      <p className="text-xs text-muted-foreground mb-1.5 inline-flex items-center gap-1">
+        {category && (() => { const Icon = categoryIcon[category]; return <Icon className="h-3 w-3" />; })()}
         {context}
       </p>
 
