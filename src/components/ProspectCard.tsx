@@ -185,7 +185,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
                 onClick={handleActionClick}
                 className="text-sm text-muted-foreground hover:text-foreground underline transition-colors"
               >
-                Marquer comme non traité
+                Marquer comme à répondre
               </button>
             </div>
           ) : (
