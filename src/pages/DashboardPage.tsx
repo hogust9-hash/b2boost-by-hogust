@@ -505,10 +505,6 @@ const KpiCard: React.FC<KpiCardProps> = ({ value, label, icon: Icon }) => (
 
 // Basket Detail Content
 const BasketDetailContent: React.FC<{ basket: BasketDetail }> = ({ basket }) => {
-  const totalHT = basket.items.reduce((sum, item) => sum + item.quantity * item.unitPriceHT, 0);
-  const totalTVA = totalHT * basket.tvaRate;
-  const totalTTC = totalHT + totalTVA;
-
   return (
     <div className="px-5 pb-8">
       {/* Header */}
@@ -523,13 +519,11 @@ const BasketDetailContent: React.FC<{ basket: BasketDetail }> = ({ basket }) => 
       </div>
 
       {/* Items */}
-      <div className="space-y-0 border border-border rounded-xl overflow-hidden mb-5">
+      <div className="space-y-0 border border-border rounded-xl overflow-hidden">
         {/* Table header */}
         <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-muted/50 text-xs font-medium text-muted-foreground">
-          <span className="col-span-5">Produit</span>
-          <span className="col-span-2 text-center">Qté</span>
-          <span className="col-span-2 text-right">P.U. HT</span>
-          <span className="col-span-3 text-right">Total HT</span>
+          <span className="col-span-8">Produit</span>
+          <span className="col-span-4 text-center">Qté</span>
         </div>
         
         {basket.items.map((item, i) => (
@@ -540,30 +534,10 @@ const BasketDetailContent: React.FC<{ basket: BasketDetail }> = ({ basket }) => 
               i % 2 === 0 ? "bg-card" : "bg-muted/20"
             )}
           >
-            <span className="col-span-5 text-foreground font-medium truncate">{item.name}</span>
-            <span className="col-span-2 text-center text-muted-foreground">×{item.quantity}</span>
-            <span className="col-span-2 text-right text-muted-foreground">{item.unitPriceHT.toFixed(2)} €</span>
-            <span className="col-span-3 text-right font-medium text-foreground">
-              {(item.quantity * item.unitPriceHT).toFixed(2)} €
-            </span>
+            <span className="col-span-8 text-foreground font-medium truncate">{item.name}</span>
+            <span className="col-span-4 text-center text-muted-foreground">×{item.quantity}</span>
           </div>
         ))}
-      </div>
-
-      {/* Totals */}
-      <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Total HT</span>
-          <span className="font-medium text-foreground">{totalHT.toFixed(2)} €</span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">TVA ({(basket.tvaRate * 100).toFixed(1)}%)</span>
-          <span className="font-medium text-foreground">{totalTVA.toFixed(2)} €</span>
-        </div>
-        <div className="border-t border-border pt-2 flex items-center justify-between">
-          <span className="font-semibold text-foreground">Total TTC</span>
-          <span className="text-lg font-bold text-primary">{totalTTC.toFixed(2)} €</span>
-        </div>
       </div>
     </div>
   );
