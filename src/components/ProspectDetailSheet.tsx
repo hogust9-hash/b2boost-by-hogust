@@ -5,11 +5,12 @@ import { BadgeCategory, CategoryType } from "./ui/badge-category";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { 
-  Mail, 
+  Mail,
   ExternalLink, 
   ChevronDown, 
   ChevronUp,
-  CheckCircle2
+  CheckCircle2,
+  Square
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -284,10 +285,10 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
                   Contacté et répondu ✓
                 </>
               ) : (
-                <>
-                  <Mail className="h-4 w-4" />
-                  J'ai été contacté et j'ai bien répondu
-                </>
+              <>
+                <Square className="h-4 w-4" />
+                J'ai été contacté et j'ai bien répondu
+              </>
               )}
             </span>
             {!isCalled && (
