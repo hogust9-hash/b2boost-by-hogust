@@ -22,6 +22,7 @@ interface Prospect {
   name: string;
   category: CategoryType;
   categoryLabel: string;
+  bakery: string;
   stage: string;
   stageType: StageType;
   currentStep: number;
@@ -33,206 +34,27 @@ interface Prospect {
   status: "response" | "in_progress" | "finished";
 }
 
+const bakeryOptions = [
+  { id: "boulangerie-du-centre", label: "Boulangerie du Centre" },
+  { id: "au-pain-dore", label: "Au Pain Doré" },
+  { id: "la-mie-caline", label: "La Mie Câline" },
+];
+
 // Mock data with new structure
 const mockProspects: Prospect[] = [
-  // Responses received (2)
-  {
-    id: "1",
-    name: "Restaurant Le Gourmet",
-    category: "restauration",
-    categoryLabel: "Restaurant",
-    stage: "Réponse reçue",
-    stageType: "response",
-    currentStep: 3,
-    totalSteps: 5,
-    context: "Restaurant — Orléans, à 0.9 km",
-    offers: ["Petit-déjeuner", "Déjeuner", "Traiteur", "Événementiel"],
-    lastSentDate: "05 fév. 2026",
-    isNew: true,
-    status: "response",
-  },
-  {
-    id: "2",
-    name: "Hôtel & Spa Le Majestic",
-    category: "hebergement",
-    categoryLabel: "Hôtel",
-    stage: "Réponse reçue",
-    stageType: "response",
-    currentStep: 2,
-    totalSteps: 5,
-    context: "Hôtel — Orléans, à 1.4 km",
-    offers: ["Viennoiseries", "Petit-déjeuner"],
-    lastSentDate: "02 fév. 2026",
-    isNew: false,
-    status: "response",
-  },
-  // In progress (8)
-  {
-    id: "3",
-    name: "Lycée Jean Moulin",
-    category: "education",
-    categoryLabel: "Lycée",
-    stage: "Email initial",
-    stageType: "initial",
-    currentStep: 1,
-    totalSteps: 5,
-    context: "Lycée — Orléans, à 1.2 km",
-    offers: ["Pain bio"],
-    lastSentDate: "01 fév. 2026",
-    isNew: false,
-    status: "in_progress",
-  },
-  {
-    id: "4",
-    name: "TechCorp Solutions",
-    category: "entreprises",
-    categoryLabel: "Entreprise",
-    stage: "Relance 2/5",
-    stageType: "relance",
-    currentStep: 2,
-    totalSteps: 5,
-    context: "Entreprise — Orléans, à 1.8 km",
-    offers: ["Traiteur", "Petit-déjeuner", "Goûter"],
-    lastSentDate: "28 jan. 2026",
-    isNew: false,
-    status: "in_progress",
-  },
-  {
-    id: "5",
-    name: "Mairie d'Orléans",
-    category: "collectivites",
-    categoryLabel: "Mairie",
-    stage: "Relance 1/5",
-    stageType: "relance",
-    currentStep: 1,
-    totalSteps: 5,
-    context: "Mairie — Orléans, à 0.6 km",
-    offers: ["Événementiel"],
-    lastSentDate: "25 jan. 2026",
-    isNew: false,
-    status: "in_progress",
-  },
-  {
-    id: "6",
-    name: "Bistrot du Marché",
-    category: "restauration",
-    categoryLabel: "Bistrot",
-    stage: "Relance 3/5",
-    stageType: "relance",
-    currentStep: 3,
-    totalSteps: 5,
-    context: "Bistrot — Orléans, à 0.8 km",
-    offers: ["Petit-déjeuner", "Déjeuner"],
-    lastSentDate: "24 jan. 2026",
-    isNew: false,
-    status: "in_progress",
-  },
-  {
-    id: "7",
-    name: "Résidence Les Jardins",
-    category: "hebergement",
-    categoryLabel: "Résidence",
-    stage: "Email initial",
-    stageType: "initial",
-    currentStep: 1,
-    totalSteps: 5,
-    context: "Résidence — Orléans, à 1.7 km",
-    offers: ["Goûter"],
-    lastSentDate: "23 jan. 2026",
-    isNew: false,
-    status: "in_progress",
-  },
-  {
-    id: "8",
-    name: "Coworking L'Atelier",
-    category: "entreprises",
-    categoryLabel: "Coworking",
-    stage: "Relance 1/5",
-    stageType: "relance",
-    currentStep: 1,
-    totalSteps: 5,
-    context: "Coworking — Orléans, à 0.4 km",
-    offers: ["Petit-déjeuner"],
-    lastSentDate: "22 jan. 2026",
-    isNew: false,
-    status: "in_progress",
-  },
-  {
-    id: "9",
-    name: "École Montessori",
-    category: "education",
-    categoryLabel: "École",
-    stage: "Relance 2/5",
-    stageType: "relance",
-    currentStep: 2,
-    totalSteps: 5,
-    context: "École — Orléans, à 1.3 km",
-    offers: ["Goûter", "Pain bio"],
-    lastSentDate: "21 jan. 2026",
-    isNew: false,
-    status: "in_progress",
-  },
-  {
-    id: "10",
-    name: "La Table d'Arthur",
-    category: "restauration",
-    categoryLabel: "Restaurant",
-    stage: "Email initial",
-    stageType: "initial",
-    currentStep: 1,
-    totalSteps: 5,
-    context: "Restaurant — Orléans, à 1.1 km",
-    offers: ["Pain artisanal", "Viennoiseries", "Petit-déjeuner"],
-    lastSentDate: "20 jan. 2026",
-    isNew: false,
-    status: "in_progress",
-  },
-  // Finished without response (3)
-  {
-    id: "11",
-    name: "Café de la Place",
-    category: "restauration",
-    categoryLabel: "Café",
-    stage: "Terminé",
-    stageType: "finished",
-    currentStep: 5,
-    totalSteps: 5,
-    context: "Café — Orléans, à 0.5 km",
-    offers: ["Viennoiseries"],
-    lastSentDate: "10 jan. 2026",
-    isNew: false,
-    status: "finished",
-  },
-  {
-    id: "12",
-    name: "Hôtel du Commerce",
-    category: "hebergement",
-    categoryLabel: "Hôtel",
-    stage: "Terminé",
-    stageType: "finished",
-    currentStep: 5,
-    totalSteps: 5,
-    context: "Hôtel — Orléans, à 1.9 km",
-    offers: ["Petit-déjeuner"],
-    lastSentDate: "08 jan. 2026",
-    isNew: false,
-    status: "finished",
-  },
-  {
-    id: "13",
-    name: "Centre Culturel",
-    category: "collectivites",
-    categoryLabel: "Centre culturel",
-    stage: "Terminé",
-    stageType: "finished",
-    currentStep: 5,
-    totalSteps: 5,
-    context: "Centre culturel — Orléans, à 1.5 km",
-    offers: ["Événementiel", "Traiteur"],
-    lastSentDate: "05 jan. 2026",
-    isNew: false,
-    status: "finished",
-  },
+  { id: "1", name: "Restaurant Le Gourmet", category: "restauration", categoryLabel: "Restaurant", bakery: "boulangerie-du-centre", stage: "Réponse reçue", stageType: "response", currentStep: 3, totalSteps: 5, context: "Restaurant — Orléans, à 0.9 km", offers: ["Petit-déjeuner", "Déjeuner", "Traiteur", "Événementiel"], lastSentDate: "05 fév. 2026", isNew: true, status: "response" },
+  { id: "2", name: "Hôtel & Spa Le Majestic", category: "hebergement", categoryLabel: "Hôtel", bakery: "au-pain-dore", stage: "Réponse reçue", stageType: "response", currentStep: 2, totalSteps: 5, context: "Hôtel — Orléans, à 1.4 km", offers: ["Viennoiseries", "Petit-déjeuner"], lastSentDate: "02 fév. 2026", isNew: false, status: "response" },
+  { id: "3", name: "Lycée Jean Moulin", category: "education", categoryLabel: "Lycée", bakery: "la-mie-caline", stage: "Email initial", stageType: "initial", currentStep: 1, totalSteps: 5, context: "Lycée — Orléans, à 1.2 km", offers: ["Pain bio"], lastSentDate: "01 fév. 2026", isNew: false, status: "in_progress" },
+  { id: "4", name: "TechCorp Solutions", category: "entreprises", categoryLabel: "Entreprise", bakery: "boulangerie-du-centre", stage: "Relance 2/5", stageType: "relance", currentStep: 2, totalSteps: 5, context: "Entreprise — Orléans, à 1.8 km", offers: ["Traiteur", "Petit-déjeuner", "Goûter"], lastSentDate: "28 jan. 2026", isNew: false, status: "in_progress" },
+  { id: "5", name: "Mairie d'Orléans", category: "collectivites", categoryLabel: "Mairie", bakery: "au-pain-dore", stage: "Relance 1/5", stageType: "relance", currentStep: 1, totalSteps: 5, context: "Mairie — Orléans, à 0.6 km", offers: ["Événementiel"], lastSentDate: "25 jan. 2026", isNew: false, status: "in_progress" },
+  { id: "6", name: "Bistrot du Marché", category: "restauration", categoryLabel: "Bistrot", bakery: "boulangerie-du-centre", stage: "Relance 3/5", stageType: "relance", currentStep: 3, totalSteps: 5, context: "Bistrot — Orléans, à 0.8 km", offers: ["Petit-déjeuner", "Déjeuner"], lastSentDate: "24 jan. 2026", isNew: false, status: "in_progress" },
+  { id: "7", name: "Résidence Les Jardins", category: "hebergement", categoryLabel: "Résidence", bakery: "la-mie-caline", stage: "Email initial", stageType: "initial", currentStep: 1, totalSteps: 5, context: "Résidence — Orléans, à 1.7 km", offers: ["Goûter"], lastSentDate: "23 jan. 2026", isNew: false, status: "in_progress" },
+  { id: "8", name: "Coworking L'Atelier", category: "entreprises", categoryLabel: "Coworking", bakery: "au-pain-dore", stage: "Relance 1/5", stageType: "relance", currentStep: 1, totalSteps: 5, context: "Coworking — Orléans, à 0.4 km", offers: ["Petit-déjeuner"], lastSentDate: "22 jan. 2026", isNew: false, status: "in_progress" },
+  { id: "9", name: "École Montessori", category: "education", categoryLabel: "École", bakery: "boulangerie-du-centre", stage: "Relance 2/5", stageType: "relance", currentStep: 2, totalSteps: 5, context: "École — Orléans, à 1.3 km", offers: ["Goûter", "Pain bio"], lastSentDate: "21 jan. 2026", isNew: false, status: "in_progress" },
+  { id: "10", name: "La Table d'Arthur", category: "restauration", categoryLabel: "Restaurant", bakery: "la-mie-caline", stage: "Email initial", stageType: "initial", currentStep: 1, totalSteps: 5, context: "Restaurant — Orléans, à 1.1 km", offers: ["Pain artisanal", "Viennoiseries", "Petit-déjeuner"], lastSentDate: "20 jan. 2026", isNew: false, status: "in_progress" },
+  { id: "11", name: "Café de la Place", category: "restauration", categoryLabel: "Café", bakery: "boulangerie-du-centre", stage: "Terminé", stageType: "finished", currentStep: 5, totalSteps: 5, context: "Café — Orléans, à 0.5 km", offers: ["Viennoiseries"], lastSentDate: "10 jan. 2026", isNew: false, status: "finished" },
+  { id: "12", name: "Hôtel du Commerce", category: "hebergement", categoryLabel: "Hôtel", bakery: "au-pain-dore", stage: "Terminé", stageType: "finished", currentStep: 5, totalSteps: 5, context: "Hôtel — Orléans, à 1.9 km", offers: ["Petit-déjeuner"], lastSentDate: "08 jan. 2026", isNew: false, status: "finished" },
+  { id: "13", name: "Centre Culturel", category: "collectivites", categoryLabel: "Centre culturel", bakery: "la-mie-caline", stage: "Terminé", stageType: "finished", currentStep: 5, totalSteps: 5, context: "Centre culturel — Orléans, à 1.5 km", offers: ["Événementiel", "Traiteur"], lastSentDate: "05 jan. 2026", isNew: false, status: "finished" },
 ];
 
 type CategoryFilterType = CategoryType;
@@ -259,6 +81,7 @@ const offerOptions = [
 const ProspectsPage = () => {
   const [selectedCategories, setSelectedCategories] = useState<CategoryFilterType[]>([]);
   const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
+  const [selectedBakeries, setSelectedBakeries] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     responses: true,
@@ -282,12 +105,19 @@ const ProspectsPage = () => {
     );
   };
 
+  const toggleBakery = (id: string) => {
+    setSelectedBakeries((prev) =>
+      prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]
+    );
+  };
+
   const clearAllFilters = () => {
     setSelectedCategories([]);
     setSelectedOffers([]);
+    setSelectedBakeries([]);
   };
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedOffers.length > 0;
+  const hasActiveFilters = selectedCategories.length > 0 || selectedOffers.length > 0 || selectedBakeries.length > 0;
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -349,7 +179,8 @@ const ProspectsPage = () => {
   const filteredProspects = mockProspects.filter((p) => {
     const catMatch = selectedCategories.length === 0 || selectedCategories.includes(p.category);
     const offerMatch = selectedOffers.length === 0 || p.offers.some((o) => selectedOffers.includes(o));
-    return catMatch && offerMatch;
+    const bakeryMatch = selectedBakeries.length === 0 || selectedBakeries.includes(p.bakery);
+    return catMatch && offerMatch && bakeryMatch;
   });
 
   // Sort by date (most recent first), then by stage order
@@ -471,6 +302,36 @@ const ProspectsPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Bakery Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px]",
+              selectedBakeries.length > 0
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-card text-foreground hover:border-primary/40"
+            )}>
+              Boulangerie
+              {selectedBakeries.length > 0 && (
+                <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
+                  {selectedBakeries.length}
+                </span>
+              )}
+              <ChevronDown className="h-3.5 w-3.5 text-primary" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[200px]">
+              {bakeryOptions.map((b) => (
+                <DropdownMenuCheckboxItem
+                  key={b.id}
+                  checked={selectedBakeries.includes(b.id)}
+                  onCheckedChange={() => toggleBakery(b.id)}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  🏪 {b.label}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* Clear all */}
           {hasActiveFilters && (
             <button
@@ -510,6 +371,20 @@ const ProspectsPage = () => {
                 </button>
               </span>
             ))}
+            {selectedBakeries.map((bakeryId) => {
+              const b = bakeryOptions.find((o) => o.id === bakeryId);
+              return (
+                <span
+                  key={bakeryId}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-foreground text-xs font-medium"
+                >
+                  🏪 {b?.label}
+                  <button onClick={() => toggleBakery(bakeryId)} className="hover:text-destructive">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              );
+            })}
           </div>
         )}
       </div>
