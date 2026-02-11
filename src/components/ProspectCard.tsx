@@ -21,7 +21,7 @@ interface ProspectCardProps {
   stageType: StageType;
   currentStep?: number;
   totalSteps?: number;
-  context: string; // e.g. "Restaurant — Orléans, à 2.3 km"
+  context: string;
   offers: string[];
   lastSentDate: string;
   isNew?: boolean;
@@ -33,6 +33,9 @@ interface ProspectCardProps {
   handledDate?: string;
   onMarkAsHandled?: () => void;
   onMarkAsUnhandled?: () => void;
+  // Called checkbox
+  isCalled?: boolean;
+  onToggleCalled?: () => void;
 }
 
 // Status badge component with optional progression dots
@@ -121,6 +124,8 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
   handledDate,
   onMarkAsHandled,
   onMarkAsUnhandled,
+  isCalled = false,
+  onToggleCalled,
 }) => {
   const handleActionClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -129,6 +134,11 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
     } else {
       onMarkAsHandled?.();
     }
+  };
+
+  const handleCalledClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleCalled?.();
   };
 
   return (
@@ -155,12 +165,32 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
         <h3 className="text-sm font-semibold text-foreground truncate flex-1">
           {name}
         </h3>
-        <StatusBadge
-          stage={stage}
-          stageType={stageType}
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-        />
+        <div className="flex items-center gap-2">
+          {/* Called checkbox */}
+          {onToggleCalled && (
+            <button
+              onClick={handleCalledClick}
+              className={cn(
+                "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-medium transition-all border min-h-[28px]",
+                isCalled
+                  ? "bg-[#10B981]/10 border-[#10B981]/30 text-[#10B981]"
+                  : "bg-muted/50 border-border text-muted-foreground hover:border-primary/30"
+              )}
+            >
+              <Checkbox
+                checked={isCalled}
+                className="h-3.5 w-3.5 pointer-events-none"
+              />
+              <span className="hidden sm:inline">{isCalled ? "Appelé ✓" : "J'ai appelé"}</span>
+            </button>
+          )}
+          <StatusBadge
+            stage={stage}
+            stageType={stageType}
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+          />
+        </div>
       </div>
 
       {/* Line 2: Context with emoji */}

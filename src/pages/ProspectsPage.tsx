@@ -91,6 +91,7 @@ const ProspectsPage = () => {
   const [selectedProspect, setSelectedProspect] = useState<ProspectDetail | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [handledProspects, setHandledProspects] = useState<Record<string, string>>({});
+  const [calledProspects, setCalledProspects] = useState<Set<string>>(new Set());
   const { showToast } = useCustomToast();
 
   const toggleCategory = (cat: CategoryFilterType) => {
@@ -142,6 +143,19 @@ const ProspectsPage = () => {
       const updated = { ...prev };
       delete updated[prospectId];
       return updated;
+    });
+  };
+
+  const handleToggleCalled = (prospectId: string) => {
+    setCalledProspects((prev) => {
+      const next = new Set(prev);
+      if (next.has(prospectId)) {
+        next.delete(prospectId);
+      } else {
+        next.add(prospectId);
+        showToast("success", "Prospect marqué comme appelé ! Il apparaît maintenant dans les réponses reçues.");
+      }
+      return next;
     });
   };
 
@@ -202,9 +216,9 @@ const ProspectsPage = () => {
     return a.currentStep - b.currentStep;
   };
 
-  const responseProspects = filteredProspects.filter((p) => p.status === "response").sort(sortProspects);
-  const inProgressProspects = filteredProspects.filter((p) => p.status === "in_progress").sort(sortProspects);
-  const finishedProspects = filteredProspects.filter((p) => p.status === "finished").sort(sortProspects);
+  const responseProspects = filteredProspects.filter((p) => p.status === "response" || calledProspects.has(p.id)).sort(sortProspects);
+  const inProgressProspects = filteredProspects.filter((p) => p.status === "in_progress" && !calledProspects.has(p.id)).sort(sortProspects);
+  const finishedProspects = filteredProspects.filter((p) => p.status === "finished" && !calledProspects.has(p.id)).sort(sortProspects);
   
   // Count unhandled responses for badge
   const unhandledResponseCount = responseProspects.filter(
@@ -410,6 +424,8 @@ const ProspectsPage = () => {
               handledProspects={handledProspects}
               onMarkAsHandled={handleMarkAsHandled}
               onMarkAsUnhandled={handleMarkAsUnhandled}
+              calledProspects={calledProspects}
+              onToggleCalled={handleToggleCalled}
             />
 
             {/* In Progress Section */}
@@ -423,6 +439,8 @@ const ProspectsPage = () => {
               variant="default"
               prospects={inProgressProspects}
               onCardClick={handleCardClick}
+              calledProspects={calledProspects}
+              onToggleCalled={handleToggleCalled}
             />
 
             {/* Finished Section */}
@@ -485,6 +503,8 @@ interface ProspectSectionProps {
   handledProspects?: Record<string, string>;
   onMarkAsHandled?: (id: string) => void;
   onMarkAsUnhandled?: (id: string) => void;
+  calledProspects?: Set<string>;
+  onToggleCalled?: (id: string) => void;
 }
 
 const ProspectSection: React.FC<ProspectSectionProps> = ({
@@ -502,6 +522,8 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
   handledProspects = {},
   onMarkAsHandled,
   onMarkAsUnhandled,
+  calledProspects = new Set(),
+  onToggleCalled,
 }) => {
   if (totalCount === 0) return null;
 
@@ -567,6 +589,8 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
               handledDate={handledProspects[prospect.id]}
               onMarkAsHandled={() => onMarkAsHandled?.(prospect.id)}
               onMarkAsUnhandled={() => onMarkAsUnhandled?.(prospect.id)}
+              isCalled={calledProspects.has(prospect.id)}
+              onToggleCalled={onToggleCalled ? () => onToggleCalled(prospect.id) : undefined}
             />
           ))}
         </div>
