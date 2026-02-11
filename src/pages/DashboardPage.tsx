@@ -379,15 +379,17 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               </button>
               
               {isOffersOpen && (
-                <div className="px-4 pb-4 space-y-1">
+                <div className="px-4 pb-4 space-y-2">
                   {data.offers.map((offer) => (
                     <button
                       key={offer}
-                      className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-muted/50 transition-colors group"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left border border-border bg-muted/30 hover:bg-primary/5 hover:border-primary/30 transition-all group active:scale-[0.98]"
                     >
-                      <Check className="h-4 w-4 text-success flex-shrink-0" />
-                      <span className="text-sm text-foreground flex-1">{offer}</span>
-                      <ChevronDown className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 -rotate-90 transition-opacity" />
+                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary flex-shrink-0">
+                        <Check className="h-4 w-4" />
+                      </span>
+                      <span className="text-sm font-medium text-foreground flex-1">{offer}</span>
+                      <ChevronDown className="h-4 w-4 text-primary/60 -rotate-90 transition-transform group-hover:translate-x-0.5" />
                     </button>
                   ))}
                 </div>
