@@ -109,35 +109,16 @@
     @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-all duration-200;
   }
 
-  /* Category Badge Variants */
-  .badge-restauration {
-    @apply badge-base;
-    background-color: hsl(var(--category-restauration) / 0.1);
-    color: hsl(var(--category-restauration));
-  }
-
-  .badge-hebergement {
-    @apply badge-base;
-    background-color: hsl(var(--category-hebergement) / 0.1);
-    color: hsl(var(--category-hebergement));
-  }
-
-  .badge-education {
-    @apply badge-base;
-    background-color: hsl(var(--category-education) / 0.1);
-    color: hsl(var(--category-education));
-  }
-
-  .badge-entreprises {
-    @apply badge-base;
-    background-color: hsl(var(--category-entreprises) / 0.1);
-    color: hsl(var(--category-entreprises));
-  }
-
+  /* Category Badge Variants - uniform minimal style */
+  .badge-restauration,
+  .badge-hebergement,
+  .badge-education,
+  .badge-entreprises,
   .badge-collectivites {
     @apply badge-base;
-    background-color: hsl(var(--category-collectivites) / 0.1);
-    color: hsl(var(--category-collectivites));
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
   }
 
   /* Success Badge */
