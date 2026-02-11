@@ -215,7 +215,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
               className="w-full h-11 flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 bg-muted border border-border text-foreground hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] active:shadow-sm"
             >
               <Checkbox className="h-4 w-4 pointer-events-none" />
-              <span>C'est fait, j'ai répondu</span>
+              <span className="text-sm">C'est fait, j'ai répondu</span>
             </button>
           )}
         </div>
