@@ -12,7 +12,7 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header className="sticky top-0 bg-card border-b border-border h-14 z-50">
-      <div className="flex items-center justify-between h-full px-4 max-w-lg mx-auto">
+      <div className="flex items-center justify-between h-full px-4 max-w-5xl mx-auto">
         {/* Logo */}
         <div className="flex-shrink-0">
           <span className="text-lg font-bold text-primary">B2Boost</span>
