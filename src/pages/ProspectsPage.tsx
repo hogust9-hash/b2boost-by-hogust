@@ -329,9 +329,28 @@ const ProspectsPage = () => {
     (p) => activeFilter === "all" || p.category === activeFilter
   );
 
-  const responseProspects = filteredProspects.filter((p) => p.status === "response");
-  const inProgressProspects = filteredProspects.filter((p) => p.status === "in_progress");
-  const finishedProspects = filteredProspects.filter((p) => p.status === "finished");
+  // Sort by date (most recent first), then by stage order
+  const stageOrder: Record<string, number> = { initial: 0, relance: 1, response: 2, finished: 3 };
+  const sortProspects = (a: Prospect, b: Prospect) => {
+    const dateA = a.lastSentDate;
+    const dateB = b.lastSentDate;
+    // Parse French dates for comparison (dd mmm. yyyy)
+    const parseDate = (d: string) => {
+      const months: Record<string, number> = { "jan.": 0, "fév.": 1, "mar.": 2, "avr.": 3, "mai": 4, "jun.": 5, "jui.": 6, "aoû.": 7, "sep.": 8, "oct.": 9, "nov.": 10, "déc.": 11 };
+      const parts = d.split(" ");
+      return new Date(parseInt(parts[2]), months[parts[1]] ?? 0, parseInt(parts[0]));
+    };
+    const timeDiff = parseDate(dateB).getTime() - parseDate(dateA).getTime();
+    if (timeDiff !== 0) return timeDiff;
+    // Same date: sort by stage order then currentStep
+    const orderDiff = (stageOrder[a.stageType] ?? 99) - (stageOrder[b.stageType] ?? 99);
+    if (orderDiff !== 0) return orderDiff;
+    return a.currentStep - b.currentStep;
+  };
+
+  const responseProspects = filteredProspects.filter((p) => p.status === "response").sort(sortProspects);
+  const inProgressProspects = filteredProspects.filter((p) => p.status === "in_progress").sort(sortProspects);
+  const finishedProspects = filteredProspects.filter((p) => p.status === "finished").sort(sortProspects);
   
   // Count unhandled responses for badge
   const unhandledResponseCount = responseProspects.filter(
