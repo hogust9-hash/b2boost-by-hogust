@@ -271,24 +271,23 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
           <button
             onClick={onToggleCalled}
             className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all",
+              "w-full flex items-center justify-center gap-2 py-3.5 rounded-full border-2 transition-all text-sm font-medium",
               isCalled
-                ? "bg-success/10 border-success/30 text-success"
-                : "bg-card border-primary text-foreground hover:bg-primary/5"
+                ? "bg-success/10 border-success text-success"
+                : "bg-card border-primary text-primary hover:bg-primary/5"
             )}
           >
-            <Checkbox
-              checked={isCalled}
-              className="h-5 w-5 pointer-events-none"
-            />
-            <div className="text-left">
-              <p className="text-sm font-medium">
-                {isCalled ? "Contacté et répondu ✓" : "J'ai été contacté et j'ai bien répondu"}
-              </p>
-              {!isCalled && (
-                <p className="text-xs text-muted-foreground">Le prospect passera dans "Réponses reçues"</p>
-              )}
-            </div>
+            {isCalled ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                Contacté et répondu ✓
+              </>
+            ) : (
+              <>
+                <Mail className="h-4 w-4" />
+                J'ai été contacté et j'ai bien répondu
+              </>
+            )}
           </button>
         </div>
       )}
