@@ -286,7 +286,6 @@ const ProspectsPage = () => {
                 </span>
               )}
               <ChevronDown className="h-3.5 w-3.5 text-primary" />
-              <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[180px]">
               {offerOptions.map((offer) => (
