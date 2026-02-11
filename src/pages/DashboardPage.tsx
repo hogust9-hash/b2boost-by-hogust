@@ -22,6 +22,71 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
+
+// Basket detail types
+interface BasketItem {
+  name: string;
+  quantity: number;
+  unitPriceHT: number;
+}
+
+interface BasketDetail {
+  name: string;
+  items: BasketItem[];
+  tvaRate: number; // e.g. 0.055 for 5.5%
+}
+
+const mockBasketDetails: Record<string, BasketDetail> = {
+  "Petit-déjeuner": {
+    name: "Petit-déjeuner",
+    items: [
+      { name: "Croissant pur beurre", quantity: 10, unitPriceHT: 1.20 },
+      { name: "Pain au chocolat", quantity: 10, unitPriceHT: 1.30 },
+      { name: "Baguette tradition", quantity: 5, unitPriceHT: 1.10 },
+      { name: "Confiture artisanale (pot)", quantity: 3, unitPriceHT: 3.50 },
+    ],
+    tvaRate: 0.055,
+  },
+  "Goûter": {
+    name: "Goûter",
+    items: [
+      { name: "Madeleine", quantity: 20, unitPriceHT: 0.80 },
+      { name: "Cookie chocolat", quantity: 15, unitPriceHT: 1.00 },
+      { name: "Brownie", quantity: 10, unitPriceHT: 1.50 },
+    ],
+    tvaRate: 0.055,
+  },
+  "Traiteur": {
+    name: "Traiteur",
+    items: [
+      { name: "Mini sandwich", quantity: 20, unitPriceHT: 2.50 },
+      { name: "Quiche individuelle", quantity: 10, unitPriceHT: 3.00 },
+      { name: "Salade composée", quantity: 8, unitPriceHT: 4.50 },
+      { name: "Mignardises (lot de 4)", quantity: 15, unitPriceHT: 3.80 },
+    ],
+    tvaRate: 0.10,
+  },
+  "Pain bio": {
+    name: "Pain bio",
+    items: [
+      { name: "Pain complet bio", quantity: 8, unitPriceHT: 3.20 },
+      { name: "Pain aux céréales bio", quantity: 6, unitPriceHT: 3.50 },
+      { name: "Pain de seigle bio", quantity: 4, unitPriceHT: 3.80 },
+    ],
+    tvaRate: 0.055,
+  },
+  "Viennoiseries": {
+    name: "Viennoiseries",
+    items: [
+      { name: "Croissant", quantity: 15, unitPriceHT: 1.10 },
+      { name: "Pain au chocolat", quantity: 15, unitPriceHT: 1.20 },
+      { name: "Chausson aux pommes", quantity: 10, unitPriceHT: 1.40 },
+      { name: "Pain aux raisins", quantity: 10, unitPriceHT: 1.30 },
+    ],
+    tvaRate: 0.055,
+  },
+};
 
 interface BakeryStats {
   id: string;
@@ -135,7 +200,7 @@ const emptyData: DashboardData = {
 const DashboardPage = () => {
   const [isOffersOpen, setIsOffersOpen] = useState(true);
   const [selectedBakeryId, setSelectedBakeryId] = useState<string | null>(null);
-  // Toggle this to see empty state: true = empty, false = with data
+  const [selectedBasket, setSelectedBasket] = useState<BasketDetail | null>(null);
   const [isEmpty] = useState(false);
   
   // Get data based on selection
@@ -183,11 +248,17 @@ const DashboardPage = () => {
             filterOptions={filterOptions}
             selectedBakeryId={selectedBakeryId}
             onBakeryChange={setSelectedBakeryId}
+            onBasketClick={(name) => setSelectedBasket(mockBasketDetails[name] || null)}
           />
         )}
       </main>
 
       <BottomNavigation />
+
+      {/* Basket Detail Sheet */}
+      <BottomSheet isOpen={!!selectedBasket} onClose={() => setSelectedBasket(null)}>
+        {selectedBasket && <BasketDetailContent basket={selectedBasket} />}
+      </BottomSheet>
     </div>
   );
 };
@@ -221,6 +292,7 @@ interface ActiveDashboardProps {
   filterOptions: FilterOption[];
   selectedBakeryId: string | null;
   onBakeryChange: (id: string | null) => void;
+  onBasketClick: (name: string) => void;
 }
 
 const ActiveDashboard: React.FC<ActiveDashboardProps> = ({ 
@@ -230,6 +302,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   filterOptions,
   selectedBakeryId,
   onBakeryChange,
+  onBasketClick,
 }) => {
   const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
   
@@ -389,6 +462,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                   {data.offers.map((offer) => (
                     <button
                       key={offer}
+                      onClick={() => onBasketClick(offer)}
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left border border-border bg-muted/30 hover:bg-primary/5 hover:border-primary/30 transition-all group active:scale-[0.98]"
                     >
                       <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary flex-shrink-0">
@@ -430,5 +504,71 @@ const KpiCard: React.FC<KpiCardProps> = ({ value, label, icon: Icon }) => (
     <p className="text-xs text-muted-foreground leading-tight">{label}</p>
   </div>
 );
+
+// Basket Detail Content
+const BasketDetailContent: React.FC<{ basket: BasketDetail }> = ({ basket }) => {
+  const totalHT = basket.items.reduce((sum, item) => sum + item.quantity * item.unitPriceHT, 0);
+  const totalTVA = totalHT * basket.tvaRate;
+  const totalTTC = totalHT + totalTVA;
+
+  return (
+    <div className="px-5 pb-8">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-5">
+        <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary">
+          <ShoppingBasket className="h-5 w-5" />
+        </span>
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">{basket.name}</h2>
+          <p className="text-xs text-muted-foreground">{basket.items.length} produit{basket.items.length > 1 ? 's' : ''}</p>
+        </div>
+      </div>
+
+      {/* Items */}
+      <div className="space-y-0 border border-border rounded-xl overflow-hidden mb-5">
+        {/* Table header */}
+        <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-muted/50 text-xs font-medium text-muted-foreground">
+          <span className="col-span-5">Produit</span>
+          <span className="col-span-2 text-center">Qté</span>
+          <span className="col-span-2 text-right">P.U. HT</span>
+          <span className="col-span-3 text-right">Total HT</span>
+        </div>
+        
+        {basket.items.map((item, i) => (
+          <div
+            key={item.name}
+            className={cn(
+              "grid grid-cols-12 gap-2 px-3 py-2.5 text-sm",
+              i % 2 === 0 ? "bg-card" : "bg-muted/20"
+            )}
+          >
+            <span className="col-span-5 text-foreground font-medium truncate">{item.name}</span>
+            <span className="col-span-2 text-center text-muted-foreground">×{item.quantity}</span>
+            <span className="col-span-2 text-right text-muted-foreground">{item.unitPriceHT.toFixed(2)} €</span>
+            <span className="col-span-3 text-right font-medium text-foreground">
+              {(item.quantity * item.unitPriceHT).toFixed(2)} €
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Totals */}
+      <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Total HT</span>
+          <span className="font-medium text-foreground">{totalHT.toFixed(2)} €</span>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">TVA ({(basket.tvaRate * 100).toFixed(1)}%)</span>
+          <span className="font-medium text-foreground">{totalTVA.toFixed(2)} €</span>
+        </div>
+        <div className="border-t border-border pt-2 flex items-center justify-between">
+          <span className="font-semibold text-foreground">Total TTC</span>
+          <span className="text-lg font-bold text-primary">{totalTTC.toFixed(2)} €</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default DashboardPage;
