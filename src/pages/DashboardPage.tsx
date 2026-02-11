@@ -520,22 +520,15 @@ const BasketDetailContent: React.FC<{ basket: BasketDetail }> = ({ basket }) => 
 
       {/* Items */}
       <div className="space-y-0 border border-border rounded-xl overflow-hidden">
-        {/* Table header */}
-        <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-muted/50 text-xs font-medium text-muted-foreground">
-          <span className="col-span-8">Produit</span>
-          <span className="col-span-4 text-center">Qté</span>
-        </div>
-        
         {basket.items.map((item, i) => (
           <div
             key={item.name}
             className={cn(
-              "grid grid-cols-12 gap-2 px-3 py-2.5 text-sm",
+              "px-3 py-2.5 text-sm",
               i % 2 === 0 ? "bg-card" : "bg-muted/20"
             )}
           >
-            <span className="col-span-8 text-foreground font-medium truncate">{item.name}</span>
-            <span className="col-span-4 text-center text-muted-foreground">×{item.quantity}</span>
+            <span className="text-foreground font-medium">{item.name}</span>
           </div>
         ))}
       </div>
