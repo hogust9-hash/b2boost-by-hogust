@@ -411,9 +411,19 @@ const ProspectsPage = () => {
 
           {/* Category Dropdown */}
           <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium text-primary hover:bg-muted/60 transition-colors">
+            <DropdownMenuTrigger className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px]",
+              selectedCategories.length > 0
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-card text-foreground hover:border-primary/40"
+            )}>
               Catégorie
-              <ChevronDown className="h-3 w-3" />
+              {selectedCategories.length > 0 && (
+                <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
+                  {selectedCategories.length}
+                </span>
+              )}
+              <ChevronDown className="h-3.5 w-3.5 text-primary" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[180px]">
               {categoryOptions.map((cat) => (
@@ -432,8 +442,19 @@ const ProspectsPage = () => {
 
           {/* Offer Dropdown */}
           <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium text-primary hover:bg-muted/60 transition-colors">
+            <DropdownMenuTrigger className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px]",
+              selectedOffers.length > 0
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-card text-foreground hover:border-primary/40"
+            )}>
               Panier
+              {selectedOffers.length > 0 && (
+                <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
+                  {selectedOffers.length}
+                </span>
+              )}
+              <ChevronDown className="h-3.5 w-3.5 text-primary" />
               <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[180px]">
