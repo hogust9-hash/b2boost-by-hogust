@@ -361,13 +361,25 @@ const ProspectsPage = () => {
     <div className="min-h-screen bg-background pb-20 page-transition">
       <Header notificationCount={responseProspects.length} />
 
-      {/* KPI Quick Block */}
+      {/* Hero KPI Banner */}
       <div className="mx-4 mt-2">
-        <div className="bg-muted rounded-lg p-3 flex items-center justify-center gap-2">
-          <Mail className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground text-center">
-            12 emails envoyés cette semaine • 3 relances
-          </span>
+        <div className="bg-primary rounded-xl p-5 text-primary-foreground">
+          <p className="text-sm font-medium opacity-80 mb-1">Cette semaine</p>
+          <div className="flex items-baseline gap-2 mb-3">
+            <span className="text-3xl font-bold">12</span>
+            <span className="text-sm font-medium opacity-90">emails envoyés</span>
+          </div>
+          <div className="flex gap-4">
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-semibold">5</span>
+              <span className="text-xs opacity-80">nouveaux prospects</span>
+            </div>
+            <div className="w-px h-5 bg-primary-foreground/30" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-semibold">3</span>
+              <span className="text-xs opacity-80">relances</span>
+            </div>
+          </div>
         </div>
       </div>
 
