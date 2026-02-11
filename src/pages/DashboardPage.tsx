@@ -431,8 +431,8 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                       {/* Progress bar for visual weight */}
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden ml-[18px]">
                         <div 
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: `${barWidth}%`, backgroundColor: category.color }}
+                          className="h-full rounded-full transition-all duration-500 bg-primary"
+                          style={{ width: `${barWidth}%` }}
                         />
                       </div>
                     </div>
