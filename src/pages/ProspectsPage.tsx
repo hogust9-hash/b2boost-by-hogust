@@ -379,12 +379,13 @@ const ProspectsPage = () => {
         {isLoading ? (
           <LoadingSkeleton />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-3 md:gap-4 md:px-4">
             {/* Responses Section */}
             <ProspectSection
               icon={<CheckCircle2 className="h-5 w-5" />}
               title="Réponses reçues"
               count={unhandledResponseCount}
+              totalCount={responseProspects.length}
               isExpanded={expandedSections.responses}
               onToggle={() => toggleSection("responses")}
               variant="success"
@@ -401,6 +402,7 @@ const ProspectsPage = () => {
               icon={<Send className="h-5 w-5" />}
               title="En cours de prospection"
               count={inProgressProspects.length}
+              totalCount={inProgressProspects.length}
               isExpanded={expandedSections.inProgress}
               onToggle={() => toggleSection("inProgress")}
               variant="default"
@@ -413,6 +415,7 @@ const ProspectsPage = () => {
               icon={<Clock className="h-5 w-5" />}
               title="Terminés sans réponse"
               count={finishedProspects.length}
+              totalCount={finishedProspects.length}
               isExpanded={expandedSections.finished}
               onToggle={() => toggleSection("finished")}
               variant="muted"
@@ -456,6 +459,7 @@ interface ProspectSectionProps {
   icon: React.ReactNode;
   title: string;
   count: number;
+  totalCount: number;
   isExpanded: boolean;
   onToggle: () => void;
   variant: "success" | "default" | "muted";
@@ -472,6 +476,7 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
   icon,
   title,
   count,
+  totalCount,
   isExpanded,
   onToggle,
   variant,
@@ -483,7 +488,7 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
   onMarkAsHandled,
   onMarkAsUnhandled,
 }) => {
-  if (count === 0) return null;
+  if (totalCount === 0) return null;
 
   const headerStyles = {
     success: "bg-success/10 border-l-4 border-l-success",
@@ -532,7 +537,8 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
       <div
         className={cn(
           "overflow-hidden transition-all duration-300",
-          isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+          isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0",
+          "md:max-h-none md:opacity-100"
         )}
       >
         <div className={cn("px-4 py-3 space-y-3", dimCards && "opacity-60")}>
