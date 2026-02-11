@@ -361,6 +361,23 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
 
         {/* Left column (main KPIs) — spans 7 cols on desktop */}
         <div className="md:col-span-7 space-y-5">
+          {/* Campaign Status pills — above main KPI */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
+              <Store className="h-3.5 w-3.5" />
+              {data.totalBakeries} boulangerie{data.totalBakeries > 1 ? 's' : ''}
+            </span>
+            {data.activeCampaigns > 0 ? (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success/10 text-success">
+                {data.activeCampaigns} campagne{data.activeCampaigns > 1 ? 's' : ''} active{data.activeCampaigns > 1 ? 's' : ''}
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
+                Aucune campagne
+              </span>
+            )}
+          </div>
+
           {/* Main KPI Block */}
           <div className="bg-primary rounded-xl p-5 md:p-6 text-primary-foreground relative overflow-hidden">
             <div className="relative z-10">
@@ -387,23 +404,6 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               label="taux de réponse" 
               icon={TrendingUp} 
             />
-          </div>
-
-          {/* Campaign Status pills */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
-              <Store className="h-3.5 w-3.5" />
-              {data.totalBakeries} boulangerie{data.totalBakeries > 1 ? 's' : ''}
-            </span>
-            {data.activeCampaigns > 0 ? (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success/10 text-success">
-                {data.activeCampaigns} campagne{data.activeCampaigns > 1 ? 's' : ''} active{data.activeCampaigns > 1 ? 's' : ''}
-              </span>
-            ) : (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
-                Aucune campagne
-              </span>
-            )}
           </div>
 
           {/* Top Responding Categories — below campaign pills */}
