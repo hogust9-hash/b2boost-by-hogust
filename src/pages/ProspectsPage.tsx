@@ -151,9 +151,23 @@ const ProspectsPage = () => {
       const next = new Set(prev);
       if (next.has(prospectId)) {
         next.delete(prospectId);
+        // Also remove handled status
+        setHandledProspects((prev) => {
+          const updated = { ...prev };
+          delete updated[prospectId];
+          return updated;
+        });
       } else {
         next.add(prospectId);
-        showToast("success", "Prospect marqué comme appelé ! Il apparaît maintenant dans les réponses reçues.");
+        // Auto-mark as handled with today's date
+        const today = new Date();
+        const formattedDate = today.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+        setHandledProspects((prev) => ({ ...prev, [prospectId]: formattedDate }));
+        showToast("success", "Prospect marqué comme contacté ! Il apparaît maintenant dans les réponses reçues.");
       }
       return next;
     });
