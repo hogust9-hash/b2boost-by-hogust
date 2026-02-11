@@ -678,6 +678,7 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
             <ProspectCard
               key={prospect.id}
               name={prospect.name}
+              category={prospect.category}
               stage={prospect.stage}
               stageType={prospect.stageType}
               currentStep={prospect.currentStep}

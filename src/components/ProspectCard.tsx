@@ -2,11 +2,21 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import type { CategoryType } from "@/components/ui/badge-category";
 
 type StageType = "initial" | "relance" | "response" | "finished";
 
+const categoryEmoji: Record<CategoryType, string> = {
+  restauration: "🍽",
+  hebergement: "🏨",
+  education: "🏫",
+  entreprises: "🏢",
+  collectivites: "🏛",
+};
+
 interface ProspectCardProps {
   name: string;
+  category?: CategoryType;
   stage: string;
   stageType: StageType;
   currentStep?: number;
@@ -95,6 +105,7 @@ const OfferTags: React.FC<{ offers: string[] }> = ({ offers }) => {
 
 const ProspectCard: React.FC<ProspectCardProps> = ({
   name,
+  category,
   stage,
   stageType,
   currentStep = 1,
@@ -152,8 +163,9 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
         />
       </div>
 
-      {/* Line 2: Context */}
+      {/* Line 2: Context with emoji */}
       <p className="text-xs text-muted-foreground mb-1.5">
+        {category && <span className="mr-1">{categoryEmoji[category]}</span>}
         {context}
       </p>
 
