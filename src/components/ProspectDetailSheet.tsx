@@ -188,31 +188,8 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
           </div>
         </div>
 
-        {/* Called action - only show when NOT already in responses */}
-        {onToggleCalled && !prospect.hasResponse && (
-          <button
-            onClick={onToggleCalled}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all mb-6",
-              isCalled
-                ? "bg-success/10 border-success/30 text-success"
-                : "bg-muted/50 border-border text-foreground hover:border-primary/30"
-            )}
-          >
-            <Checkbox
-              checked={isCalled}
-              className="h-5 w-5 pointer-events-none"
-            />
-            <div className="text-left">
-              <p className="text-sm font-medium">
-                {isCalled ? "Appelé et répondu ✓" : "J'ai été appelé et j'ai bien répondu"}
-              </p>
-              {!isCalled && (
-                <p className="text-xs text-muted-foreground">Le prospect passera dans "Réponses reçues"</p>
-              )}
-            </div>
-          </button>
-        )}
+        {/* Spacer for sticky button */}
+        {onToggleCalled && !prospect.hasResponse && <div className="h-20" />}
 
         {/* Email Timeline */}
         <div>
@@ -285,6 +262,34 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
             <ExternalLink className="h-5 w-5" />
             Consulter la réponse dans ma boîte mail
           </Button>
+        </div>
+      )}
+
+      {/* Sticky called button */}
+      {onToggleCalled && !prospect.hasResponse && (
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 pb-safe">
+          <button
+            onClick={onToggleCalled}
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all",
+              isCalled
+                ? "bg-success/10 border-success/30 text-success"
+                : "bg-card border-primary text-foreground hover:bg-primary/5"
+            )}
+          >
+            <Checkbox
+              checked={isCalled}
+              className="h-5 w-5 pointer-events-none"
+            />
+            <div className="text-left">
+              <p className="text-sm font-medium">
+                {isCalled ? "Contacté et répondu ✓" : "J'ai été contacté et j'ai bien répondu"}
+              </p>
+              {!isCalled && (
+                <p className="text-xs text-muted-foreground">Le prospect passera dans "Réponses reçues"</p>
+              )}
+            </div>
+          </button>
         </div>
       )}
     </BottomSheet>
