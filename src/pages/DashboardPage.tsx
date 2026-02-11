@@ -405,11 +405,8 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               </span>
             )}
           </div>
-        </div>
 
-        {/* Right column (details) — spans 5 cols on desktop */}
-        <div className="md:col-span-5 space-y-5">
-          {/* Top Responding Categories */}
+          {/* Top Responding Categories — below campaign pills */}
           {data.topCategories.length > 0 && (
             <div className="bg-card rounded-xl shadow-sm border border-border p-4">
               <h3 className="font-medium text-foreground mb-3 text-sm">Catégories qui ont le plus répondu</h3>
@@ -428,7 +425,6 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                           {category.responses}
                         </span>
                       </div>
-                      {/* Progress bar for visual weight */}
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden ml-[18px]">
                         <div 
                           className="h-full rounded-full transition-all duration-500 bg-primary"
@@ -441,8 +437,10 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               </div>
             </div>
           )}
+        </div>
 
-          {/* My Baskets Section */}
+        {/* Right column — Paniers (top right) */}
+        <div className="md:col-span-5 space-y-5">
           {data.offers.length > 0 && (
             <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
               <button
