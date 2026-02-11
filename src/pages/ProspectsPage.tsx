@@ -519,12 +519,6 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
 }) => {
   if (totalCount === 0) return null;
 
-  const headerStyles = {
-    success: "bg-success/10 border-l-4 border-l-success",
-    default: "bg-card border-l-4 border-l-primary",
-    muted: "bg-muted border-l-4 border-l-muted-foreground/30",
-  };
-
   const iconStyles = {
     success: "text-success",
     default: "text-primary",
@@ -532,33 +526,30 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
   };
 
   return (
-    <div>
-      {/* Section Header */}
+    <div className="flex flex-col">
+      {/* Section Header - Notion style */}
       <button
         onClick={onToggle}
-        className={cn(
-          "w-full flex items-center justify-between px-4 py-3 transition-all duration-200",
-          headerStyles[variant]
-        )}
+        className="w-full flex items-center justify-between px-4 py-2.5 transition-all duration-200 hover:bg-muted/50 rounded-lg"
       >
-        <div className="flex items-center gap-3">
-          <span className={iconStyles[variant]}>{icon}</span>
-          <span className="font-medium text-foreground">{title}</span>
+        <div className="flex items-center gap-2">
+          <span className={cn("opacity-70", iconStyles[variant])}>{icon}</span>
+          <span className="text-sm font-semibold text-foreground tracking-tight">{title}</span>
           <span
             className={cn(
-              "px-2 py-0.5 rounded-full text-xs font-medium",
+              "px-1.5 py-0.5 rounded text-xs font-medium",
               variant === "success"
                 ? "bg-destructive text-destructive-foreground"
-                : "bg-muted text-muted-foreground"
+                : "text-muted-foreground"
             )}
           >
             {count}
           </span>
         </div>
         {isExpanded ? (
-          <ChevronUp className="h-5 w-5 text-muted-foreground" />
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
         )}
       </button>
 
