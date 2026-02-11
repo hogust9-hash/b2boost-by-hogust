@@ -3,6 +3,7 @@ import { useState } from "react";
 import { BottomSheet } from "./ui/bottom-sheet";
 import { BadgeCategory, CategoryType } from "./ui/badge-category";
 import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
 import { 
   Mail, 
   ExternalLink, 
@@ -37,6 +38,8 @@ interface ProspectDetailSheetProps {
   isOpen: boolean;
   onClose: () => void;
   prospect: ProspectDetail | null;
+  isCalled?: boolean;
+  onToggleCalled?: () => void;
 }
 
 // Mock email history data
@@ -110,6 +113,8 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
   isOpen,
   onClose,
   prospect,
+  isCalled = false,
+  onToggleCalled,
 }) => {
   const [expandedEmails, setExpandedEmails] = useState<string[]>([]);
 
@@ -182,6 +187,32 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
             </span>
           </div>
         </div>
+
+        {/* Called action - only show when NOT already in responses */}
+        {onToggleCalled && !prospect.hasResponse && (
+          <button
+            onClick={onToggleCalled}
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all mb-6",
+              isCalled
+                ? "bg-success/10 border-success/30 text-success"
+                : "bg-muted/50 border-border text-foreground hover:border-primary/30"
+            )}
+          >
+            <Checkbox
+              checked={isCalled}
+              className="h-5 w-5 pointer-events-none"
+            />
+            <div className="text-left">
+              <p className="text-sm font-medium">
+                {isCalled ? "Appelé et répondu ✓" : "J'ai été appelé et j'ai bien répondu"}
+              </p>
+              {!isCalled && (
+                <p className="text-xs text-muted-foreground">Le prospect passera dans "Réponses reçues"</p>
+              )}
+            </div>
+          </button>
+        )}
 
         {/* Email Timeline */}
         <div>

@@ -468,6 +468,8 @@ const ProspectsPage = () => {
         isOpen={isSheetOpen}
         onClose={handleCloseSheet}
         prospect={selectedProspect}
+        isCalled={selectedProspect ? calledProspects.has(selectedProspect.id) : false}
+        onToggleCalled={selectedProspect ? () => handleToggleCalled(selectedProspect.id) : undefined}
       />
     </div>
   );
