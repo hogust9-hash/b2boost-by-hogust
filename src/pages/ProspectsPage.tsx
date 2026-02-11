@@ -259,9 +259,9 @@ const ProspectsPage = () => {
           {/* Period selector inline */}
           <div className="mb-3">
             <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex items-center gap-1 text-xs font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors outline-none">
+              <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-foreground/15 text-sm font-semibold text-primary-foreground hover:bg-primary-foreground/25 transition-colors outline-none">
                 {periodKpis[selectedPeriod].label}
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="min-w-[160px]">
                 {(["week", "month", "quarter"] as PeriodFilter[]).map((period) => (
