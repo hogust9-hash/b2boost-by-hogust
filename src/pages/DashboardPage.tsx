@@ -13,7 +13,13 @@ import {
   ShoppingBasket,
   Rocket,
   Store,
-  MessageCircle
+  MessageCircle,
+  UtensilsCrossed,
+  Bed,
+  GraduationCap,
+  Building2,
+  Landmark,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -149,12 +155,12 @@ const mockBakeriesStats: BakeryStats[] = [
 ];
 
 // Calculate cumulative data
-const categoryEmojiMap: Record<string, string> = {
-  "Restauration": "🍽",
-  "Hébergement": "🏨",
-  "Éducation": "🏫",
-  "Entreprises": "🏢",
-  "Collectivités": "🏛",
+const categoryLucideMap: Record<string, LucideIcon> = {
+  "Restauration": UtensilsCrossed,
+  "Hébergement": Bed,
+  "Éducation": GraduationCap,
+  "Entreprises": Building2,
+  "Collectivités": Landmark,
 };
 
 const calculateCumulativeData = (bakeries: BakeryStats[]): DashboardData => {
@@ -401,7 +407,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                     <div key={category.name} className="space-y-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm">{categoryEmojiMap[category.name] || "📦"}</span>
+                          {(() => { const CatIcon = categoryLucideMap[category.name]; return CatIcon ? <CatIcon className="h-3.5 w-3.5 text-muted-foreground" /> : null; })()}
                           <span className="text-sm text-foreground">{category.name}</span>
                         </div>
                         <span className="text-sm font-semibold text-foreground">

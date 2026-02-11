@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Target, Sparkles, MapPin } from "lucide-react";
+import { ArrowLeft, Target, Sparkles, MapPin, UtensilsCrossed, Bed, GraduationCap, Building2, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -12,17 +12,17 @@ import {
 import { cn } from "@/lib/utils";
 
 interface CategoryData {
-  emoji: string;
+  icon: LucideIcon;
   label: string;
   count: number;
   colorClass: string;
 }
 
 const categories: CategoryData[] = [
-  { emoji: "🍽", label: "Restaurants", count: 18, colorClass: "badge-restauration" },
-  { emoji: "🏫", label: "Écoles", count: 12, colorClass: "badge-education" },
-  { emoji: "🏨", label: "Hôtels", count: 8, colorClass: "badge-hebergement" },
-  { emoji: "🏢", label: "Entreprises", count: 9, colorClass: "badge-entreprises" },
+  { icon: UtensilsCrossed, label: "Restaurants", count: 18, colorClass: "badge-restauration" },
+  { icon: GraduationCap, label: "Écoles", count: 12, colorClass: "badge-education" },
+  { icon: Bed, label: "Hôtels", count: 8, colorClass: "badge-hebergement" },
+  { icon: Building2, label: "Entreprises", count: 9, colorClass: "badge-entreprises" },
 ];
 
 const emailExamples = [
@@ -141,12 +141,12 @@ const StrategyContent: React.FC<StrategyContentProps> = ({ prospectsCount }) => 
         Types de prospects
       </h2>
       <div className="flex flex-wrap gap-2">
-        {categories.map((cat) => (
+         {categories.map((cat) => (
           <span
             key={cat.label}
             className={cn(cat.colorClass, "gap-1.5")}
           >
-            <span>{cat.emoji}</span>
+            <cat.icon className="h-3.5 w-3.5" />
             <span>{cat.label}</span>
             <span className="font-semibold">({cat.count})</span>
           </span>
