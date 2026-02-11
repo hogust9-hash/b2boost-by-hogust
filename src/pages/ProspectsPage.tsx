@@ -361,20 +361,20 @@ const ProspectsPage = () => {
     <div className="min-h-screen bg-background pb-20 page-transition">
       <Header notificationCount={responseProspects.length} />
 
-      {/* Hero KPI Banner - Compact */}
-      <div className="mx-4 mt-2">
-        <div className="bg-primary rounded-xl px-4 py-3 text-primary-foreground flex items-center justify-evenly">
-          <div className="flex flex-col items-center gap-0.5">
+      {/* Hero KPI Banner */}
+      <div className="mx-4 mt-3 mb-1">
+        <div className="bg-primary rounded-xl px-5 py-4 text-primary-foreground flex items-center justify-evenly">
+          <div className="flex flex-col items-center gap-1">
             <span className="text-2xl font-bold">12</span>
             <span className="text-xs opacity-80">emails envoyés</span>
           </div>
-          <div className="w-px h-8 bg-primary-foreground/25" />
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="w-px h-9 bg-primary-foreground/20" />
+          <div className="flex flex-col items-center gap-1">
             <span className="text-2xl font-bold">5</span>
             <span className="text-xs opacity-80">prospects</span>
           </div>
-          <div className="w-px h-8 bg-primary-foreground/25" />
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="w-px h-9 bg-primary-foreground/20" />
+          <div className="flex flex-col items-center gap-1">
             <span className="text-2xl font-bold">3</span>
             <span className="text-xs opacity-80">relances</span>
           </div>
@@ -382,14 +382,14 @@ const ProspectsPage = () => {
       </div>
 
       {/* Filter Chips - Sticky */}
-      <div className="sticky top-14 bg-background z-40 py-1.5 border-b border-border">
-        <div className="flex gap-1.5 px-4 overflow-x-auto scrollbar-hide">
+      <div className="sticky top-14 bg-background z-40 py-2.5 border-b border-border">
+        <div className="flex gap-2 px-4 overflow-x-auto scrollbar-hide">
           {filterChips.map((chip) => (
             <button
               key={chip.id}
               onClick={() => handleFilterChange(chip.id)}
               className={cn(
-                "flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium filter-chip",
+                "flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium filter-chip",
                 activeFilter === chip.id
                   ? `${chip.activeColor} text-white`
                   : "bg-card border border-border text-muted-foreground hover:border-primary/30"
@@ -404,7 +404,7 @@ const ProspectsPage = () => {
 
       {/* Content with Pull to Refresh */}
       <PullToRefresh onRefresh={handleRefresh} className="h-[calc(100vh-200px)]">
-        <main className="py-4">
+        <main className="py-5">
         {isLoading ? (
           <LoadingSkeleton />
         ) : (
