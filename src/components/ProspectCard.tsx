@@ -124,11 +124,10 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
     <div
       onClick={onClick}
       className={cn(
-        "relative rounded-xl shadow-sm p-4 border border-border",
-        "cursor-pointer transition-all duration-200",
-        "hover:shadow-md hover:border-primary/20",
+        "relative rounded-lg p-3.5 border border-border",
+        "cursor-pointer transition-all duration-150",
+        "hover:shadow-sm hover:border-primary/20",
         "active:scale-[0.99]",
-        "md:hover:scale-[1.01]",
         isHandled ? "bg-muted/50" : "bg-card",
         className
       )}
@@ -141,8 +140,8 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
       )}
 
       {/* Line 1: Name + Status Badge */}
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <h3 className="text-base font-semibold text-foreground truncate flex-1">
+      <div className="flex items-start justify-between gap-3 mb-1.5">
+        <h3 className="text-sm font-semibold text-foreground truncate flex-1">
           {name}
         </h3>
         <StatusBadge
@@ -154,12 +153,12 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
       </div>
 
       {/* Line 2: Context */}
-      <p className="text-sm text-[#6B7280] mb-2">
+      <p className="text-xs text-muted-foreground mb-1.5">
         {context}
       </p>
 
       {/* Line 3: Offer Tags */}
-      <div className="mb-2">
+      <div className="mb-1.5">
         <OfferTags offers={offers} />
       </div>
 
