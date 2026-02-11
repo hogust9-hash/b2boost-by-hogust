@@ -363,14 +363,14 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
             </div>
           )}
 
-          {/* My Offers Section */}
+          {/* My Baskets Section */}
           {data.offers.length > 0 && (
             <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
               <button
                 onClick={onToggleOffers}
                 className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
               >
-                <span className="font-medium text-foreground text-sm">Mes offres</span>
+                <span className="font-medium text-foreground text-sm">Mes paniers</span>
                 {isOffersOpen ? (
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
@@ -379,12 +379,16 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               </button>
               
               {isOffersOpen && (
-                <div className="px-4 pb-4 space-y-2">
+                <div className="px-4 pb-4 space-y-1">
                   {data.offers.map((offer) => (
-                    <div key={offer} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-success" />
-                      <span className="text-sm text-foreground">{offer}</span>
-                    </div>
+                    <button
+                      key={offer}
+                      className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left hover:bg-muted/50 transition-colors group"
+                    >
+                      <Check className="h-4 w-4 text-success flex-shrink-0" />
+                      <span className="text-sm text-foreground flex-1">{offer}</span>
+                      <ChevronDown className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 -rotate-90 transition-opacity" />
+                    </button>
                   ))}
                 </div>
               )}
