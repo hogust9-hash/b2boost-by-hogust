@@ -84,6 +84,14 @@ const mockBakeriesStats: BakeryStats[] = [
 ];
 
 // Calculate cumulative data
+const categoryEmojiMap: Record<string, string> = {
+  "Restauration": "🍽",
+  "Hébergement": "🏨",
+  "Éducation": "🏫",
+  "Entreprises": "🏢",
+  "Collectivités": "🏛",
+};
+
 const calculateCumulativeData = (bakeries: BakeryStats[]): DashboardData => {
   const totalResponses = bakeries.reduce((sum, b) => sum + b.responsesReceived, 0);
   const totalEmails = bakeries.reduce((sum, b) => sum + b.emailsSent, 0);
@@ -340,10 +348,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                     <div key={category.name} className="space-y-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span 
-                            className="w-2.5 h-2.5 rounded-full" 
-                            style={{ backgroundColor: category.color }}
-                          />
+                          <span className="text-sm">{categoryEmojiMap[category.name] || "📦"}</span>
                           <span className="text-sm text-foreground">{category.name}</span>
                         </div>
                         <span className="text-sm font-semibold text-foreground">
