@@ -78,7 +78,16 @@ const offerOptions = [
   "Pain artisanal",
 ];
 
+type PeriodFilter = "week" | "month" | "quarter";
+
+const periodKpis: Record<PeriodFilter, { emails: number; prospects: number; relances: number; label: string }> = {
+  week: { emails: 12, prospects: 5, relances: 3, label: "Cette semaine" },
+  month: { emails: 47, prospects: 18, relances: 11, label: "Ce mois" },
+  quarter: { emails: 132, prospects: 52, relances: 34, label: "Ce trimestre" },
+};
+
 const ProspectsPage = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("week");
   const [selectedCategories, setSelectedCategories] = useState<CategoryFilterType[]>([]);
   const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
   const [selectedBakeries, setSelectedBakeries] = useState<string[]>([]);
@@ -244,20 +253,38 @@ const ProspectsPage = () => {
       <Header notificationCount={responseProspects.length} />
 
       {/* Hero KPI Banner */}
-      <div className="mx-4 mt-3 mb-1">
+      <div className="mx-4 mt-3 mb-1 space-y-2">
+        {/* Period selector */}
+        <div className="flex gap-1.5">
+          {(["week", "month", "quarter"] as PeriodFilter[]).map((period) => (
+            <button
+              key={period}
+              onClick={() => setSelectedPeriod(period)}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                selectedPeriod === period
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+            >
+              {periodKpis[period].label}
+            </button>
+          ))}
+        </div>
+
         <div className="bg-primary rounded-xl px-5 py-4 text-primary-foreground flex items-center justify-evenly">
           <div className="flex flex-col items-center gap-1">
-            <span className="text-2xl font-bold">12</span>
+            <span className="text-2xl font-bold">{periodKpis[selectedPeriod].emails}</span>
             <span className="text-xs opacity-80">emails envoyés</span>
           </div>
           <div className="w-px h-9 bg-primary-foreground/20" />
           <div className="flex flex-col items-center gap-1">
-            <span className="text-2xl font-bold">5</span>
+            <span className="text-2xl font-bold">{periodKpis[selectedPeriod].prospects}</span>
             <span className="text-xs opacity-80">prospects</span>
           </div>
           <div className="w-px h-9 bg-primary-foreground/20" />
           <div className="flex flex-col items-center gap-1">
-            <span className="text-2xl font-bold">3</span>
+            <span className="text-2xl font-bold">{periodKpis[selectedPeriod].relances}</span>
             <span className="text-xs opacity-80">relances</span>
           </div>
         </div>
