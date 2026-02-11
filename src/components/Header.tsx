@@ -16,6 +16,7 @@ const Header: React.FC<HeaderProps> = ({
         {/* Logo */}
         <div className="flex-shrink-0">
           <span className="text-lg font-bold text-primary">B2Boost</span>
+          <span className="text-sm text-muted-foreground font-normal ml-1.5">by Hogust</span>
         </div>
 
         {/* Spacer */}
