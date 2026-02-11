@@ -160,10 +160,10 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header notificationCount={data.responsesReceived} />
       
-      <main className="px-4 py-6 max-w-lg mx-auto">
+      <main className="px-4 py-6 max-w-5xl mx-auto">
         {isEmpty ? (
           <EmptyState />
         ) : (
@@ -185,7 +185,7 @@ const DashboardPage = () => {
 
 // Empty State Component
 const EmptyState = () => (
-  <div className="flex flex-col items-center justify-center text-center py-12">
+  <div className="flex flex-col items-center justify-center text-center py-12 md:py-24">
     <div className="text-6xl mb-6">📬</div>
     <h2 className="text-xl font-semibold text-foreground mb-2">
       Prêt à développer votre clientèle pro ?
@@ -274,100 +274,124 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
         </DropdownMenu>
       </div>
 
-      {/* Main KPI Block */}
-      <div className="bg-primary rounded-xl p-5 text-primary-foreground relative overflow-hidden">
-      <div className="relative z-10">
-        <p className="text-4xl font-bold mb-1">{data.responsesReceived}</p>
-        <p className="text-primary-foreground/90">réponses reçues</p>
-      </div>
-      <MailOpen className="absolute right-4 top-1/2 -translate-y-1/2 h-16 w-16 text-primary-foreground/20" />
-    </div>
+      {/* === Desktop: 2-column grid / Mobile: single column === */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
 
-    {/* Secondary KPIs */}
-    <div className="grid grid-cols-3 gap-3">
-      <KpiCard 
-        value={data.emailsSent.toString()} 
-        label="emails envoyés" 
-        icon={Send} 
-      />
-      <KpiCard 
-        value={data.prospectsContacted.toString()} 
-        label="prospects contactés" 
-        icon={Users} 
-      />
-      <KpiCard 
-        value={`${data.responseRate}%`} 
-        label="taux de réponse" 
-        icon={TrendingUp} 
-      />
-    </div>
+        {/* Left column (main KPIs) — spans 7 cols on desktop */}
+        <div className="md:col-span-7 space-y-5">
+          {/* Main KPI Block */}
+          <div className="bg-primary rounded-xl p-5 md:p-6 text-primary-foreground relative overflow-hidden">
+            <div className="relative z-10">
+              <p className="text-4xl md:text-5xl font-bold mb-1">{data.responsesReceived}</p>
+              <p className="text-primary-foreground/90 md:text-lg">réponses reçues</p>
+            </div>
+            <MailOpen className="absolute right-4 top-1/2 -translate-y-1/2 h-16 w-16 md:h-20 md:w-20 text-primary-foreground/20" />
+          </div>
 
-    {/* Campaign Status */}
-    <div className="flex items-center gap-2 flex-wrap">
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
-        <Store className="h-3.5 w-3.5" />
-        {data.totalBakeries} boulangerie{data.totalBakeries > 1 ? 's' : ''}
-      </span>
-      {data.activeCampaigns > 0 ? (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success/10 text-success">
-          {data.activeCampaigns} campagne{data.activeCampaigns > 1 ? 's' : ''} active{data.activeCampaigns > 1 ? 's' : ''}
-        </span>
-      ) : (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
-          Aucune campagne
-        </span>
-      )}
-    </div>
+          {/* Secondary KPIs — 3 cards in a row */}
+          <div className="grid grid-cols-3 gap-3">
+            <KpiCard 
+              value={data.emailsSent.toString()} 
+              label="emails envoyés" 
+              icon={Send} 
+            />
+            <KpiCard 
+              value={data.prospectsContacted.toString()} 
+              label="prospects contactés" 
+              icon={Users} 
+            />
+            <KpiCard 
+              value={`${data.responseRate}%`} 
+              label="taux de réponse" 
+              icon={TrendingUp} 
+            />
+          </div>
 
-      {/* Top Responding Categories */}
-      {data.topCategories.length > 0 && (
-        <div className="bg-card rounded-xl shadow-sm border border-border p-4">
-          <h3 className="font-medium text-foreground mb-3">Catégories qui ont le plus répondu</h3>
-          <div className="space-y-3">
-            {data.topCategories.map((category, index) => (
-              <div key={category.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span 
-                    className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: category.color }}
-                  />
-                  <span className="text-sm text-foreground">{category.name}</span>
-                </div>
-                <span className="text-sm font-medium text-foreground">
-                  {category.responses} réponse{category.responses > 1 ? 's' : ''}
-                </span>
-              </div>
-            ))}
+          {/* Campaign Status pills */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
+              <Store className="h-3.5 w-3.5" />
+              {data.totalBakeries} boulangerie{data.totalBakeries > 1 ? 's' : ''}
+            </span>
+            {data.activeCampaigns > 0 ? (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success/10 text-success">
+                {data.activeCampaigns} campagne{data.activeCampaigns > 1 ? 's' : ''} active{data.activeCampaigns > 1 ? 's' : ''}
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
+                Aucune campagne
+              </span>
+            )}
           </div>
         </div>
-      )}
-    {/* My Offers Section */}
-    {data.offers.length > 0 && (
-      <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
-        <button
-          onClick={onToggleOffers}
-          className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
-        >
-          <span className="font-medium text-foreground">Mes offres</span>
-          {isOffersOpen ? (
-            <ChevronUp className="h-5 w-5 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="h-5 w-5 text-muted-foreground" />
-          )}
-        </button>
-        
-        {isOffersOpen && (
-          <div className="px-4 pb-4 space-y-2">
-            {data.offers.map((offer) => (
-              <div key={offer} className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-success" />
-                <span className="text-sm text-foreground">{offer}</span>
+
+        {/* Right column (details) — spans 5 cols on desktop */}
+        <div className="md:col-span-5 space-y-5">
+          {/* Top Responding Categories */}
+          {data.topCategories.length > 0 && (
+            <div className="bg-card rounded-xl shadow-sm border border-border p-4">
+              <h3 className="font-medium text-foreground mb-3 text-sm">Catégories qui ont le plus répondu</h3>
+              <div className="space-y-3">
+                {data.topCategories.map((category) => {
+                  const maxResponses = Math.max(...data.topCategories.map(c => c.responses));
+                  const barWidth = maxResponses > 0 ? (category.responses / maxResponses) * 100 : 0;
+                  return (
+                    <div key={category.name} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span 
+                            className="w-2.5 h-2.5 rounded-full" 
+                            style={{ backgroundColor: category.color }}
+                          />
+                          <span className="text-sm text-foreground">{category.name}</span>
+                        </div>
+                        <span className="text-sm font-semibold text-foreground">
+                          {category.responses}
+                        </span>
+                      </div>
+                      {/* Progress bar for visual weight */}
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden ml-[18px]">
+                        <div 
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${barWidth}%`, backgroundColor: category.color }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          )}
+
+          {/* My Offers Section */}
+          {data.offers.length > 0 && (
+            <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+              <button
+                onClick={onToggleOffers}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
+              >
+                <span className="font-medium text-foreground text-sm">Mes offres</span>
+                {isOffersOpen ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+              
+              {isOffersOpen && (
+                <div className="px-4 pb-4 space-y-2">
+                  {data.offers.map((offer) => (
+                    <div key={offer} className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-success" />
+                      <span className="text-sm text-foreground">{offer}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    )}
     </div>
   );
 };
