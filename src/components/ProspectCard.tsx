@@ -165,12 +165,14 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
         <h3 className="text-sm font-semibold text-foreground truncate flex-1">
           {name}
         </h3>
-        <StatusBadge
-          stage={stage}
-          stageType={stageType}
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-        />
+        {!showResponseAction && (
+          <StatusBadge
+            stage={stage}
+            stageType={stageType}
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+          />
+        )}
       </div>
 
       {/* Line 2: Context with icon */}
