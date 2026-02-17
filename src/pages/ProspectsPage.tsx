@@ -81,14 +81,50 @@ const offerOptions = [
 
 type PeriodFilter = "week" | "month" | "quarter";
 
-const periodKpis: Record<PeriodFilter, { emails: number; prospects: number; relances: number; label: string }> = {
-  week: { emails: 12, prospects: 8, relances: 3, label: "Cette semaine" },
-  month: { emails: 47, prospects: 25, relances: 11, label: "Ce mois" },
-  quarter: { emails: 132, prospects: 68, relances: 34, label: "Ce trimestre" },
+const periodLabels: Record<PeriodFilter, string> = {
+  week: "Cette semaine",
+  month: "Ce mois",
+  quarter: "Ce trimestre",
+};
+
+// Per-bakery KPI data aligned with Dashboard mockBakeriesStats
+const bakeryPeriodKpis: Record<string, Record<PeriodFilter, { emails: number; prospects: number; relances: number }>> = {
+  "boulangerie-du-centre": {
+    week: { emails: 5, prospects: 3, relances: 1 },
+    month: { emails: 18, prospects: 10, relances: 5 },
+    quarter: { emails: 47, prospects: 25, relances: 12 },
+  },
+  "au-pain-dore": {
+    week: { emails: 5, prospects: 3, relances: 2 },
+    month: { emails: 20, prospects: 10, relances: 4 },
+    quarter: { emails: 62, prospects: 31, relances: 16 },
+  },
+  "la-mie-caline": {
+    week: { emails: 2, prospects: 2, relances: 0 },
+    month: { emails: 9, prospects: 5, relances: 2 },
+    quarter: { emails: 23, prospects: 12, relances: 6 },
+  },
+};
+
+const getFilteredKpis = (selectedBakeryIds: string[], period: PeriodFilter) => {
+  const ids = selectedBakeryIds.length > 0
+    ? selectedBakeryIds
+    : Object.keys(bakeryPeriodKpis);
+  return ids.reduce(
+    (acc, id) => {
+      const data = bakeryPeriodKpis[id];
+      if (!data) return acc;
+      acc.emails += data[period].emails;
+      acc.prospects += data[period].prospects;
+      acc.relances += data[period].relances;
+      return acc;
+    },
+    { emails: 0, prospects: 0, relances: 0 }
+  );
 };
 
 const ProspectsPage = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("week");
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("quarter");
   const [selectedCategories, setSelectedCategories] = useState<CategoryFilterType[]>([]);
   const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
   const [selectedBakeries, setSelectedBakeries] = useState<string[]>([]);
@@ -260,7 +296,7 @@ const ProspectsPage = () => {
           <div className="mb-3">
             <DropdownMenu>
               <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-foreground/15 text-sm font-semibold text-primary-foreground hover:bg-primary-foreground/25 transition-colors outline-none">
-                {periodKpis[selectedPeriod].label}
+                {periodLabels[selectedPeriod]}
                 <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="min-w-[160px]">
@@ -273,29 +309,34 @@ const ProspectsPage = () => {
                       selectedPeriod === period && "bg-primary/10 text-primary font-medium"
                     )}
                   >
-                    {periodKpis[period].label}
+                    {periodLabels[period]}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          <div className="flex items-center justify-evenly">
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-bold">{periodKpis[selectedPeriod].emails}</span>
-              <span className="text-xs opacity-80">emails envoyés</span>
-            </div>
-            <div className="w-px h-9 bg-primary-foreground/20" />
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-bold">{periodKpis[selectedPeriod].prospects}</span>
-              <span className="text-xs opacity-80">prospects</span>
-            </div>
-            <div className="w-px h-9 bg-primary-foreground/20" />
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-bold">{periodKpis[selectedPeriod].relances}</span>
-              <span className="text-xs opacity-80">relances</span>
-            </div>
-          </div>
+          {(() => {
+            const kpis = getFilteredKpis(selectedBakeries, selectedPeriod);
+            return (
+              <div className="flex items-center justify-evenly">
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-2xl font-bold">{kpis.emails}</span>
+                  <span className="text-xs opacity-80">emails envoyés</span>
+                </div>
+                <div className="w-px h-9 bg-primary-foreground/20" />
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-2xl font-bold">{kpis.prospects}</span>
+                  <span className="text-xs opacity-80">prospects</span>
+                </div>
+                <div className="w-px h-9 bg-primary-foreground/20" />
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-2xl font-bold">{kpis.relances}</span>
+                  <span className="text-xs opacity-80">relances</span>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
