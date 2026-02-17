@@ -82,9 +82,9 @@ const offerOptions = [
 type PeriodFilter = "week" | "month" | "quarter";
 
 const periodKpis: Record<PeriodFilter, { emails: number; prospects: number; relances: number; label: string }> = {
-  week: { emails: 12, prospects: 5, relances: 3, label: "Cette semaine" },
-  month: { emails: 47, prospects: 18, relances: 11, label: "Ce mois" },
-  quarter: { emails: 132, prospects: 52, relances: 34, label: "Ce trimestre" },
+  week: { emails: 12, prospects: 8, relances: 3, label: "Cette semaine" },
+  month: { emails: 47, prospects: 25, relances: 11, label: "Ce mois" },
+  quarter: { emails: 132, prospects: 68, relances: 34, label: "Ce trimestre" },
 };
 
 const ProspectsPage = () => {
