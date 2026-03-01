@@ -3,13 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CustomToastProvider } from "@/components/ui/custom-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import DashboardPage from "./pages/DashboardPage";
 import ProspectsPage from "./pages/ProspectsPage";
 import ProfilePage from "./pages/ProfilePage";
-import AuthPage from "./pages/AuthPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import CampaignConfigPage from "./pages/CampaignConfigPage";
 import StrategyPage from "./pages/StrategyPage";
@@ -24,22 +21,16 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/onboarding" element={
-                <ProtectedRoute requireOnboarding={false}>
-                  <OnboardingPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-              <Route path="/prospects" element={<ProtectedRoute><ProspectsPage /></ProtectedRoute>} />
-              <Route path="/profil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-              <Route path="/campaign/config" element={<ProtectedRoute><CampaignConfigPage /></ProtectedRoute>} />
-              <Route path="/campaign/strategy" element={<ProtectedRoute><StrategyPage /></ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
+          <Routes>
+            <Route path="/" element={<Navigate to="/onboarding" replace />} />
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/prospects" element={<ProspectsPage />} />
+            <Route path="/profil" element={<ProfilePage />} />
+            <Route path="/campaign/config" element={<CampaignConfigPage />} />
+            <Route path="/campaign/strategy" element={<StrategyPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </CustomToastProvider>
     </TooltipProvider>
