@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { MapPin, Plus, Trash2, Loader2, Search } from "lucide-react";
 import * as turf from "@turf/turf";
 
@@ -30,7 +28,6 @@ interface StepBakeryProps {
 const estimateProspects = (radiusKm: number) => Math.round(radiusKm * radiusKm * 0.8 + radiusKm * 5);
 
 const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => {
-  const { user } = useAuth();
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
@@ -40,7 +37,7 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
   const [selectedCity, setSelectedCity] = useState("");
   const [radiusKm, setRadiusKm] = useState(15);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
+  
   const [searchLoading, setSearchLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -206,25 +203,9 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
     onBakeriesChange(updated);
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (bakeries.length === 0) return;
-    setIsSaving(true);
-    try {
-      const inserts = bakeries.map((b) => ({
-        user_id: user!.id,
-        name: b.name,
-        address: b.address,
-        city: b.city,
-        latitude: b.latitude,
-        longitude: b.longitude,
-        radius_km: b.radiusKm,
-      }));
-      await supabase.from("bakeries").insert(inserts);
-      onNext();
-    } catch (err) {
-      console.error(err);
-    }
-    setIsSaving(false);
+    onNext();
   };
 
   const totalEstimated = bakeries.reduce((sum, b) => sum + estimateProspects(b.radiusKm), 0)
@@ -311,8 +292,8 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
       </div>
 
       {/* Next */}
-      <Button onClick={handleNext} disabled={bakeries.length === 0 || isSaving} fullWidth size="lg">
-        {isSaving ? <><Loader2 className="h-4 w-4 animate-spin" />Enregistrement...</> : "Continuer"}
+      <Button onClick={handleNext} disabled={bakeries.length === 0} fullWidth size="lg">
+        Continuer
       </Button>
     </div>
   );
