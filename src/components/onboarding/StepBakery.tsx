@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { MapPin, Plus, Trash2, Loader2, Search } from "lucide-react";
 import * as turf from "@turf/turf";
 
-const MAPBOX_TOKEN = "pk.eyJ1IjoiYjJib29zdCIsImEiOiJjbHh4eHh4eHgwMDAwMDJxcXFxcXFxcXEifQ.placeholder";
+const MAPBOX_TOKEN = "pk.eyJ1IjoiYXltZW5iMTMiLCJhIjoiY21sNDBhbzg0MHU3ZTNlcXphNGRqcWp3NiJ9.PIUZWJh0QCV4RBEP24VTvA";
 
 interface BakeryEntry {
   id: string;
