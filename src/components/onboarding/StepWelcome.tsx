@@ -18,16 +18,16 @@ const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
 
       <div className="space-y-2">
         <h2 className="text-2xl font-bold text-foreground">Bienvenue, {name} !</h2>
-        <p className="text-muted-foreground max-w-sm">
-          Votre compte est créé. Configurons ensemble votre première campagne de prospection B2B.
+        <p className="text-muted-foreground max-w-sm">Configurons ensemble votre campagne de prospection B2B.
+
         </p>
       </div>
 
       <Button onClick={onNext} size="lg" className="mt-4">
         Commencer
       </Button>
-    </div>
-  );
+    </div>);
+
 };
 
 export default StepWelcome;
