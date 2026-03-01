@@ -14,7 +14,289 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bakeries: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          radius_km: number
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          radius_km?: number
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          radius_km?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      campaign_messages: {
+        Row: {
+          body: string | null
+          campaign_id: string
+          created_at: string
+          id: string
+          step_number: number
+          subject: string | null
+        }
+        Insert: {
+          body?: string | null
+          campaign_id: string
+          created_at?: string
+          id?: string
+          step_number: number
+          subject?: string | null
+        }
+        Update: {
+          body?: string | null
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          step_number?: number
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_messages_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          bakery_id: string
+          created_at: string
+          id: string
+          started_at: string | null
+          status: string
+          target_category_id: string | null
+          wave_size: number
+        }
+        Insert: {
+          bakery_id: string
+          created_at?: string
+          id?: string
+          started_at?: string | null
+          status?: string
+          target_category_id?: string | null
+          wave_size?: number
+        }
+        Update: {
+          bakery_id?: string
+          created_at?: string
+          id?: string
+          started_at?: string | null
+          status?: string
+          target_category_id?: string | null
+          wave_size?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_bakery_id_fkey"
+            columns: ["bakery_id"]
+            isOneToOne: false
+            referencedRelation: "bakeries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_target_category_id_fkey"
+            columns: ["target_category_id"]
+            isOneToOne: false
+            referencedRelation: "prospect_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      offers: {
+        Row: {
+          bakery_id: string
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number | null
+        }
+        Insert: {
+          bakery_id: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number | null
+        }
+        Update: {
+          bakery_id?: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_bakery_id_fkey"
+            columns: ["bakery_id"]
+            isOneToOne: false
+            referencedRelation: "bakeries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          onboarding_completed: boolean
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          onboarding_completed?: boolean
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          onboarding_completed?: boolean
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      prospect_categories: {
+        Row: {
+          icon_name: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          icon_name?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          icon_name?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      prospects: {
+        Row: {
+          address: string | null
+          bakery_id: string
+          category_id: string | null
+          city: string | null
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          status: string
+        }
+        Insert: {
+          address?: string | null
+          bakery_id: string
+          category_id?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          status?: string
+        }
+        Update: {
+          address?: string | null
+          bakery_id?: string
+          category_id?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospects_bakery_id_fkey"
+            columns: ["bakery_id"]
+            isOneToOne: false
+            referencedRelation: "bakeries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospects_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "prospect_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

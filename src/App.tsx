@@ -4,10 +4,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CustomToastProvider } from "@/components/ui/custom-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
 import ProspectsPage from "./pages/ProspectsPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
+import OnboardingPage from "./pages/OnboardingPage";
 import CampaignConfigPage from "./pages/CampaignConfigPage";
 import StrategyPage from "./pages/StrategyPage";
 import NotFound from "./pages/NotFound";
@@ -21,16 +24,22 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/prospects" element={<ProspectsPage />} />
-            <Route path="/profil" element={<ProfilePage />} />
-            <Route path="/campaign/config" element={<CampaignConfigPage />} />
-            <Route path="/campaign/strategy" element={<StrategyPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/onboarding" element={
+                <ProtectedRoute requireOnboarding={false}>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+              <Route path="/prospects" element={<ProtectedRoute><ProspectsPage /></ProtectedRoute>} />
+              <Route path="/profil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              <Route path="/campaign/config" element={<ProtectedRoute><CampaignConfigPage /></ProtectedRoute>} />
+              <Route path="/campaign/strategy" element={<ProtectedRoute><StrategyPage /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </CustomToastProvider>
     </TooltipProvider>
