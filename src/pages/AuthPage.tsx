@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +27,7 @@ const AuthPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [signupForm, setSignupForm] = useState({
@@ -98,8 +99,9 @@ const AuthPage = () => {
 
     if (error) {
       setErrors({ general: error.message });
+    } else {
+      setSignupSuccess(true);
     }
-    // Navigation handled by useEffect
   };
 
   return (
@@ -182,8 +184,8 @@ const AuthPage = () => {
             </form>
           )}
 
-          {/* Signup Form */}
-          {activeTab === "signup" && (
+          {/* Signup Form or Success */}
+          {activeTab === "signup" && !signupSuccess && (
             <form onSubmit={handleSignupSubmit} className="space-y-4">
               <div className="space-y-1">
                 <Label htmlFor="signup-name">Nom</Label>
@@ -245,6 +247,25 @@ const AuthPage = () => {
                 {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Création...</> : "Créer mon compte"}
               </Button>
             </form>
+          )}
+
+          {/* Signup Success */}
+          {activeTab === "signup" && signupSuccess && (
+            <div className="text-center py-6 space-y-4">
+              <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto">
+                <CheckCircle className="h-8 w-8 text-success" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold text-foreground">Vérifiez votre email</h3>
+                <p className="text-sm text-muted-foreground">
+                  Un lien de confirmation a été envoyé à <strong className="text-foreground">{signupForm.email}</strong>.
+                  Cliquez sur le lien pour activer votre compte.
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => { setActiveTab("login"); setSignupSuccess(false); }} fullWidth>
+                Retour à la connexion
+              </Button>
+            </div>
           )}
         </div>
 
