@@ -112,9 +112,9 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
   return (
     <div className="space-y-6 px-4 py-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Importez vos offres</h2>
+        <h2 className="text-xl font-bold text-foreground">Importe tes offres</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Uploadez votre catalogue ou ajoutez vos paniers manuellement.
+          Uploade ton catalogue ou ajoute tes paniers manuellement.
         </p>
       </div>
 

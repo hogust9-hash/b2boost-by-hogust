@@ -77,7 +77,7 @@ const CampaignConfigPage = () => {
         {/* Address Field */}
         <div className="space-y-4 mb-6">
           <div className="space-y-1">
-            <Label htmlFor="address">Adresse de votre boulangerie</Label>
+            <Label htmlFor="address">Adresse de ta boulangerie</Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -148,9 +148,9 @@ const CampaignConfigPage = () => {
 
         {/* Offers Block (Read-only) */}
         <div className="bg-muted rounded-xl p-4">
-          <h3 className="font-medium text-foreground mb-1">Vos offres</h3>
+          <h3 className="font-medium text-foreground mb-1">Tes offres</h3>
           <p className="text-sm text-muted-foreground mb-3">
-            Définies avec votre conseiller Hogust
+            Définies avec ton conseiller Hogust
           </p>
           <div className="space-y-2">
             {offers.map((offer) => (
@@ -178,7 +178,7 @@ const CampaignConfigPage = () => {
           <div className="bg-card rounded-xl p-6 max-w-sm w-full text-center shadow-lg">
             <Loader2 className="h-10 w-10 text-primary mx-auto mb-4 animate-spin" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              Analyse de votre zone en cours...
+              Analyse de ta zone en cours...
             </h3>
             <p className="text-sm text-muted-foreground">
               Identification des prospects, génération des emails...

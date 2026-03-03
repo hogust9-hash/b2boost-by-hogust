@@ -274,10 +274,10 @@ const EmptyState = () => (
   <div className="flex flex-col items-center justify-center text-center py-12 md:py-24">
     <div className="text-6xl mb-6">📬</div>
     <h2 className="text-xl font-semibold text-foreground mb-2">
-      Prêt à développer votre clientèle pro ?
+      Prêt à développer ta clientèle pro ?
     </h2>
     <p className="text-muted-foreground mb-8 max-w-xs">
-      Lancez votre première campagne de prospection en quelques clics.
+      Lance ta première campagne de prospection en quelques clics.
     </p>
     <Button fullWidth="mobile" size="lg">
       <Rocket className="h-5 w-5" />

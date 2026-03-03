@@ -27,7 +27,7 @@ const StepValidateOffers: React.FC<StepValidateOffersProps> = ({ onNext, offers,
   return (
     <div className="space-y-6 px-4 py-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Validez vos offres</h2>
+        <h2 className="text-xl font-bold text-foreground">Valide tes offres</h2>
         <p className="text-sm text-muted-foreground mt-1">
           {activeOffers.length} offre{activeOffers.length > 1 ? "s" : ""} sélectionnée{activeOffers.length > 1 ? "s" : ""} — ajustez si besoin.
         </p>
