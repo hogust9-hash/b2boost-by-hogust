@@ -423,7 +423,8 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
   
   const responseProspects = dashboardMockProspects.filter(p => p.status === "response");
-  const contactedProspects = dashboardMockProspects.filter(p => p.status === "contacted");
+  const toContactProspects = dashboardMockProspects.filter(p => p.status === "response");
+  // "contacted" are those already handled — we show the ones still TO contact
   
   return (
     <div className="space-y-6">
@@ -496,8 +497,8 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                   onClick={() => onKpiSheetChange("contacted")}
                   className="relative rounded-xl border border-border shadow-sm p-5 min-h-[100px] text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer border-l-4 border-l-amber-accent bg-[hsl(var(--amber-accent)/0.05)]"
                 >
-                  <p className="text-[40px] font-extrabold leading-none text-foreground">{contactedProspects.length}</p>
-                  <p className="text-[13px] text-muted-foreground mt-2">Ont été recontactés</p>
+                  <p className="text-[40px] font-extrabold leading-none text-foreground">{toContactProspects.length}</p>
+                  <p className="text-[13px] text-muted-foreground mt-2">Encore à contacter</p>
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-amber-accent rotate-[-90deg]" />
                 </button>
               </div>
@@ -629,10 +630,10 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
       <KpiPanel
         isOpen={!!kpiSheetType}
         onClose={() => onKpiSheetChange(null)}
-        title={kpiSheetType === "responses" ? "Réponses reçues" : "Ont été recontactés"}
+        title={kpiSheetType === "responses" ? "Réponses reçues" : "Encore à contacter"}
       >
         <div className="space-y-3">
-          {(kpiSheetType === "responses" ? responseProspects : contactedProspects).map((prospect) => (
+          {(kpiSheetType === "responses" ? responseProspects : toContactProspects).map((prospect) => (
             <ProspectCard
               key={prospect.id}
               name={prospect.name}
@@ -648,7 +649,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               onClick={() => {}}
             />
           ))}
-          {(kpiSheetType === "responses" ? responseProspects : contactedProspects).length === 0 && (
+          {(kpiSheetType === "responses" ? responseProspects : toContactProspects).length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-6">Aucun prospect dans cette catégorie.</p>
           )}
         </div>
