@@ -405,140 +405,128 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   
   return (
     <div className="space-y-6">
-      {/* Bakery Filter */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => onBakeryChange(null)}
-          className={cn(
-            "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
-            selectedBakeryId === null
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
-          )}
-        >
-          Toutes mes boulangeries
-        </button>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className={cn(
-              "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors outline-none",
+      {/* KPI Section — Filter bar + cards wrapped in a container */}
+      <div className="bg-muted/40 rounded-xl border border-border p-4 space-y-3">
+        {/* Unified filter bar */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Period filter */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className={cn(
+              "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium transition-colors outline-none",
+              selectedPeriod !== "quarter"
+                ? "bg-primary text-primary-foreground"
+                : "bg-card border border-border text-foreground hover:bg-muted"
+            )}>
+              {dashboardPeriodLabels[selectedPeriod]}
+              <ChevronDown className="h-3.5 w-3.5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[160px]">
+              {(["all", "week", "month", "quarter"] as DashboardPeriodFilter[]).map((period) => (
+                <DropdownMenuItem
+                  key={period}
+                  onClick={() => onPeriodChange(period)}
+                  className={cn(
+                    "cursor-pointer text-sm",
+                    selectedPeriod === period && "bg-primary/10 text-primary font-medium"
+                  )}
+                >
+                  {dashboardPeriodLabels[period]}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Bakery filter */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className={cn(
+              "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium transition-colors outline-none",
               selectedBakeryId !== null
                 ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            )}
-          >
-            <span className="truncate max-w-[160px]">
-              {selectedBakery ? selectedBakery.label : "Sélectionner une boulangerie"}
-            </span>
-            <ChevronDown className="h-4 w-4 flex-shrink-0" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            align="start" 
-            className="w-56 bg-card border border-border shadow-md z-50"
-          >
-            {filterOptions.filter(o => o.id !== null).map((option) => (
+                : "bg-card border border-border text-foreground hover:bg-muted"
+            )}>
+              <span className="truncate max-w-[180px]">
+                {selectedBakery ? selectedBakery.label : "Toutes les boulangeries"}
+              </span>
+              <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem
-                key={option.id}
-                onClick={() => onBakeryChange(option.id)}
-                className={cn(
-                  "cursor-pointer",
-                  selectedBakeryId === option.id && "bg-primary/10 text-primary"
-                )}
+                onClick={() => onBakeryChange(null)}
+                className={cn("cursor-pointer", selectedBakeryId === null && "bg-primary/10 text-primary font-medium")}
               >
-                {option.label}
+                Toutes les boulangeries
               </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              {filterOptions.filter(o => o.id !== null).map((option) => (
+                <DropdownMenuItem
+                  key={option.id}
+                  onClick={() => onBakeryChange(option.id)}
+                  className={cn("cursor-pointer", selectedBakeryId === option.id && "bg-primary/10 text-primary")}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* KPI Cards */}
+        {(() => {
+          const kpis = getDashboardKpis(selectedBakeryId, selectedPeriod);
+          return (
+            <>
+              {/* Zone 1 — White clickable KPI cards */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => onKpiSheetChange("responses")}
+                  className="flex items-center bg-card rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-success"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground font-medium mb-1">Réponses reçues</p>
+                    <p className="text-2xl md:text-3xl font-bold text-foreground">{kpis.responses}</p>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground rotate-[-90deg] flex-shrink-0 group-hover:text-foreground transition-colors" />
+                </button>
+
+                <button
+                  onClick={() => onKpiSheetChange("contacted")}
+                  className="flex items-center bg-card rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-amber-accent"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground font-medium mb-1">Ont été recontactés</p>
+                    <p className="text-2xl md:text-3xl font-bold text-foreground">{contactedProspects.length}</p>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground rotate-[-90deg] flex-shrink-0 group-hover:text-foreground transition-colors" />
+                </button>
+              </div>
+
+              {/* Zone 2 — Blue card with non-clickable KPIs */}
+              <div className="bg-primary rounded-xl px-5 py-4 text-primary-foreground">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col items-center flex-1">
+                    <span className="text-xl md:text-2xl font-bold">{kpis.prospects}</span>
+                    <span className="text-[11px] text-primary-foreground/70 mt-0.5">Nouveaux prospects</span>
+                  </div>
+                  <div className="w-px h-8 bg-primary-foreground/20" />
+                  <div className="flex flex-col items-center flex-1">
+                    <span className="text-xl md:text-2xl font-bold">{kpis.emails}</span>
+                    <span className="text-[11px] text-primary-foreground/70 mt-0.5">Emails envoyés</span>
+                  </div>
+                  <div className="w-px h-8 bg-primary-foreground/20" />
+                  <div className="flex flex-col items-center flex-1">
+                    <span className="text-xl md:text-2xl font-bold">{kpis.relances}</span>
+                    <span className="text-[11px] text-primary-foreground/70 mt-0.5">Relances</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       {/* === Desktop: 2-column grid / Mobile: single column === */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
-
-        {/* Left column (main KPIs) — spans 7 cols on desktop */}
-        <div className="md:col-span-7 space-y-3">
-          {/* Zones 1 & 2 — Clickable white cards + Blue stats */}
-          {(() => {
-            const kpis = getDashboardKpis(selectedBakeryId, selectedPeriod);
-            return (
-              <>
-                {/* Zone 1 — White clickable KPI cards */}
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Réponses reçues */}
-                  <button
-                    onClick={() => onKpiSheetChange("responses")}
-                    className="flex items-center bg-card rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-success"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-muted-foreground font-medium mb-1">Réponses reçues</p>
-                      <p className="text-2xl md:text-3xl font-bold text-foreground">{kpis.responses}</p>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground rotate-[-90deg] flex-shrink-0 group-hover:text-foreground transition-colors" />
-                  </button>
-
-                  {/* Ont été recontactés */}
-                  <button
-                    onClick={() => onKpiSheetChange("contacted")}
-                    className="flex items-center bg-card rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-amber-accent"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-muted-foreground font-medium mb-1">Ont été recontactés</p>
-                      <p className="text-2xl md:text-3xl font-bold text-foreground">{contactedProspects.length}</p>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground rotate-[-90deg] flex-shrink-0 group-hover:text-foreground transition-colors" />
-                  </button>
-                </div>
-
-                {/* Zone 2 — Blue card with non-clickable KPIs */}
-                <div className="bg-primary rounded-xl px-5 py-4 text-primary-foreground">
-                  {/* Period filter pill */}
-                  <div className="mb-3">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-foreground/15 text-xs font-semibold text-primary-foreground hover:bg-primary-foreground/25 transition-colors outline-none">
-                        {dashboardPeriodLabels[selectedPeriod]}
-                        <ChevronDown className="h-3 w-3" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="min-w-[160px]">
-                        {(["all", "week", "month", "quarter"] as DashboardPeriodFilter[]).map((period) => (
-                          <DropdownMenuItem
-                            key={period}
-                            onClick={() => onPeriodChange(period)}
-                            className={cn(
-                              "cursor-pointer text-sm",
-                              selectedPeriod === period && "bg-primary/10 text-primary font-medium"
-                            )}
-                          >
-                            {dashboardPeriodLabels[period]}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-
-                  {/* 3 stats in a row with separators */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col items-center flex-1">
-                      <span className="text-xl md:text-2xl font-bold">{kpis.prospects}</span>
-                      <span className="text-[11px] text-primary-foreground/70 mt-0.5">Nouveaux prospects</span>
-                    </div>
-                    <div className="w-px h-8 bg-primary-foreground/20" />
-                    <div className="flex flex-col items-center flex-1">
-                      <span className="text-xl md:text-2xl font-bold">{kpis.emails}</span>
-                      <span className="text-[11px] text-primary-foreground/70 mt-0.5">Emails envoyés</span>
-                    </div>
-                    <div className="w-px h-8 bg-primary-foreground/20" />
-                    <div className="flex flex-col items-center flex-1">
-                      <span className="text-xl md:text-2xl font-bold">{kpis.relances}</span>
-                      <span className="text-[11px] text-primary-foreground/70 mt-0.5">Relances</span>
-                    </div>
-                  </div>
-                </div>
-              </>
-            );
-          })()}
-
-          {/* Top Responding Categories — below campaign pills */}
+        <div className="md:col-span-7 space-y-5">
+          {/* Top Responding Categories */}
           {data.topCategories.length > 0 && (
             <div className="bg-card rounded-xl shadow-sm border border-border p-4">
               <h3 className="font-medium text-foreground mb-3 text-sm">Catégories qui ont le plus répondu</h3>
