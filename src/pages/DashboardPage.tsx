@@ -437,7 +437,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* KPI Section */}
-      <div className="rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] mx-auto p-4 max-w-md w-full" style={{ background: '#F8F9FB' }}>
+      <div className="rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] mx-auto p-4 max-w-md md:max-w-none w-full" style={{ background: '#F8F9FB' }}>
         {/* Unified filter bar */}
         <div className="flex items-center justify-center gap-2 mb-3">
           <DropdownMenu>
