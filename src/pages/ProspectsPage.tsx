@@ -297,11 +297,17 @@ const ProspectsPage = () => {
       <Header notificationCount={responseProspects.length} />
 
       {/* Page title */}
-      <div className="bg-card px-6 py-4">
-        <h1 className="text-2xl font-bold text-foreground">Mes prospects</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          {filteredProspects.length} prospect{filteredProspects.length > 1 ? "s" : ""} · {responseProspects.length} réponse{responseProspects.length > 1 ? "s" : ""} reçue{responseProspects.length > 1 ? "s" : ""} · campagne active depuis le 28 jan.
-        </p>
+      <div className="bg-card px-6 py-4 text-center">
+        <h1 className="text-2xl font-bold text-primary">Mes prospects</h1>
+        {unhandledResponseCount > 0 ? (
+          <p className="text-sm text-success mt-0.5">
+            {unhandledResponseCount} nouvelle{unhandledResponseCount > 1 ? "s" : ""} réponse{unhandledResponseCount > 1 ? "s" : ""} à traiter
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Tout est à jour — {inProgressProspects.length} prospect{inProgressProspects.length > 1 ? "s" : ""} en cours de prospection
+          </p>
+        )}
       </div>
 
       <div className="sticky top-14 bg-background z-40 py-2.5 border-b border-border">
