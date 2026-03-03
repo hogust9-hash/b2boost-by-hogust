@@ -8,7 +8,7 @@ interface StepWelcomeProps {
 
 const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
   const { user } = useAuth();
-  const name = user?.user_metadata?.full_name || "Artisan";
+  const name = user?.user_metadata?.full_name || "Pierre";
 
   return (
     <div className="flex flex-col items-center justify-center text-center px-6 py-12 space-y-6">
