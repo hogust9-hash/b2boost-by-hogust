@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ProspectCard, StageType } from "@/components/ProspectCard";
 import { CategoryType } from "@/components/ui/badge-category";
 import { Header } from "@/components/Header";
@@ -426,6 +427,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   kpiSheetType,
   onKpiSheetChange,
 }) => {
+  const navigate = useNavigate();
   const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
   
   const responseProspects = dashboardMockProspects.filter(p => p.status === "response");
@@ -656,7 +658,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               offers={prospect.offers}
               lastSentDate={prospect.lastSentDate}
               isNew={prospect.isNew}
-              onClick={() => {}}
+              onClick={() => { onKpiSheetChange(null); navigate("/prospects"); }}
             />
           ))}
           {(kpiSheetType === "responses" ? responseProspects : toContactProspects).length === 0 && (
