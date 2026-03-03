@@ -8,7 +8,7 @@ import { ProspectCardSkeleton } from "@/components/ui/skeleton-card";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useCustomToast } from "@/components/ui/custom-toast";
 import { CategoryType } from "@/components/ui/badge-category";
-import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter, CalendarDays, LayoutGrid, UtensilsCrossed, Bed, GraduationCap, Building2, Landmark, type LucideIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter, CalendarDays, LayoutGrid, SlidersHorizontal, UtensilsCrossed, Bed, GraduationCap, Building2, Landmark, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -312,29 +312,23 @@ const ProspectsPage = () => {
 
       <div className="sticky top-14 bg-background z-40 py-2.5 border-b border-border">
         <div className="flex items-center gap-2 px-4 overflow-x-auto scrollbar-hide">
-          <Filter className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-
-          {/* Period Dropdown */}
+          {/* Period chip */}
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px] whitespace-nowrap",
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
               selectedPeriod !== "quarter"
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-card text-foreground hover:border-primary/40"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-muted/80"
             )}>
-              <CalendarDays className="h-3.5 w-3.5" />
               {periodLabels[selectedPeriod]}
-              <ChevronDown className="h-3.5 w-3.5" />
+              <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[160px]">
               {(["all", "week", "month", "quarter"] as PeriodFilter[]).map((period) => (
                 <DropdownMenuItem
                   key={period}
                   onClick={() => setSelectedPeriod(period)}
-                  className={cn(
-                    "cursor-pointer text-sm",
-                    selectedPeriod === period && "bg-primary/10 text-primary font-medium"
-                  )}
+                  className={cn("cursor-pointer text-sm", selectedPeriod === period && "bg-primary/10 text-primary font-medium")}
                 >
                   {periodLabels[period]}
                 </DropdownMenuItem>
@@ -342,49 +336,42 @@ const ProspectsPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Card Filter Dropdown */}
+          {/* Card filter chip */}
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px] whitespace-nowrap",
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
               cardFilter !== "all"
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-card text-foreground hover:border-primary/40"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-muted/80"
             )}>
-              <LayoutGrid className="h-3.5 w-3.5" />
-              {cardFilter === "all" ? "Toutes mes cartes" : "Ma to-do"}
-              <ChevronDown className="h-3.5 w-3.5" />
+              {cardFilter === "all" ? "Toutes" : "Ma to-do"}
+              <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-[180px]">
-              <DropdownMenuItem
-                onClick={() => setCardFilter("all")}
-                className={cn("cursor-pointer text-sm", cardFilter === "all" && "bg-primary/10 text-primary font-medium")}
-              >
+            <DropdownMenuContent align="start" className="min-w-[160px]">
+              <DropdownMenuItem onClick={() => setCardFilter("all")} className={cn("cursor-pointer text-sm", cardFilter === "all" && "bg-primary/10 text-primary font-medium")}>
                 Toutes mes cartes
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setCardFilter("todo")}
-                className={cn("cursor-pointer text-sm", cardFilter === "todo" && "bg-primary/10 text-primary font-medium")}
-              >
+              <DropdownMenuItem onClick={() => setCardFilter("todo")} className={cn("cursor-pointer text-sm", cardFilter === "todo" && "bg-primary/10 text-primary font-medium")}>
                 Ma to-do
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Category Dropdown */}
+          {/* Category chip */}
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px]",
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
               selectedCategories.length > 0
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-card text-foreground hover:border-primary/40"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-muted/80"
             )}>
               Catégorie
               {selectedCategories.length > 0 && (
-                <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
+                <span className="bg-primary-foreground text-primary rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
                   {selectedCategories.length}
                 </span>
               )}
-              <ChevronDown className="h-3.5 w-3.5 text-primary" />
+              <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[180px]">
               {categoryOptions.map((cat) => (
@@ -401,23 +388,24 @@ const ProspectsPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Offer Dropdown */}
+          {/* + Filtres chip (groups Panier & Boulangerie) */}
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px]",
-              selectedOffers.length > 0
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-card text-foreground hover:border-primary/40"
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
+              (selectedOffers.length > 0 || selectedBakeries.length > 0)
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-muted/80"
             )}>
-              Panier
-              {selectedOffers.length > 0 && (
-                <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
-                  {selectedOffers.length}
+              <SlidersHorizontal className="h-3 w-3" />
+              + Filtres
+              {(selectedOffers.length + selectedBakeries.length) > 0 && (
+                <span className="bg-primary-foreground text-primary rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
+                  {selectedOffers.length + selectedBakeries.length}
                 </span>
               )}
-              <ChevronDown className="h-3.5 w-3.5 text-primary" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-[180px]">
+            <DropdownMenuContent align="start" className="min-w-[220px] max-h-[320px] overflow-y-auto">
+              <div className="px-2 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Panier</div>
               {offerOptions.map((offer) => (
                 <DropdownMenuCheckboxItem
                   key={offer}
@@ -428,26 +416,7 @@ const ProspectsPage = () => {
                   {offer}
                 </DropdownMenuCheckboxItem>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Bakery Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px]",
-              selectedBakeries.length > 0
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-card text-foreground hover:border-primary/40"
-            )}>
-              Boulangerie
-              {selectedBakeries.length > 0 && (
-                <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
-                  {selectedBakeries.length}
-                </span>
-              )}
-              <ChevronDown className="h-3.5 w-3.5 text-primary" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-[200px]">
+              <div className="px-2 py-1.5 mt-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider border-t border-border">Boulangerie</div>
               {bakeryOptions.map((b) => (
                 <DropdownMenuCheckboxItem
                   key={b.id}
@@ -465,73 +434,12 @@ const ProspectsPage = () => {
           {hasActiveFilters && (
             <button
               onClick={clearAllFilters}
-              className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
             >
-              Réinitialiser
+              <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
-
-        {/* Active filter tags - Notion style */}
-        {hasActiveFilters && (
-          <div className="flex flex-wrap gap-1.5 px-4 pt-2">
-            {selectedPeriod !== "quarter" && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium">
-                <CalendarDays className="h-3 w-3" /> {periodLabels[selectedPeriod]}
-                <button onClick={() => setSelectedPeriod("quarter")} className="hover:text-destructive">
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-            {cardFilter !== "all" && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium">
-                <LayoutGrid className="h-3 w-3" /> Ma to-do
-                <button onClick={() => setCardFilter("all")} className="hover:text-destructive">
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-            {selectedCategories.map((catId) => {
-              const cat = categoryOptions.find((c) => c.id === catId);
-              return (
-                <span
-                  key={catId}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium"
-                >
-                  {cat && <cat.icon className="h-3 w-3" />} {cat?.label}
-                  <button onClick={() => toggleCategory(catId)} className="hover:text-destructive">
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              );
-            })}
-            {selectedOffers.map((offer) => (
-              <span
-                key={offer}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent text-accent-foreground text-xs font-medium"
-              >
-                {offer}
-                <button onClick={() => toggleOffer(offer)} className="hover:text-destructive">
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
-            {selectedBakeries.map((bakeryId) => {
-              const b = bakeryOptions.find((o) => o.id === bakeryId);
-              return (
-                <span
-                  key={bakeryId}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-foreground text-xs font-medium"
-                >
-                  🏪 {b?.label}
-                  <button onClick={() => toggleBakery(bakeryId)} className="hover:text-destructive">
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       {/* Content with Pull to Refresh */}
@@ -686,8 +594,14 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
     muted: "text-muted-foreground",
   };
 
+  const borderStyles = {
+    success: "border-t-[3px] border-t-success",
+    default: "border-t-[3px] border-t-primary",
+    muted: "border-t-[3px] border-t-border",
+  };
+
   return (
-    <div className="flex flex-col">
+    <div className={cn("flex flex-col rounded-lg overflow-hidden", borderStyles[variant])}>
       {/* Section Header - Notion style */}
       <button
         onClick={onToggle}
