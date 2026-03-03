@@ -292,7 +292,29 @@ const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header notificationCount={data.responsesReceived} />
-      
+
+      {/* Page title */}
+      <div className="bg-card px-6 py-4 text-center">
+        <h1 className="text-2xl font-bold text-primary">Mon tableau de bord</h1>
+        {isEmpty ? (
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Aucune campagne active — <a href="/onboarding" className="underline hover:text-foreground transition-colors">lancez votre première prospection</a>
+          </p>
+        ) : data.responsesReceived > 0 ? (
+          <p className="text-sm text-success mt-0.5">
+            🎉 {data.responsesReceived} nouvelle{data.responsesReceived > 1 ? "s" : ""} réponse{data.responsesReceived > 1 ? "s" : ""} à traiter
+          </p>
+        ) : data.activeCampaigns > 0 ? (
+          <p className="text-sm text-primary mt-0.5">
+            Campagne en cours — {data.prospectsContacted} prospects contactés
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Tout est traité — beau travail 👌
+          </p>
+        )}
+      </div>
+
       <main className="px-4 py-6 max-w-5xl mx-auto">
         {isEmpty ? (
           <EmptyState />
