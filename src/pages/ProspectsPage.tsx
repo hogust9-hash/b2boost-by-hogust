@@ -1,5 +1,4 @@
 import * as React from "react";
-import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { useState, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
@@ -143,7 +142,6 @@ const ProspectsPage = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [handledProspects, setHandledProspects] = useState<Record<string, string>>({});
   const [calledProspects, setCalledProspects] = useState<Set<string>>(new Set());
-  const [kpiSheetType, setKpiSheetType] = useState<"responses" | "contacted" | null>(null);
   const { showToast } = useCustomToast();
 
   const toggleCategory = (cat: CategoryFilterType) => {
@@ -326,25 +324,14 @@ const ProspectsPage = () => {
             const kpis = getFilteredKpis(selectedBakeries, selectedPeriod);
             return (
               <div className="flex items-center justify-evenly">
-                <button
-                  onClick={() => setKpiSheetType("responses")}
-                  className="flex flex-col items-center gap-1 hover:bg-primary-foreground/10 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
-                >
-                  <span className="text-2xl font-bold">{responseProspects.length}</span>
-                  <span className="text-xs opacity-80 underline underline-offset-2">réponses reçues</span>
-                </button>
-                <div className="w-px h-9 bg-primary-foreground/20" />
-                <button
-                  onClick={() => setKpiSheetType("contacted")}
-                  className="flex flex-col items-center gap-1 hover:bg-primary-foreground/10 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
-                >
-                  <span className="text-2xl font-bold">{Object.keys(handledProspects).length}</span>
-                  <span className="text-xs opacity-80 underline underline-offset-2">contactés</span>
-                </button>
-                <div className="w-px h-9 bg-primary-foreground/20" />
                 <div className="flex flex-col items-center gap-1">
                   <span className="text-2xl font-bold">{kpis.emails}</span>
                   <span className="text-xs opacity-80">emails envoyés</span>
+                </div>
+                <div className="w-px h-9 bg-primary-foreground/20" />
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-2xl font-bold">{kpis.prospects}</span>
+                  <span className="text-xs opacity-80">prospects</span>
                 </div>
                 <div className="w-px h-9 bg-primary-foreground/20" />
                 <div className="flex flex-col items-center gap-1">
@@ -580,48 +567,6 @@ const ProspectsPage = () => {
         onToggleCalled={selectedProspect ? () => handleToggleCalled(selectedProspect.id) : undefined}
       />
 
-      {/* KPI BottomSheet — responses or contacted */}
-      <BottomSheet isOpen={!!kpiSheetType} onClose={() => setKpiSheetType(null)}>
-        <div className="px-4 pb-8">
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            {kpiSheetType === "responses" ? "Réponses reçues" : "Prospects contactés"}
-          </h2>
-          <div className="space-y-3">
-            {(kpiSheetType === "responses"
-              ? responseProspects
-              : filteredProspects.filter((p) => handledProspects[p.id])
-            ).map((prospect) => (
-              <ProspectCard
-                key={prospect.id}
-                name={prospect.name}
-                category={prospect.category}
-                stage={prospect.stage}
-                stageType={prospect.stageType}
-                currentStep={prospect.currentStep}
-                totalSteps={prospect.totalSteps}
-                context={prospect.context}
-                offers={prospect.offers}
-                lastSentDate={prospect.lastSentDate}
-                isNew={prospect.isNew}
-                onClick={() => {
-                  setKpiSheetType(null);
-                  handleCardClick(prospect);
-                }}
-                showResponseAction={kpiSheetType === "responses"}
-                isHandled={!!handledProspects[prospect.id]}
-                handledDate={handledProspects[prospect.id]}
-                onMarkAsHandled={() => handleMarkAsHandled(prospect.id)}
-                onMarkAsUnhandled={() => handleMarkAsUnhandled(prospect.id)}
-                isCalled={calledProspects.has(prospect.id)}
-                onToggleCalled={() => handleToggleCalled(prospect.id)}
-              />
-            ))}
-            {(kpiSheetType === "responses" ? responseProspects : filteredProspects.filter((p) => handledProspects[p.id])).length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-6">Aucun prospect dans cette catégorie.</p>
-            )}
-          </div>
-        </div>
-      </BottomSheet>
     </div>
   );
 };

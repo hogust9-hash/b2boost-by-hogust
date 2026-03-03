@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
+import { ProspectCard, StageType } from "@/components/ProspectCard";
+import { CategoryType } from "@/components/ui/badge-category";
 import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { Button } from "@/components/ui/button";
@@ -255,6 +257,7 @@ const DashboardPage = () => {
   const [selectedBasket, setSelectedBasket] = useState<BasketDetail | null>(null);
   const [isEmpty] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<DashboardPeriodFilter>("quarter");
+  const [kpiSheetType, setKpiSheetType] = useState<"responses" | "contacted" | null>(null);
   
   // Get data based on selection
   const getData = (): DashboardData => {
@@ -304,6 +307,8 @@ const DashboardPage = () => {
             onBasketClick={(name) => setSelectedBasket(mockBasketDetails[name] || null)}
             selectedPeriod={selectedPeriod}
             onPeriodChange={setSelectedPeriod}
+            kpiSheetType={kpiSheetType}
+            onKpiSheetChange={setKpiSheetType}
           />
         )}
       </main>
@@ -350,7 +355,35 @@ interface ActiveDashboardProps {
   onBasketClick: (name: string) => void;
   selectedPeriod: DashboardPeriodFilter;
   onPeriodChange: (period: DashboardPeriodFilter) => void;
+  kpiSheetType: "responses" | "contacted" | null;
+  onKpiSheetChange: (type: "responses" | "contacted" | null) => void;
 }
+
+// Mock prospect data for KPI BottomSheets
+interface DashboardProspect {
+  id: string;
+  name: string;
+  category: CategoryType;
+  stage: string;
+  stageType: StageType;
+  currentStep: number;
+  totalSteps: number;
+  context: string;
+  offers: string[];
+  lastSentDate: string;
+  isNew: boolean;
+  status: "response" | "contacted";
+}
+
+const dashboardMockProspects: DashboardProspect[] = [
+  { id: "d1", name: "Restaurant Le Gourmet", category: "restauration", stage: "Réponse reçue", stageType: "response", currentStep: 3, totalSteps: 5, context: "Restaurant — Orléans, à 0.9 km", offers: ["Petit-déjeuner", "Traiteur"], lastSentDate: "05 fév. 2026", isNew: true, status: "response" },
+  { id: "d2", name: "Hôtel & Spa Le Majestic", category: "hebergement", stage: "Réponse reçue", stageType: "response", currentStep: 2, totalSteps: 5, context: "Hôtel — Orléans, à 1.4 km", offers: ["Viennoiseries", "Petit-déjeuner"], lastSentDate: "02 fév. 2026", isNew: false, status: "response" },
+  { id: "d3", name: "TechCorp Solutions", category: "entreprises", stage: "Réponse reçue", stageType: "response", currentStep: 4, totalSteps: 5, context: "Entreprise — Orléans, à 1.8 km", offers: ["Traiteur", "Goûter"], lastSentDate: "01 fév. 2026", isNew: false, status: "response" },
+  { id: "d4", name: "Lycée Jean Moulin", category: "education", stage: "Réponse reçue", stageType: "response", currentStep: 3, totalSteps: 5, context: "Lycée — Orléans, à 1.2 km", offers: ["Pain bio"], lastSentDate: "30 jan. 2026", isNew: false, status: "response" },
+  { id: "d5", name: "Bistrot du Marché", category: "restauration", stage: "Contacté", stageType: "relance", currentStep: 3, totalSteps: 5, context: "Bistrot — Orléans, à 0.8 km", offers: ["Petit-déjeuner", "Déjeuner"], lastSentDate: "28 jan. 2026", isNew: false, status: "contacted" },
+  { id: "d6", name: "Coworking L'Atelier", category: "entreprises", stage: "Contacté", stageType: "relance", currentStep: 2, totalSteps: 5, context: "Coworking — Orléans, à 0.4 km", offers: ["Petit-déjeuner"], lastSentDate: "25 jan. 2026", isNew: false, status: "contacted" },
+  { id: "d7", name: "Mairie d'Orléans", category: "collectivites", stage: "Contacté", stageType: "relance", currentStep: 1, totalSteps: 5, context: "Mairie — Orléans, à 0.6 km", offers: ["Événementiel"], lastSentDate: "22 jan. 2026", isNew: false, status: "contacted" },
+];
 
 const ActiveDashboard: React.FC<ActiveDashboardProps> = ({ 
   data, 
@@ -362,8 +395,13 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   onBasketClick,
   selectedPeriod,
   onPeriodChange,
+  kpiSheetType,
+  onKpiSheetChange,
 }) => {
   const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
+  
+  const responseProspects = dashboardMockProspects.filter(p => p.status === "response");
+  const contactedProspects = dashboardMockProspects.filter(p => p.status === "contacted");
   
   return (
     <div className="space-y-6">
@@ -449,23 +487,29 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                   </DropdownMenu>
                 </div>
 
-                {/* Responses hero */}
-                <div className="relative z-10 mb-5">
+                {/* Responses hero — clickable */}
+                <button
+                  onClick={() => onKpiSheetChange("responses")}
+                  className="relative z-10 mb-5 text-left hover:bg-primary-foreground/10 rounded-lg px-2 py-1 -mx-2 transition-colors cursor-pointer"
+                >
                   <p className="text-4xl md:text-5xl font-bold mb-1">{kpis.responses}</p>
-                  <p className="text-primary-foreground/90 md:text-lg">réponses reçues</p>
-                </div>
+                  <p className="text-primary-foreground/90 md:text-lg underline underline-offset-2">réponses reçues</p>
+                </button>
                 <MailOpen className="absolute right-4 top-1/2 -translate-y-1/2 h-16 w-16 md:h-20 md:w-20 text-primary-foreground/20" />
 
                 {/* Secondary KPIs inline */}
                 <div className="relative z-10 flex items-center justify-evenly border-t border-primary-foreground/15 pt-4">
+                  <button
+                    onClick={() => onKpiSheetChange("contacted")}
+                    className="flex flex-col items-center gap-1 hover:bg-primary-foreground/10 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+                  >
+                    <span className="text-2xl font-bold">{contactedProspects.length}</span>
+                    <span className="text-xs opacity-80 underline underline-offset-2">contactés</span>
+                  </button>
+                  <div className="w-px h-9 bg-primary-foreground/20" />
                   <div className="flex flex-col items-center gap-1">
                     <span className="text-2xl font-bold">{kpis.emails}</span>
                     <span className="text-xs opacity-80">emails envoyés</span>
-                  </div>
-                  <div className="w-px h-9 bg-primary-foreground/20" />
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-2xl font-bold">{kpis.prospects}</span>
-                    <span className="text-xs opacity-80">prospects</span>
                   </div>
                   <div className="w-px h-9 bg-primary-foreground/20" />
                   <div className="flex flex-col items-center gap-1">
@@ -572,6 +616,36 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
           )}
         </div>
       </div>
+
+      {/* KPI BottomSheet */}
+      <BottomSheet isOpen={!!kpiSheetType} onClose={() => onKpiSheetChange(null)}>
+        <div className="px-4 pb-8">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            {kpiSheetType === "responses" ? "Réponses reçues" : "Prospects contactés"}
+          </h2>
+          <div className="space-y-3">
+            {(kpiSheetType === "responses" ? responseProspects : contactedProspects).map((prospect) => (
+              <ProspectCard
+                key={prospect.id}
+                name={prospect.name}
+                category={prospect.category}
+                stage={prospect.stage}
+                stageType={prospect.stageType}
+                currentStep={prospect.currentStep}
+                totalSteps={prospect.totalSteps}
+                context={prospect.context}
+                offers={prospect.offers}
+                lastSentDate={prospect.lastSentDate}
+                isNew={prospect.isNew}
+                onClick={() => {}}
+              />
+            ))}
+            {(kpiSheetType === "responses" ? responseProspects : contactedProspects).length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-6">Aucun prospect dans cette catégorie.</p>
+            )}
+          </div>
+        </div>
+      </BottomSheet>
     </div>
   );
 };
