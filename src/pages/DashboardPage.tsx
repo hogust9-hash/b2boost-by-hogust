@@ -514,7 +514,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               </div>
 
               {/* Zone 2 — Blue card */}
-              <div className="bg-primary rounded-xl px-5 py-3 text-primary-foreground -mx-1">
+              <div className="bg-primary rounded-xl px-2 py-3 text-primary-foreground -mx-1">
                 <div className="flex items-stretch justify-between">
                   <div className="flex flex-col items-center justify-center flex-1">
                     <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Nouveaux prospects</span>
