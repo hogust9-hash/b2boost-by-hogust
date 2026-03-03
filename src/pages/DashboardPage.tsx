@@ -6,7 +6,6 @@ import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { Button } from "@/components/ui/button";
 import { 
-  MailOpen, 
   Send, 
   Users, 
   TrendingUp, 
@@ -31,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { KpiPanel } from "@/components/ui/kpi-panel";
 
 // Basket detail types
 interface BasketItem {
@@ -458,13 +458,13 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
 
         {/* Left column (main KPIs) — spans 7 cols on desktop */}
         <div className="md:col-span-7 space-y-5">
-          {/* Main KPI Block — responses + period filter + secondary KPIs */}
+          {/* Main KPI Block — redesigned 2-row layout */}
           {(() => {
             const kpis = getDashboardKpis(selectedBakeryId, selectedPeriod);
             return (
-              <div className="bg-primary rounded-xl p-5 md:p-6 text-primary-foreground relative overflow-hidden">
+              <div className="bg-primary rounded-xl p-5 md:p-6 text-primary-foreground">
                 {/* Period filter */}
-                <div className="relative z-10 mb-4">
+                <div className="mb-5">
                   <DropdownMenu>
                     <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-foreground/15 text-sm font-semibold text-primary-foreground hover:bg-primary-foreground/25 transition-colors outline-none">
                       {dashboardPeriodLabels[selectedPeriod]}
@@ -487,34 +487,51 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                   </DropdownMenu>
                 </div>
 
-                {/* Responses hero — clickable */}
-                <button
-                  onClick={() => onKpiSheetChange("responses")}
-                  className="relative z-10 mb-5 text-left hover:bg-primary-foreground/10 rounded-lg px-2 py-1 -mx-2 transition-colors cursor-pointer"
-                >
-                  <p className="text-4xl md:text-5xl font-bold mb-1">{kpis.responses}</p>
-                  <p className="text-primary-foreground/90 md:text-lg underline underline-offset-2">réponses reçues</p>
-                </button>
-                <MailOpen className="absolute right-4 top-1/2 -translate-y-1/2 h-16 w-16 md:h-20 md:w-20 text-primary-foreground/20" />
+                {/* Top row — 3 primary KPIs */}
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {/* Réponses reçues — clickable */}
+                  <button
+                    onClick={() => onKpiSheetChange("responses")}
+                    className="flex flex-col items-center gap-1.5 rounded-lg px-2 py-3 hover:bg-primary-foreground/10 transition-colors cursor-pointer group"
+                  >
+                    <span className="text-3xl md:text-4xl font-bold">{kpis.responses}</span>
+                    <span className="text-xs md:text-sm text-primary-foreground/90 underline underline-offset-2 decoration-primary-foreground/50 group-hover:decoration-primary-foreground transition-colors">
+                      Réponses reçues
+                    </span>
+                  </button>
 
-                {/* Secondary KPIs inline */}
-                <div className="relative z-10 flex items-center justify-evenly border-t border-primary-foreground/15 pt-4">
+                  {/* Ont été recontactés — clickable */}
                   <button
                     onClick={() => onKpiSheetChange("contacted")}
-                    className="flex flex-col items-center gap-1 hover:bg-primary-foreground/10 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+                    className="flex flex-col items-center gap-1.5 rounded-lg px-2 py-3 hover:bg-primary-foreground/10 transition-colors cursor-pointer group"
                   >
-                    <span className="text-2xl font-bold">{contactedProspects.length}</span>
-                    <span className="text-xs opacity-80 underline underline-offset-2">contactés</span>
+                    <span className="text-3xl md:text-4xl font-bold">{contactedProspects.length}</span>
+                    <span className="text-xs md:text-sm text-primary-foreground/90 underline underline-offset-2 decoration-primary-foreground/50 group-hover:decoration-primary-foreground transition-colors">
+                      Ont été recontactés
+                    </span>
                   </button>
-                  <div className="w-px h-9 bg-primary-foreground/20" />
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-2xl font-bold">{kpis.emails}</span>
-                    <span className="text-xs opacity-80">emails envoyés</span>
+
+                  {/* Nouveaux prospects contactés — not clickable */}
+                  <div className="flex flex-col items-center gap-1.5 px-2 py-3">
+                    <span className="text-3xl md:text-4xl font-bold">{kpis.prospects}</span>
+                    <span className="text-xs md:text-sm text-primary-foreground/80 text-center">
+                      Nouveaux prospects
+                    </span>
                   </div>
-                  <div className="w-px h-9 bg-primary-foreground/20" />
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-2xl font-bold">{kpis.relances}</span>
-                    <span className="text-xs opacity-80">relances</span>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-primary-foreground/15" />
+
+                {/* Bottom row — 2 secondary KPIs, smaller & muted */}
+                <div className="grid grid-cols-2 gap-3 pt-3">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="text-lg md:text-xl font-semibold text-primary-foreground/80">{kpis.emails}</span>
+                    <span className="text-xs text-primary-foreground/60">Emails envoyés</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="text-lg md:text-xl font-semibold text-primary-foreground/80">{kpis.relances}</span>
+                    <span className="text-xs text-primary-foreground/60">Relances effectuées</span>
                   </div>
                 </div>
               </div>
@@ -617,35 +634,34 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
         </div>
       </div>
 
-      {/* KPI BottomSheet */}
-      <BottomSheet isOpen={!!kpiSheetType} onClose={() => onKpiSheetChange(null)}>
-        <div className="px-4 pb-8">
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            {kpiSheetType === "responses" ? "Réponses reçues" : "Prospects contactés"}
-          </h2>
-          <div className="space-y-3">
-            {(kpiSheetType === "responses" ? responseProspects : contactedProspects).map((prospect) => (
-              <ProspectCard
-                key={prospect.id}
-                name={prospect.name}
-                category={prospect.category}
-                stage={prospect.stage}
-                stageType={prospect.stageType}
-                currentStep={prospect.currentStep}
-                totalSteps={prospect.totalSteps}
-                context={prospect.context}
-                offers={prospect.offers}
-                lastSentDate={prospect.lastSentDate}
-                isNew={prospect.isNew}
-                onClick={() => {}}
-              />
-            ))}
-            {(kpiSheetType === "responses" ? responseProspects : contactedProspects).length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-6">Aucun prospect dans cette catégorie.</p>
-            )}
-          </div>
+      {/* KPI Panel — bottom on mobile, right on desktop */}
+      <KpiPanel
+        isOpen={!!kpiSheetType}
+        onClose={() => onKpiSheetChange(null)}
+        title={kpiSheetType === "responses" ? "Réponses reçues" : "Ont été recontactés"}
+      >
+        <div className="space-y-3">
+          {(kpiSheetType === "responses" ? responseProspects : contactedProspects).map((prospect) => (
+            <ProspectCard
+              key={prospect.id}
+              name={prospect.name}
+              category={prospect.category}
+              stage={prospect.stage}
+              stageType={prospect.stageType}
+              currentStep={prospect.currentStep}
+              totalSteps={prospect.totalSteps}
+              context={prospect.context}
+              offers={prospect.offers}
+              lastSentDate={prospect.lastSentDate}
+              isNew={prospect.isNew}
+              onClick={() => {}}
+            />
+          ))}
+          {(kpiSheetType === "responses" ? responseProspects : contactedProspects).length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-6">Aucun prospect dans cette catégorie.</p>
+          )}
         </div>
-      </BottomSheet>
+      </KpiPanel>
     </div>
   );
 };
