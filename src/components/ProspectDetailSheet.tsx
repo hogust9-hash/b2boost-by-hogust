@@ -52,44 +52,44 @@ const mockEmailHistory: EmailHistoryItem[] = [
     subject: "Toujours partant pour du pain frais ?",
     body: `Bonjour,
 
-Je me permets de vous recontacter concernant notre offre de pain artisanal pour votre établissement.
+Je me permets de te recontacter concernant notre offre de pain artisanal pour ton établissement.
 
 Nous proposons des livraisons quotidiennes avant 7h, avec une large gamme de pains traditionnels et spéciaux.
 
-Seriez-vous disponible pour un essai gratuit cette semaine ?
+Serais-tu disponible pour un essai gratuit cette semaine ?
 
 Cordialement,
-Votre boulanger de quartier`,
+Ton boulanger de quartier`,
   },
   {
     id: "2",
     date: "27/01/2026",
     type: "Relance 2",
-    subject: "Une dégustation gratuite pour votre équipe ?",
+    subject: "Une dégustation gratuite pour ton équipe ?",
     body: `Bonjour,
 
-Suite à mon précédent message, je souhaitais vous proposer une dégustation gratuite de nos produits pour votre équipe.
+Suite à mon précédent message, je souhaitais te proposer une dégustation gratuite de nos produits pour ton équipe.
 
 Notre gamme comprend des viennoiseries fraîches, du pain bio et des spécialités régionales.
 
-N'hésitez pas à me contacter pour organiser cette dégustation.
+N'hésite pas à me contacter pour organiser cette dégustation.
 
 Bien cordialement,
-Votre boulanger`,
+Ton boulanger`,
   },
   {
     id: "3",
     date: "20/01/2026",
     type: "Relance 1",
-    subject: "Du pain frais pour votre établissement ?",
+    subject: "Du pain frais pour ton établissement ?",
     body: `Bonjour,
 
-Je me permets de vous recontacter suite à mon premier email concernant notre service de livraison de pain artisanal.
+Je me permets de te recontacter suite à mon premier email concernant notre service de livraison de pain artisanal.
 
-Nous travaillons avec plusieurs établissements de votre quartier et serions ravis de vous compter parmi nos partenaires.
+Nous travaillons avec plusieurs établissements de ton quartier et serions ravis de te compter parmi nos partenaires.
 
 À bientôt,
-Votre boulanger`,
+Ton boulanger`,
   },
   {
     id: "4",
@@ -100,9 +100,9 @@ Votre boulanger`,
 
 Je suis artisan boulanger à Paris 11 et je propose un service de livraison quotidienne de pain frais pour les professionnels du quartier.
 
-Notre boulangerie utilise des farines locales et des méthodes traditionnelles pour vous garantir un pain de qualité.
+Notre boulangerie utilise des farines locales et des méthodes traditionnelles pour te garantir un pain de qualité.
 
-Je serais ravi d'échanger avec vous sur vos besoins.
+Je serais ravi d'échanger avec toi sur tes besoins.
 
 Cordialement,
 Jean Dupont

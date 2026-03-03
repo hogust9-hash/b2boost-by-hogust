@@ -32,22 +32,22 @@ const MESSAGE_LABELS = [
 ];
 
 export function generateMessages(bakeries: BakeryEntry[], offers: OfferEntry[], selectedOfferIds: Set<string>): MessageEntry[] {
-  const bakery = bakeries[0] || { name: "Votre boulangerie", city: "votre ville" };
+  const bakery = bakeries[0] || { name: "Ta boulangerie", city: "ta ville" };
   const activeOffers = offers.filter(o => selectedOfferIds.has(o.id));
   const topOffer = activeOffers[0]?.name || "nos créations artisanales";
 
   return [
     {
       subject: `Découvrez les créations artisanales de ${bakery.name}`,
-      body: `Bonjour,\n\nNous sommes ${bakery.name}, artisan boulanger à ${bakery.city}. Nous proposons ${topOffer} et bien d'autres spécialités préparées chaque jour avec passion.\n\nSeriez-vous intéressé(e) par un partenariat gourmand de proximité ?\n\nÀ très vite,\nL'équipe ${bakery.name}`,
+      body: `Bonjour,\n\nNous sommes ${bakery.name}, artisan boulanger à ${bakery.city}. Nous proposons ${topOffer} et bien d'autres spécialités préparées chaque jour avec passion.\n\nSerais-tu intéressé(e) par un partenariat gourmand de proximité ?\n\nÀ très vite,\nL'équipe ${bakery.name}`,
     },
     {
       subject: `Un partenariat local qui a du goût !`,
-      body: `Bonjour,\n\nSuite à notre précédent message, nous voulions vous rappeler que ${bakery.name} est juste à côté ! Nos ${activeOffers.length} offres sont pensées pour les professionnels comme vous.\n\nUn café et une dégustation, ça vous dit ? 😊\n\nBien à vous,\n${bakery.name}`,
+      body: `Bonjour,\n\nSuite à notre précédent message, nous voulions te rappeler que ${bakery.name} est juste à côté ! Nos ${activeOffers.length} offres sont pensées pour les professionnels comme toi.\n\nUn café et une dégustation, ça te dit ? 😊\n\nBien à toi,\n${bakery.name}`,
     },
     {
       subject: `Dernière occasion de goûter à nos offres`,
-      body: `Bonjour,\n\nC'est notre dernier message — on ne veut pas être insistants ! Mais si l'idée d'un approvisionnement artisanal et local vous séduit, on serait ravis d'en discuter.\n\nFierté locale, qualité artisanale — c'est notre ADN.\n\nL'équipe ${bakery.name} 🥖`,
+      body: `Bonjour,\n\nC'est notre dernier message — on ne veut pas être insistants ! Mais si l'idée d'un approvisionnement artisanal et local te séduit, on serait ravis d'en discuter.\n\nFierté locale, qualité artisanale — c'est notre ADN.\n\nL'équipe ${bakery.name} 🥖`,
     },
   ];
 }
@@ -63,7 +63,7 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
     <div className="space-y-6 px-4 py-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">Séquence de prospection</h2>
-        <p className="text-sm text-muted-foreground mt-1">3 messages auto-générés — personnalisez-les à votre guise.</p>
+        <p className="text-sm text-muted-foreground mt-1">3 messages auto-générés — personnalise-les à ta guise.</p>
       </div>
 
       {messages.map((msg, i) => (

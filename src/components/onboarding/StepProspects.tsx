@@ -30,7 +30,7 @@ const StepProspects: React.FC<StepProspectsProps> = ({ bakeries, onNext }) => {
     <div className="space-y-6 px-4 py-6">
       <div className="text-center space-y-2">
         <h2 className="text-xl font-bold text-foreground">Aperçu des prospects</h2>
-        <p className="text-sm text-muted-foreground">Voici une estimation des cibles B2B détectées dans vos zones de couverture.</p>
+        <p className="text-sm text-muted-foreground">Voici une estimation des cibles B2B détectées dans tes zones de couverture.</p>
       </div>
 
       {/* Total counter */}

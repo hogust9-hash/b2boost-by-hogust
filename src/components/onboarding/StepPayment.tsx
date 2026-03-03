@@ -45,7 +45,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({
 
   const handleSubmit = async () => {
     if (!email || !password || !fullName) {
-      setError("Veuillez remplir tous les champs.");
+      setError("Remplis tous les champs.");
       return;
     }
     setIsLoading(true);
@@ -145,8 +145,8 @@ const StepPayment: React.FC<StepPaymentProps> = ({
   return (
     <div className="space-y-6 px-4 py-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Choisissez votre pack</h2>
-        <p className="text-sm text-muted-foreground mt-1">Les crédits non utilisés sont conservés pour vos prochaines campagnes.</p>
+        <h2 className="text-xl font-bold text-foreground">Choisis ton pack</h2>
+        <p className="text-sm text-muted-foreground mt-1">Les crédits non utilisés sont conservés pour tes prochaines campagnes.</p>
       </div>
 
       {/* Pack selection */}
@@ -176,7 +176,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({
       {/* Signup form */}
       {showSignup && (
         <div className="bg-card rounded-xl border border-border p-4 space-y-4">
-          <h3 className="text-sm font-semibold text-foreground">Créez votre compte</h3>
+          <h3 className="text-sm font-semibold text-foreground">Crée ton compte</h3>
           <div className="space-y-1">
             <Label>Nom complet</Label>
             <Input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Jean Dupont" />

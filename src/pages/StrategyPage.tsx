@@ -36,10 +36,10 @@ Je suis artisan boulanger à Paris 11 et je propose des livraisons quotidiennes 
 
 Nous travaillons avec des farines locales et cuisons tout sur place chaque matin. Nos clients apprécient particulièrement notre baguette tradition et nos croissants pur beurre.
 
-Seriez-vous intéressé par une dégustation gratuite ?
+Serais-tu intéressé par une dégustation gratuite ?
 
 Cordialement,
-Votre boulanger de quartier`,
+Ton boulanger de quartier`,
   },
   {
     id: "entreprise",
@@ -51,12 +51,12 @@ Je suis artisan boulanger et je propose aux entreprises du quartier un service d
 
 Croissants, pains au chocolat, brioches... Tout est préparé la nuit et livré avant 8h30.
 
-Idéal pour vos réunions du matin ou pour fidéliser vos équipes !
+Idéal pour tes réunions du matin ou pour fidéliser tes équipes !
 
-Voulez-vous que je vous envoie notre carte et nos tarifs entreprise ?
+Veux-tu que je t'envoie notre carte et nos tarifs entreprise ?
 
 À bientôt,
-Votre boulanger`,
+Ton boulanger`,
   },
 ];
 
@@ -83,7 +83,7 @@ const StrategyPage: React.FC<StrategyPageProps> = ({ isEmpty = false }) => {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h1 className="text-lg font-semibold text-foreground ml-2">
-            Votre stratégie
+            Ta stratégie
           </h1>
         </div>
       </header>
@@ -129,7 +129,7 @@ const StrategyContent: React.FC<StrategyContentProps> = ({ prospectsCount }) => 
       <div className="relative z-10">
         <p className="text-5xl font-bold mb-2">{prospectsCount}</p>
         <p className="text-primary-foreground/90 text-lg">
-          prospects identifiés dans votre zone
+          prospects identifiés dans ta zone
         </p>
       </div>
       <Target className="absolute right-4 top-1/2 -translate-y-1/2 h-20 w-20 text-primary-foreground/20" />
@@ -227,7 +227,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onExpand }) => (
       Aucun prospect trouvé
     </h2>
     <p className="text-muted-foreground mb-8 max-w-xs">
-      Votre zone semble déjà bien couverte, ou le périmètre est trop restreint.
+      Ta zone semble déjà bien couverte, ou le périmètre est trop restreint.
     </p>
     <Button onClick={onExpand} size="lg">
       Élargir mon périmètre

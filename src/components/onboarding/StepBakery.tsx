@@ -214,8 +214,8 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
   return (
     <div className="space-y-6 px-4 py-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Ajoutez vos boulangeries</h2>
-        <p className="text-sm text-muted-foreground mt-1">Indiquez l'adresse et la zone de couverture de chaque établissement.</p>
+        <h2 className="text-xl font-bold text-foreground">Ajoute tes boulangeries</h2>
+        <p className="text-sm text-muted-foreground mt-1">Indique l'adresse et la zone de couverture de chaque établissement.</p>
       </div>
 
       {/* Map */}
