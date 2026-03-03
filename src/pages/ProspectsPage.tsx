@@ -344,7 +344,7 @@ const ProspectsPage = () => {
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-foreground hover:bg-muted/80"
             )}>
-              {cardFilter === "all" ? "Toutes" : "Ma to-do"}
+              {cardFilter === "all" ? "Cartes" : "Ma to-do"}
               <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[160px]">
@@ -357,23 +357,54 @@ const ProspectsPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Category chip */}
+          {/* Bakery chip */}
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
               "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
-              selectedCategories.length > 0
+              selectedBakeries.length > 0
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-foreground hover:bg-muted/80"
             )}>
-              Catégorie
-              {selectedCategories.length > 0 && (
+              Boulangerie
+              {selectedBakeries.length > 0 && (
                 <span className="bg-primary-foreground text-primary rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
-                  {selectedCategories.length}
+                  {selectedBakeries.length}
                 </span>
               )}
               <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[180px]">
+              {bakeryOptions.map((b) => (
+                <DropdownMenuCheckboxItem
+                  key={b.id}
+                  checked={selectedBakeries.includes(b.id)}
+                  onCheckedChange={() => toggleBakery(b.id)}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  🏪 {b.label}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* + Filtres chip (groups Panier & Catégorie) */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
+              (selectedOffers.length > 0 || selectedCategories.length > 0)
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-muted/80"
+            )}>
+              <SlidersHorizontal className="h-3 w-3" />
+              + Filtres
+              {(selectedOffers.length + selectedCategories.length) > 0 && (
+                <span className="bg-primary-foreground text-primary rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
+                  {selectedOffers.length + selectedCategories.length}
+                </span>
+              )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[220px] max-h-[320px] overflow-y-auto">
+              <div className="px-2 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Catégorie</div>
               {categoryOptions.map((cat) => (
                 <DropdownMenuCheckboxItem
                   key={cat.id}
@@ -385,27 +416,7 @@ const ProspectsPage = () => {
                   {cat.label}
                 </DropdownMenuCheckboxItem>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* + Filtres chip (groups Panier & Boulangerie) */}
-          <DropdownMenu>
-            <DropdownMenuTrigger className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
-              (selectedOffers.length > 0 || selectedBakeries.length > 0)
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-foreground hover:bg-muted/80"
-            )}>
-              <SlidersHorizontal className="h-3 w-3" />
-              + Filtres
-              {(selectedOffers.length + selectedBakeries.length) > 0 && (
-                <span className="bg-primary-foreground text-primary rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
-                  {selectedOffers.length + selectedBakeries.length}
-                </span>
-              )}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-[220px] max-h-[320px] overflow-y-auto">
-              <div className="px-2 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Panier</div>
+              <div className="px-2 py-1.5 mt-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider border-t border-border">Panier</div>
               {offerOptions.map((offer) => (
                 <DropdownMenuCheckboxItem
                   key={offer}
@@ -414,17 +425,6 @@ const ProspectsPage = () => {
                   onSelect={(e) => e.preventDefault()}
                 >
                   {offer}
-                </DropdownMenuCheckboxItem>
-              ))}
-              <div className="px-2 py-1.5 mt-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider border-t border-border">Boulangerie</div>
-              {bakeryOptions.map((b) => (
-                <DropdownMenuCheckboxItem
-                  key={b.id}
-                  checked={selectedBakeries.includes(b.id)}
-                  onCheckedChange={() => toggleBakery(b.id)}
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  🏪 {b.label}
                 </DropdownMenuCheckboxItem>
               ))}
             </DropdownMenuContent>
