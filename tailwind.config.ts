@@ -77,6 +77,9 @@ export default {
           entreprises: "hsl(var(--category-entreprises))",
           collectivites: "hsl(var(--category-collectivites))",
         },
+        amber: {
+          accent: "hsl(var(--amber-accent))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
