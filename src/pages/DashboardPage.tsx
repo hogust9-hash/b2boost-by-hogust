@@ -429,11 +429,11 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* KPI Section */}
-      <div className="rounded-[20px] shadow-sm p-4 space-y-3 mx-4" style={{ background: '#F8F9FB' }}>
+      <div className="rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] mx-4 p-4" style={{ background: '#F8F9FB' }}>
         {/* Unified filter bar */}
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-3">
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 h-10 rounded-full text-sm font-medium bg-card border border-border text-foreground hover:bg-muted transition-colors outline-none whitespace-nowrap">
+            <DropdownMenuTrigger className="flex-1 inline-flex items-center justify-center gap-1.5 px-2 h-9 rounded-full text-sm font-medium bg-card border border-border text-foreground hover:bg-muted transition-colors outline-none whitespace-nowrap">
               {dashboardPeriodLabels[selectedPeriod]}
               <ChevronDown className="h-3.5 w-3.5" />
             </DropdownMenuTrigger>
@@ -451,7 +451,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 h-10 rounded-full text-sm font-medium bg-card border border-border text-foreground hover:bg-muted transition-colors outline-none whitespace-nowrap">
+            <DropdownMenuTrigger className="flex-1 inline-flex items-center justify-center gap-1.5 px-2 h-9 rounded-full text-sm font-medium bg-card border border-border text-foreground hover:bg-muted transition-colors outline-none whitespace-nowrap">
               <span className="truncate">
                 {selectedBakery ? selectedBakery.label : "Toutes les boulangeries"}
               </span>
@@ -486,39 +486,43 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => onKpiSheetChange("responses")}
-                  className="relative rounded-xl border border-border shadow-sm p-5 min-h-[100px] text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer border-l-4 border-l-success bg-success/5"
+                  className="flex items-center rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-success bg-success/5"
                 >
-                  <p className="text-[40px] font-extrabold leading-none text-foreground">{kpis.responses}</p>
-                  <p className="text-[13px] text-muted-foreground mt-2">Réponses reçues</p>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-success rotate-[-90deg]" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-2xl font-bold text-foreground">{kpis.responses}</p>
+                    <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Réponses reçues</p>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-success rotate-[-90deg] flex-shrink-0" />
                 </button>
 
                 <button
                   onClick={() => onKpiSheetChange("contacted")}
-                  className="relative rounded-xl border border-border shadow-sm p-5 min-h-[100px] text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer border-l-4 border-l-amber-accent bg-[hsl(var(--amber-accent)/0.05)]"
+                  className="flex items-center rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-amber-accent bg-[hsl(var(--amber-accent)/0.05)]"
                 >
-                  <p className="text-[40px] font-extrabold leading-none text-foreground">{toContactProspects.length}</p>
-                  <p className="text-[13px] text-muted-foreground mt-2">Encore à contacter</p>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-amber-accent rotate-[-90deg]" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-2xl font-bold text-foreground">{toContactProspects.length}</p>
+                    <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Encore à contacter</p>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-amber-accent rotate-[-90deg] flex-shrink-0" />
                 </button>
               </div>
 
               {/* Zone 2 — Blue card */}
-              <div className="bg-primary rounded-xl px-4 py-5 text-primary-foreground">
+              <div className="bg-primary rounded-xl px-4 py-3 text-primary-foreground">
                 <div className="flex items-stretch justify-between">
-                  <div className="flex flex-col items-center justify-center flex-1 min-h-[70px]">
-                    <span className="text-xs text-primary-foreground/80 mb-1">Nouveaux prospects</span>
-                    <span className="text-[32px] leading-tight font-bold">{kpis.prospects}</span>
+                  <div className="flex flex-col items-center justify-center flex-1">
+                    <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Nouveaux prospects</span>
+                    <span className="text-[28px] leading-tight font-bold">{kpis.prospects}</span>
                   </div>
-                  <div className="w-px bg-primary-foreground/20 mx-2 self-stretch" />
-                  <div className="flex flex-col items-center justify-center flex-1 min-h-[70px]">
-                    <span className="text-xs text-primary-foreground/80 mb-1">Emails envoyés</span>
-                    <span className="text-[32px] leading-tight font-bold">{kpis.emails}</span>
+                  <div className="w-px bg-primary-foreground/30 self-stretch" />
+                  <div className="flex flex-col items-center justify-center flex-1">
+                    <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Emails envoyés</span>
+                    <span className="text-[28px] leading-tight font-bold">{kpis.emails}</span>
                   </div>
-                  <div className="w-px bg-primary-foreground/20 mx-2 self-stretch" />
-                  <div className="flex flex-col items-center justify-center flex-1 min-h-[70px]">
-                    <span className="text-xs text-primary-foreground/80 mb-1">Relances</span>
-                    <span className="text-[32px] leading-tight font-bold">{kpis.relances}</span>
+                  <div className="w-px bg-primary-foreground/30 self-stretch" />
+                  <div className="flex flex-col items-center justify-center flex-1">
+                    <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Relances</span>
+                    <span className="text-[28px] leading-tight font-bold">{kpis.relances}</span>
                   </div>
                 </div>
               </div>
