@@ -212,24 +212,24 @@ const dashboardPeriodLabels: Record<DashboardPeriodFilter, string> = {
   quarter: "Ce trimestre",
 };
 
-const dashboardBakeryPeriodKpis: Record<string, Record<DashboardPeriodFilter, { emails: number; prospects: number; relances: number }>> = {
+const dashboardBakeryPeriodKpis: Record<string, Record<DashboardPeriodFilter, { responses: number; emails: number; prospects: number; relances: number }>> = {
   "1": {
-    all: { emails: 65, prospects: 35, relances: 18 },
-    week: { emails: 5, prospects: 3, relances: 1 },
-    month: { emails: 18, prospects: 10, relances: 5 },
-    quarter: { emails: 47, prospects: 25, relances: 12 },
+    all: { responses: 3, emails: 65, prospects: 35, relances: 18 },
+    week: { responses: 1, emails: 5, prospects: 3, relances: 1 },
+    month: { responses: 2, emails: 18, prospects: 10, relances: 5 },
+    quarter: { responses: 3, emails: 47, prospects: 25, relances: 12 },
   },
   "2": {
-    all: { emails: 85, prospects: 42, relances: 22 },
-    week: { emails: 5, prospects: 3, relances: 2 },
-    month: { emails: 20, prospects: 10, relances: 4 },
-    quarter: { emails: 62, prospects: 31, relances: 16 },
+    all: { responses: 5, emails: 85, prospects: 42, relances: 22 },
+    week: { responses: 1, emails: 5, prospects: 3, relances: 2 },
+    month: { responses: 3, emails: 20, prospects: 10, relances: 4 },
+    quarter: { responses: 5, emails: 62, prospects: 31, relances: 16 },
   },
   "3": {
-    all: { emails: 32, prospects: 18, relances: 9 },
-    week: { emails: 2, prospects: 2, relances: 0 },
-    month: { emails: 9, prospects: 5, relances: 2 },
-    quarter: { emails: 23, prospects: 12, relances: 6 },
+    all: { responses: 1, emails: 32, prospects: 18, relances: 9 },
+    week: { responses: 0, emails: 2, prospects: 2, relances: 0 },
+    month: { responses: 1, emails: 9, prospects: 5, relances: 2 },
+    quarter: { responses: 1, emails: 23, prospects: 12, relances: 6 },
   },
 };
 
@@ -239,12 +239,13 @@ const getDashboardKpis = (selectedBakeryId: string | null, period: DashboardPeri
     (acc, id) => {
       const data = dashboardBakeryPeriodKpis[id];
       if (!data) return acc;
+      acc.responses += data[period].responses;
       acc.emails += data[period].emails;
       acc.prospects += data[period].prospects;
       acc.relances += data[period].relances;
       return acc;
     },
-    { emails: 0, prospects: 0, relances: 0 }
+    { responses: 0, emails: 0, prospects: 0, relances: 0 }
   );
 };
 
@@ -419,44 +420,44 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
 
         {/* Left column (main KPIs) — spans 7 cols on desktop */}
         <div className="md:col-span-7 space-y-5">
-          {/* Main KPI Block with period filter */}
-          <div className="bg-primary rounded-xl p-5 md:p-6 text-primary-foreground relative overflow-hidden">
-            <div className="relative z-10">
-              <p className="text-4xl md:text-5xl font-bold mb-1">{data.responsesReceived}</p>
-              <p className="text-primary-foreground/90 md:text-lg">réponses reçues</p>
-            </div>
-            <MailOpen className="absolute right-4 top-1/2 -translate-y-1/2 h-16 w-16 md:h-20 md:w-20 text-primary-foreground/20" />
-          </div>
+          {/* Main KPI Block — responses + period filter + secondary KPIs */}
+          {(() => {
+            const kpis = getDashboardKpis(selectedBakeryId, selectedPeriod);
+            return (
+              <div className="bg-primary rounded-xl p-5 md:p-6 text-primary-foreground relative overflow-hidden">
+                {/* Period filter */}
+                <div className="relative z-10 mb-4">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-foreground/15 text-sm font-semibold text-primary-foreground hover:bg-primary-foreground/25 transition-colors outline-none">
+                      {dashboardPeriodLabels[selectedPeriod]}
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="min-w-[160px]">
+                      {(["all", "week", "month", "quarter"] as DashboardPeriodFilter[]).map((period) => (
+                        <DropdownMenuItem
+                          key={period}
+                          onClick={() => onPeriodChange(period)}
+                          className={cn(
+                            "cursor-pointer text-sm",
+                            selectedPeriod === period && "bg-primary/10 text-primary font-medium"
+                          )}
+                        >
+                          {dashboardPeriodLabels[period]}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
 
-          {/* Period-filtered KPIs */}
-          <div className="bg-primary rounded-xl px-5 py-3.5 text-primary-foreground">
-            <div className="mb-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-foreground/15 text-sm font-semibold text-primary-foreground hover:bg-primary-foreground/25 transition-colors outline-none">
-                  {dashboardPeriodLabels[selectedPeriod]}
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="min-w-[160px]">
-                  {(["all", "week", "month", "quarter"] as DashboardPeriodFilter[]).map((period) => (
-                    <DropdownMenuItem
-                      key={period}
-                      onClick={() => onPeriodChange(period)}
-                      className={cn(
-                        "cursor-pointer text-sm",
-                        selectedPeriod === period && "bg-primary/10 text-primary font-medium"
-                      )}
-                    >
-                      {dashboardPeriodLabels[period]}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                {/* Responses hero */}
+                <div className="relative z-10 mb-5">
+                  <p className="text-4xl md:text-5xl font-bold mb-1">{kpis.responses}</p>
+                  <p className="text-primary-foreground/90 md:text-lg">réponses reçues</p>
+                </div>
+                <MailOpen className="absolute right-4 top-1/2 -translate-y-1/2 h-16 w-16 md:h-20 md:w-20 text-primary-foreground/20" />
 
-            {(() => {
-              const kpis = getDashboardKpis(selectedBakeryId, selectedPeriod);
-              return (
-                <div className="flex items-center justify-evenly">
+                {/* Secondary KPIs inline */}
+                <div className="relative z-10 flex items-center justify-evenly border-t border-primary-foreground/15 pt-4">
                   <div className="flex flex-col items-center gap-1">
                     <span className="text-2xl font-bold">{kpis.emails}</span>
                     <span className="text-xs opacity-80">emails envoyés</span>
@@ -472,9 +473,9 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                     <span className="text-xs opacity-80">relances</span>
                   </div>
                 </div>
-              );
-            })()}
-          </div>
+              </div>
+            );
+          })()}
 
           {/* Top Responding Categories — below campaign pills */}
           {data.topCategories.length > 0 && (
