@@ -8,7 +8,7 @@ import { ProspectCardSkeleton } from "@/components/ui/skeleton-card";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useCustomToast } from "@/components/ui/custom-toast";
 import { CategoryType } from "@/components/ui/badge-category";
-import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter, UtensilsCrossed, Bed, GraduationCap, Building2, Landmark, type LucideIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter, CalendarDays, LayoutGrid, UtensilsCrossed, Bed, GraduationCap, Building2, Landmark, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -132,6 +132,7 @@ const ProspectsPage = () => {
   const [selectedCategories, setSelectedCategories] = useState<CategoryFilterType[]>([]);
   const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
   const [selectedBakeries, setSelectedBakeries] = useState<string[]>([]);
+  const [cardFilter, setCardFilter] = useState<"all" | "todo">("all");
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     responses: true,
@@ -166,9 +167,11 @@ const ProspectsPage = () => {
     setSelectedCategories([]);
     setSelectedOffers([]);
     setSelectedBakeries([]);
+    setSelectedPeriod("quarter");
+    setCardFilter("all");
   };
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedOffers.length > 0 || selectedBakeries.length > 0;
+  const hasActiveFilters = selectedCategories.length > 0 || selectedOffers.length > 0 || selectedBakeries.length > 0 || cardFilter !== "all" || selectedPeriod !== "quarter";
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -293,61 +296,67 @@ const ProspectsPage = () => {
     <div className="min-h-screen bg-background pb-20 page-transition">
       <Header notificationCount={responseProspects.length} />
 
-      {/* Hero KPI Banner */}
-      <div className="mx-4 mt-3 mb-1">
-        <div className="bg-primary rounded-xl px-5 py-3.5 text-primary-foreground">
-          {/* Period selector inline */}
-          <div className="mb-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-foreground/15 text-sm font-semibold text-primary-foreground hover:bg-primary-foreground/25 transition-colors outline-none">
-                {periodLabels[selectedPeriod]}
-                <ChevronDown className="h-3.5 w-3.5" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-[160px]">
-                {(["all", "week", "month", "quarter"] as PeriodFilter[]).map((period) => (
-                  <DropdownMenuItem
-                    key={period}
-                    onClick={() => setSelectedPeriod(period)}
-                    className={cn(
-                      "cursor-pointer text-sm",
-                      selectedPeriod === period && "bg-primary/10 text-primary font-medium"
-                    )}
-                  >
-                    {periodLabels[period]}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {(() => {
-            const kpis = getFilteredKpis(selectedBakeries, selectedPeriod);
-            return (
-              <div className="flex items-center justify-evenly">
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-2xl font-bold">{kpis.emails}</span>
-                  <span className="text-xs opacity-80">emails envoyés</span>
-                </div>
-                <div className="w-px h-9 bg-primary-foreground/20" />
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-2xl font-bold">{kpis.prospects}</span>
-                  <span className="text-xs opacity-80">prospects</span>
-                </div>
-                <div className="w-px h-9 bg-primary-foreground/20" />
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-2xl font-bold">{kpis.relances}</span>
-                  <span className="text-xs opacity-80">relances</span>
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-      </div>
 
       {/* Filters - Notion style */}
       <div className="sticky top-14 bg-background z-40 py-2.5 border-b border-border">
-        <div className="flex items-center gap-2 px-4">
+        <div className="flex items-center gap-2 px-4 overflow-x-auto scrollbar-hide">
           <Filter className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+
+          {/* Period Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px] whitespace-nowrap",
+              selectedPeriod !== "quarter"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-card text-foreground hover:border-primary/40"
+            )}>
+              <CalendarDays className="h-3.5 w-3.5" />
+              {periodLabels[selectedPeriod]}
+              <ChevronDown className="h-3.5 w-3.5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[160px]">
+              {(["all", "week", "month", "quarter"] as PeriodFilter[]).map((period) => (
+                <DropdownMenuItem
+                  key={period}
+                  onClick={() => setSelectedPeriod(period)}
+                  className={cn(
+                    "cursor-pointer text-sm",
+                    selectedPeriod === period && "bg-primary/10 text-primary font-medium"
+                  )}
+                >
+                  {periodLabels[period]}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Card Filter Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors min-h-[36px] whitespace-nowrap",
+              cardFilter !== "all"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-card text-foreground hover:border-primary/40"
+            )}>
+              <LayoutGrid className="h-3.5 w-3.5" />
+              {cardFilter === "all" ? "Toutes mes cartes" : "Ma to-do"}
+              <ChevronDown className="h-3.5 w-3.5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[180px]">
+              <DropdownMenuItem
+                onClick={() => setCardFilter("all")}
+                className={cn("cursor-pointer text-sm", cardFilter === "all" && "bg-primary/10 text-primary font-medium")}
+              >
+                Toutes mes cartes
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setCardFilter("todo")}
+                className={cn("cursor-pointer text-sm", cardFilter === "todo" && "bg-primary/10 text-primary font-medium")}
+              >
+                Ma to-do
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Category Dropdown */}
           <DropdownMenu>
@@ -454,6 +463,22 @@ const ProspectsPage = () => {
         {/* Active filter tags - Notion style */}
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-1.5 px-4 pt-2">
+            {selectedPeriod !== "quarter" && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium">
+                <CalendarDays className="h-3 w-3" /> {periodLabels[selectedPeriod]}
+                <button onClick={() => setSelectedPeriod("quarter")} className="hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
+            {cardFilter !== "all" && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium">
+                <LayoutGrid className="h-3 w-3" /> Ma to-do
+                <button onClick={() => setCardFilter("all")} className="hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
             {selectedCategories.map((catId) => {
               const cat = categoryOptions.find((c) => c.id === catId);
               return (
@@ -504,53 +529,65 @@ const ProspectsPage = () => {
           <LoadingSkeleton />
         ) : (
           <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-3 md:gap-4 md:px-4">
-            {/* Responses Section */}
-            <ProspectSection
-              icon={<CheckCircle2 className="h-5 w-5" />}
-              title="Réponses reçues"
-              count={unhandledResponseCount}
-              totalCount={responseProspects.length}
-              isExpanded={expandedSections.responses}
-              onToggle={() => toggleSection("responses")}
-              variant="success"
-              prospects={responseProspects}
-              onCardClick={handleCardClick}
-              showResponseAction
-              handledProspects={handledProspects}
-              onMarkAsHandled={handleMarkAsHandled}
-              onMarkAsUnhandled={handleMarkAsUnhandled}
-              calledProspects={calledProspects}
-              onToggleCalled={handleToggleCalled}
-            />
+            {/* Responses Section (or To-do filtered) */}
+            {(() => {
+              const todoProspects = cardFilter === "todo"
+                ? responseProspects.filter((p) => !handledProspects[p.id])
+                : responseProspects;
+              const todoUnhandled = todoProspects.filter((p) => !handledProspects[p.id]).length;
+              return (
+                <ProspectSection
+                  icon={<CheckCircle2 className="h-5 w-5" />}
+                  title={cardFilter === "todo" ? "Ma to-do" : "Réponses reçues"}
+                  count={todoUnhandled}
+                  totalCount={todoProspects.length}
+                  isExpanded={expandedSections.responses}
+                  onToggle={() => toggleSection("responses")}
+                  variant="success"
+                  prospects={todoProspects}
+                  onCardClick={handleCardClick}
+                  showResponseAction
+                  handledProspects={handledProspects}
+                  onMarkAsHandled={handleMarkAsHandled}
+                  onMarkAsUnhandled={handleMarkAsUnhandled}
+                  calledProspects={calledProspects}
+                  onToggleCalled={handleToggleCalled}
+                />
+              );
+            })()}
 
-            {/* In Progress Section */}
-            <ProspectSection
-              icon={<Send className="h-5 w-5" />}
-              title="En cours de prospection"
-              count={inProgressProspects.length}
-              totalCount={inProgressProspects.length}
-              isExpanded={expandedSections.inProgress}
-              onToggle={() => toggleSection("inProgress")}
-              variant="default"
-              prospects={inProgressProspects}
-              onCardClick={handleCardClick}
-              calledProspects={calledProspects}
-              onToggleCalled={handleToggleCalled}
-            />
+            {/* In Progress Section - hidden in todo mode */}
+            {cardFilter === "all" && (
+              <ProspectSection
+                icon={<Send className="h-5 w-5" />}
+                title="En cours de prospection"
+                count={inProgressProspects.length}
+                totalCount={inProgressProspects.length}
+                isExpanded={expandedSections.inProgress}
+                onToggle={() => toggleSection("inProgress")}
+                variant="default"
+                prospects={inProgressProspects}
+                onCardClick={handleCardClick}
+                calledProspects={calledProspects}
+                onToggleCalled={handleToggleCalled}
+              />
+            )}
 
-            {/* Finished Section */}
-            <ProspectSection
-              icon={<Clock className="h-5 w-5" />}
-              title="Terminés sans réponse"
-              count={finishedProspects.length}
-              totalCount={finishedProspects.length}
-              isExpanded={expandedSections.finished}
-              onToggle={() => toggleSection("finished")}
-              variant="muted"
-              prospects={finishedProspects}
-              onCardClick={handleCardClick}
-              dimCards
-            />
+            {/* Finished Section - hidden in todo mode */}
+            {cardFilter === "all" && (
+              <ProspectSection
+                icon={<Clock className="h-5 w-5" />}
+                title="Terminés sans réponse"
+                count={finishedProspects.length}
+                totalCount={finishedProspects.length}
+                isExpanded={expandedSections.finished}
+                onToggle={() => toggleSection("finished")}
+                variant="muted"
+                prospects={finishedProspects}
+                onCardClick={handleCardClick}
+                dimCards
+              />
+            )}
           </div>
           )}
         </main>
