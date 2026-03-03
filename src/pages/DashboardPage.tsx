@@ -203,11 +203,57 @@ const emptyData: DashboardData = {
   topCategories: [],
 };
 
+type DashboardPeriodFilter = "all" | "week" | "month" | "quarter";
+
+const dashboardPeriodLabels: Record<DashboardPeriodFilter, string> = {
+  all: "Tout",
+  week: "Cette semaine",
+  month: "Ce mois",
+  quarter: "Ce trimestre",
+};
+
+const dashboardBakeryPeriodKpis: Record<string, Record<DashboardPeriodFilter, { emails: number; prospects: number; relances: number }>> = {
+  "1": {
+    all: { emails: 65, prospects: 35, relances: 18 },
+    week: { emails: 5, prospects: 3, relances: 1 },
+    month: { emails: 18, prospects: 10, relances: 5 },
+    quarter: { emails: 47, prospects: 25, relances: 12 },
+  },
+  "2": {
+    all: { emails: 85, prospects: 42, relances: 22 },
+    week: { emails: 5, prospects: 3, relances: 2 },
+    month: { emails: 20, prospects: 10, relances: 4 },
+    quarter: { emails: 62, prospects: 31, relances: 16 },
+  },
+  "3": {
+    all: { emails: 32, prospects: 18, relances: 9 },
+    week: { emails: 2, prospects: 2, relances: 0 },
+    month: { emails: 9, prospects: 5, relances: 2 },
+    quarter: { emails: 23, prospects: 12, relances: 6 },
+  },
+};
+
+const getDashboardKpis = (selectedBakeryId: string | null, period: DashboardPeriodFilter) => {
+  const ids = selectedBakeryId ? [selectedBakeryId] : Object.keys(dashboardBakeryPeriodKpis);
+  return ids.reduce(
+    (acc, id) => {
+      const data = dashboardBakeryPeriodKpis[id];
+      if (!data) return acc;
+      acc.emails += data[period].emails;
+      acc.prospects += data[period].prospects;
+      acc.relances += data[period].relances;
+      return acc;
+    },
+    { emails: 0, prospects: 0, relances: 0 }
+  );
+};
+
 const DashboardPage = () => {
   const [isOffersOpen, setIsOffersOpen] = useState(true);
   const [selectedBakeryId, setSelectedBakeryId] = useState<string | null>(null);
   const [selectedBasket, setSelectedBasket] = useState<BasketDetail | null>(null);
   const [isEmpty] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<DashboardPeriodFilter>("quarter");
   
   // Get data based on selection
   const getData = (): DashboardData => {
@@ -255,6 +301,8 @@ const DashboardPage = () => {
             selectedBakeryId={selectedBakeryId}
             onBakeryChange={setSelectedBakeryId}
             onBasketClick={(name) => setSelectedBasket(mockBasketDetails[name] || null)}
+            selectedPeriod={selectedPeriod}
+            onPeriodChange={setSelectedPeriod}
           />
         )}
       </main>
@@ -299,6 +347,8 @@ interface ActiveDashboardProps {
   selectedBakeryId: string | null;
   onBakeryChange: (id: string | null) => void;
   onBasketClick: (name: string) => void;
+  selectedPeriod: DashboardPeriodFilter;
+  onPeriodChange: (period: DashboardPeriodFilter) => void;
 }
 
 const ActiveDashboard: React.FC<ActiveDashboardProps> = ({ 
@@ -309,6 +359,8 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   selectedBakeryId,
   onBakeryChange,
   onBasketClick,
+  selectedPeriod,
+  onPeriodChange,
 }) => {
   const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
   
@@ -367,7 +419,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
 
         {/* Left column (main KPIs) — spans 7 cols on desktop */}
         <div className="md:col-span-7 space-y-5">
-          {/* Main KPI Block */}
+          {/* Main KPI Block with period filter */}
           <div className="bg-primary rounded-xl p-5 md:p-6 text-primary-foreground relative overflow-hidden">
             <div className="relative z-10">
               <p className="text-4xl md:text-5xl font-bold mb-1">{data.responsesReceived}</p>
@@ -376,23 +428,52 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
             <MailOpen className="absolute right-4 top-1/2 -translate-y-1/2 h-16 w-16 md:h-20 md:w-20 text-primary-foreground/20" />
           </div>
 
-          {/* Secondary KPIs — 3 cards in a row */}
-          <div className="grid grid-cols-3 gap-3">
-            <KpiCard 
-              value={data.emailsSent.toString()} 
-              label="emails envoyés" 
-              icon={Send} 
-            />
-            <KpiCard 
-              value={data.prospectsContacted.toString()} 
-              label="prospects contactés" 
-              icon={Users} 
-            />
-            <KpiCard 
-              value={`${data.responseRate}%`} 
-              label="taux de réponse" 
-              icon={TrendingUp} 
-            />
+          {/* Period-filtered KPIs */}
+          <div className="bg-primary rounded-xl px-5 py-3.5 text-primary-foreground">
+            <div className="mb-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-foreground/15 text-sm font-semibold text-primary-foreground hover:bg-primary-foreground/25 transition-colors outline-none">
+                  {dashboardPeriodLabels[selectedPeriod]}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="min-w-[160px]">
+                  {(["all", "week", "month", "quarter"] as DashboardPeriodFilter[]).map((period) => (
+                    <DropdownMenuItem
+                      key={period}
+                      onClick={() => onPeriodChange(period)}
+                      className={cn(
+                        "cursor-pointer text-sm",
+                        selectedPeriod === period && "bg-primary/10 text-primary font-medium"
+                      )}
+                    >
+                      {dashboardPeriodLabels[period]}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {(() => {
+              const kpis = getDashboardKpis(selectedBakeryId, selectedPeriod);
+              return (
+                <div className="flex items-center justify-evenly">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-2xl font-bold">{kpis.emails}</span>
+                    <span className="text-xs opacity-80">emails envoyés</span>
+                  </div>
+                  <div className="w-px h-9 bg-primary-foreground/20" />
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-2xl font-bold">{kpis.prospects}</span>
+                    <span className="text-xs opacity-80">prospects</span>
+                  </div>
+                  <div className="w-px h-9 bg-primary-foreground/20" />
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-2xl font-bold">{kpis.relances}</span>
+                    <span className="text-xs opacity-80">relances</span>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Top Responding Categories — below campaign pills */}
