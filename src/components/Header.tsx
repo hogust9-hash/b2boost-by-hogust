@@ -14,9 +14,9 @@ const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 bg-card border-b border-border h-14 z-50">
       <div className="flex items-center justify-between h-full px-4 max-w-5xl mx-auto">
         {/* Logo */}
-        <div className="flex-shrink-0">
+        <div className="flex items-baseline gap-0">
           <span className="text-lg font-bold text-primary">B2Boost</span>
-          <span className="text-sm text-muted-foreground font-normal ml-1.5">by Hogust</span>
+          <span className="text-xs text-muted-foreground font-normal ml-1.5">by Hogust</span>
         </div>
 
         {/* Spacer */}

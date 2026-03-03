@@ -36,6 +36,8 @@ interface ProspectCardProps {
   // Called checkbox
   isCalled?: boolean;
   onToggleCalled?: () => void;
+  // Compact mode for finished cards
+  compact?: boolean;
 }
 
 // Status badge component with optional progression dots
@@ -126,6 +128,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
   onMarkAsUnhandled,
   isCalled = false,
   onToggleCalled,
+  compact = false,
 }) => {
   const handleActionClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -140,6 +143,38 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
     e.stopPropagation();
     onToggleCalled?.();
   };
+
+  // Compact mode: only name + category badge + date
+  if (compact) {
+    return (
+      <div
+        onClick={onClick}
+        className={cn(
+          "relative rounded-lg px-3 py-2 border border-border",
+          "cursor-pointer transition-all duration-150",
+          "hover:shadow-sm hover:border-primary/20",
+          "active:scale-[0.99]",
+          "bg-muted/30",
+          className
+        )}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <h3 className="text-xs font-medium text-foreground truncate">{name}</h3>
+            {category && (() => {
+              const Icon = categoryIcon[category];
+              return (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border border-border text-muted-foreground bg-background whitespace-nowrap flex-shrink-0">
+                  <Icon className="h-2.5 w-2.5" />
+                </span>
+              );
+            })()}
+          </div>
+          <span className="text-[10px] text-muted-foreground whitespace-nowrap flex-shrink-0">{lastSentDate}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -187,7 +222,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
       </div>
 
       {/* Line 4: Date */}
-      <p className="text-xs text-[#9CA3AF]">
+      <p className="text-xs text-muted-foreground">
         Dernier envoi : {lastSentDate}
       </p>
 
@@ -196,14 +231,12 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
         <div className="mt-4">
           {isHandled ? (
             <div className="space-y-2">
-              {/* Handled Badge */}
               <div className="flex items-center gap-2 px-3 py-2 bg-success/10 rounded-lg">
                 <Check className="h-4 w-4 text-success" />
                 <span className="text-sm font-medium text-success">
                   Pris en charge — {handledDate}
                 </span>
               </div>
-              {/* Unmark Link */}
               <button
                 onClick={handleActionClick}
                 className="text-sm text-muted-foreground hover:text-foreground underline transition-colors"
