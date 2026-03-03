@@ -296,8 +296,14 @@ const ProspectsPage = () => {
     <div className="min-h-screen bg-background pb-20 page-transition">
       <Header notificationCount={responseProspects.length} />
 
+      {/* Page title */}
+      <div className="bg-card px-6 py-4">
+        <h1 className="text-2xl font-bold text-foreground">Mes prospects</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          {filteredProspects.length} prospect{filteredProspects.length > 1 ? "s" : ""} · {responseProspects.length} réponse{responseProspects.length > 1 ? "s" : ""} reçue{responseProspects.length > 1 ? "s" : ""} · campagne active depuis le 28 jan.
+        </p>
+      </div>
 
-      {/* Filters - Notion style */}
       <div className="sticky top-14 bg-background z-40 py-2.5 border-b border-border">
         <div className="flex items-center gap-2 px-4 overflow-x-auto scrollbar-hide">
           <Filter className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
