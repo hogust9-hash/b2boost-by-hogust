@@ -586,6 +586,8 @@ const ProspectsPage = () => {
                 prospects={finishedProspects}
                 onCardClick={handleCardClick}
                 dimCards
+                compactCards
+                reassuranceMessage="C'est normal — le taux de réponse moyen en prospection est de 15 à 25%."
               />
             )}
           </div>
@@ -634,6 +636,8 @@ interface ProspectSectionProps {
   prospects: Prospect[];
   onCardClick: (prospect: Prospect) => void;
   dimCards?: boolean;
+  compactCards?: boolean;
+  reassuranceMessage?: string;
   showResponseAction?: boolean;
   handledProspects?: Record<string, string>;
   onMarkAsHandled?: (id: string) => void;
@@ -653,6 +657,8 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
   prospects,
   onCardClick,
   dimCards = false,
+  compactCards = false,
+  reassuranceMessage,
   showResponseAction = false,
   handledProspects = {},
   onMarkAsHandled,
@@ -677,7 +683,12 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
       >
         <div className="flex items-center gap-2">
           <span className={cn("opacity-70", iconStyles[variant])}>{icon}</span>
-          <span className="text-sm font-semibold text-foreground tracking-tight">{title}</span>
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-semibold text-foreground tracking-tight">{title}</span>
+            {reassuranceMessage && (
+              <span className="text-[10px] text-muted-foreground font-normal leading-tight">{reassuranceMessage}</span>
+            )}
+          </div>
           <span
             className={cn(
               "text-xs font-medium",
@@ -704,7 +715,7 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
           "md:max-h-none md:opacity-100"
         )}
       >
-        <div className={cn("px-4 py-3 space-y-3", dimCards && "opacity-60")}>
+        <div className={cn("px-4 py-3", compactCards ? "space-y-1.5" : "space-y-3", dimCards && "opacity-60")}>
           {prospects.map((prospect) => (
             <ProspectCard
               key={prospect.id}
@@ -719,6 +730,7 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
               lastSentDate={prospect.lastSentDate}
               isNew={prospect.isNew}
               onClick={() => onCardClick(prospect)}
+              compact={compactCards}
               showResponseAction={showResponseAction}
               isHandled={!!handledProspects[prospect.id]}
               handledDate={handledProspects[prospect.id]}
