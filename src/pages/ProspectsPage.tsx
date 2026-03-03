@@ -79,9 +79,10 @@ const offerOptions = [
   "Pain artisanal",
 ];
 
-type PeriodFilter = "week" | "month" | "quarter";
+type PeriodFilter = "all" | "week" | "month" | "quarter";
 
 const periodLabels: Record<PeriodFilter, string> = {
+  all: "Tout",
   week: "Cette semaine",
   month: "Ce mois",
   quarter: "Ce trimestre",
@@ -90,16 +91,19 @@ const periodLabels: Record<PeriodFilter, string> = {
 // Per-bakery KPI data aligned with Dashboard mockBakeriesStats
 const bakeryPeriodKpis: Record<string, Record<PeriodFilter, { emails: number; prospects: number; relances: number }>> = {
   "boulangerie-du-centre": {
+    all: { emails: 65, prospects: 35, relances: 18 },
     week: { emails: 5, prospects: 3, relances: 1 },
     month: { emails: 18, prospects: 10, relances: 5 },
     quarter: { emails: 47, prospects: 25, relances: 12 },
   },
   "au-pain-dore": {
+    all: { emails: 85, prospects: 42, relances: 22 },
     week: { emails: 5, prospects: 3, relances: 2 },
     month: { emails: 20, prospects: 10, relances: 4 },
     quarter: { emails: 62, prospects: 31, relances: 16 },
   },
   "la-mie-caline": {
+    all: { emails: 32, prospects: 18, relances: 9 },
     week: { emails: 2, prospects: 2, relances: 0 },
     month: { emails: 9, prospects: 5, relances: 2 },
     quarter: { emails: 23, prospects: 12, relances: 6 },
@@ -300,7 +304,7 @@ const ProspectsPage = () => {
                 <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="min-w-[160px]">
-                {(["week", "month", "quarter"] as PeriodFilter[]).map((period) => (
+                {(["all", "week", "month", "quarter"] as PeriodFilter[]).map((period) => (
                   <DropdownMenuItem
                     key={period}
                     onClick={() => setSelectedPeriod(period)}
