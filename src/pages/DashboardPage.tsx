@@ -429,9 +429,9 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* KPI Section */}
-      <div className="rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] mx-4 p-4" style={{ background: '#F8F9FB' }}>
+      <div className="rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] mx-auto p-4 max-w-md w-full" style={{ background: '#F8F9FB' }}>
         {/* Unified filter bar */}
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center justify-center gap-2 mb-3">
           <DropdownMenu>
             <DropdownMenuTrigger className="flex-1 inline-flex items-center justify-center gap-1.5 px-2 h-9 rounded-full text-sm font-medium bg-card border border-border text-foreground hover:bg-muted transition-colors outline-none whitespace-nowrap">
               {dashboardPeriodLabels[selectedPeriod]}
@@ -508,7 +508,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               </div>
 
               {/* Zone 2 — Blue card */}
-              <div className="bg-primary rounded-xl px-4 py-3 text-primary-foreground">
+              <div className="bg-primary rounded-xl px-5 py-3 text-primary-foreground -mx-1">
                 <div className="flex items-stretch justify-between">
                   <div className="flex flex-col items-center justify-center flex-1">
                     <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Nouveaux prospects</span>
