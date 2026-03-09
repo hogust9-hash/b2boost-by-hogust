@@ -214,8 +214,8 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
   return (
     <div className="space-y-6 px-4 py-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Ajoute tes boulangeries</h2>
-        <p className="text-sm text-muted-foreground mt-1">Indique l'adresse et la zone de couverture de chaque établissement.</p>
+        <h2 className="text-xl font-bold text-foreground">Ajoute ta boulangerie</h2>
+        <p className="text-sm text-muted-foreground mt-1">Indique l'adresse et la zone de couverture de ton établissement.</p>
       </div>
 
       {/* Map */}
@@ -245,51 +245,53 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
         </div>
       )}
 
-      {/* Add form */}
-      <div className="bg-card rounded-xl border border-border p-4 space-y-4">
-        <div className="space-y-1">
-          <Label>Nom de la boulangerie</Label>
-          <Input placeholder="Ma Boulangerie" value={currentBakery.name}
-            onChange={(e) => setCurrentBakery({ ...currentBakery, name: e.target.value })} />
-        </div>
-
-        <div className="space-y-1 relative">
-          <Label>Adresse</Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Rechercher une adresse…" className="pl-10"
-              value={currentBakery.address}
-              onChange={(e) => onAddressInput(e.target.value)} />
-            {searchLoading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />}
+      {/* Add form — only if no bakery added yet */}
+      {bakeries.length === 0 && (
+        <div className="bg-card rounded-xl border border-border p-4 space-y-4">
+          <div className="space-y-1">
+            <Label>Nom de la boulangerie</Label>
+            <Input placeholder="Ma Boulangerie" value={currentBakery.name}
+              onChange={(e) => setCurrentBakery({ ...currentBakery, name: e.target.value })} />
           </div>
-          {suggestions.length > 0 && (
-            <div className="absolute z-50 w-full bg-card border border-border rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto">
-              {suggestions.map((s: any) => (
-                <button key={s.id} onClick={() => selectSuggestion(s)}
-                  className="w-full text-left px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors border-b border-border last:border-0">
-                  {s.place_name}
-                </button>
-              ))}
+
+          <div className="space-y-1 relative">
+            <Label>Adresse</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Rechercher une adresse…" className="pl-10"
+                value={currentBakery.address}
+                onChange={(e) => onAddressInput(e.target.value)} />
+              {searchLoading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />}
+            </div>
+            {suggestions.length > 0 && (
+              <div className="absolute z-50 w-full bg-card border border-border rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto">
+                {suggestions.map((s: any) => (
+                  <button key={s.id} onClick={() => selectSuggestion(s)}
+                    className="w-full text-left px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors border-b border-border last:border-0">
+                    {s.place_name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {selectedCoords && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Rayon de couverture</Label>
+                <span className="text-sm font-medium text-primary">{radiusKm} km</span>
+              </div>
+              <Slider value={[radiusKm]} onValueChange={([v]) => setRadiusKm(v)} min={5} max={50} step={1} />
+              <p className="text-xs text-muted-foreground">≈ {estimateProspects(radiusKm)} cibles B2B dans cette zone</p>
             </div>
           )}
+
+          <Button variant="outline" onClick={addBakery} disabled={!currentBakery.name || !selectedCoords} fullWidth>
+            <Plus className="h-4 w-4" />
+            Valider ma boulangerie
+          </Button>
         </div>
-
-        {selectedCoords && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Rayon de couverture</Label>
-              <span className="text-sm font-medium text-primary">{radiusKm} km</span>
-            </div>
-            <Slider value={[radiusKm]} onValueChange={([v]) => setRadiusKm(v)} min={5} max={50} step={1} />
-            <p className="text-xs text-muted-foreground">≈ {estimateProspects(radiusKm)} cibles B2B dans cette zone</p>
-          </div>
-        )}
-
-        <Button variant="outline" onClick={addBakery} disabled={!currentBakery.name || !selectedCoords} fullWidth>
-          <Plus className="h-4 w-4" />
-          Ajouter cette boulangerie
-        </Button>
-      </div>
+      )}
 
       {/* Next */}
       <Button onClick={handleNext} disabled={bakeries.length === 0} fullWidth size="lg">
