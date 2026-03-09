@@ -45,10 +45,13 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
         body: m.body || "",
       }));
       onMessagesChange(msgs);
-      setIsLoading(false);
       return true;
     }
     return false;
+  };
+
+  const revealAfterDelay = () => {
+    setTimeout(() => setIsLoading(false), 1500);
   };
 
   const startPolling = async () => {
@@ -57,13 +60,17 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
 
     // Immediate check first
     const found = await fetchMessages();
-    if (found) return;
+    if (found) {
+      revealAfterDelay();
+      return;
+    }
 
     pollingRef.current = setInterval(async () => {
       const done = await fetchMessages();
       if (done && pollingRef.current) {
         clearInterval(pollingRef.current);
         pollingRef.current = null;
+        revealAfterDelay();
       }
     }, 3000);
   };
