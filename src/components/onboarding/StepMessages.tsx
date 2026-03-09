@@ -1,28 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Loader2, RefreshCw } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import type { OfferEntry } from "./StepOffers";
 
 export interface MessageEntry {
   subject: string;
   body: string;
 }
 
-interface BakeryEntry {
-  name: string;
-  city: string;
-}
-
 interface StepMessagesProps {
   onNext: () => void;
   messages: MessageEntry[];
   onMessagesChange: (messages: MessageEntry[]) => void;
-  bakeries: BakeryEntry[];
-  offers: OfferEntry[];
-  selectedOfferIds: Set<string>;
   sessionId: string | null;
 }
 
@@ -32,47 +22,39 @@ const MESSAGE_LABELS = [
   { label: "Message 3 — Dernière chance", color: "bg-red-100 text-red-700" },
 ];
 
-const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessagesChange, bakeries, offers, selectedOfferIds, sessionId }) => {
+const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessagesChange, sessionId }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [feedback, setFeedback] = useState("");
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // On mount, poll Supabase for messages (n8n writes them in background)
   useEffect(() => {
     if (!sessionId || messages.length > 0) return;
 
     setIsLoading(true);
-    
-    const pollMessages = () => {
-      pollingRef.current = setInterval(async () => {
-        const { data, error } = await supabase
-          .from("onboarding_messages")
-          .select("*")
-          .eq("session_id", sessionId)
-          .order("step_number", { ascending: true });
 
-        if (!error && data && data.length >= 3) {
-          if (pollingRef.current) clearInterval(pollingRef.current);
-          pollingRef.current = null;
+    pollingRef.current = setInterval(async () => {
+      const { data, error } = await supabase
+        .from("onboarding_messages")
+        .select("*")
+        .eq("session_id", sessionId)
+        .order("step_number", { ascending: true });
 
-          const msgs: MessageEntry[] = data.map(m => ({
-            subject: m.subject || "",
-            body: m.body || "",
-          }));
-          onMessagesChange(msgs);
-          setIsLoading(false);
-        }
-      }, 3000);
-    };
+      if (!error && data && data.length >= 3) {
+        if (pollingRef.current) clearInterval(pollingRef.current);
+        pollingRef.current = null;
 
-    pollMessages();
+        const msgs: MessageEntry[] = data.map(m => ({
+          subject: m.subject || "",
+          body: m.body || "",
+        }));
+        onMessagesChange(msgs);
+        setIsLoading(false);
+      }
+    }, 3000);
 
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, [sessionId]);
-
 
   const hasMessages = messages.length > 0 && messages[0].subject !== "";
 
@@ -114,36 +96,9 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
             </div>
           ))}
 
-          {/* Feedback section */}
-          {!showFeedback ? (
-            <div className="flex gap-3">
-              <Button onClick={onNext} fullWidth size="lg">
-                Valider les messages
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setShowFeedback(true)}
-                className="flex-shrink-0"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="bg-card rounded-xl border border-border p-4 space-y-3">
-              <p className="text-sm font-medium text-foreground">Qu'est-ce qui ne te convient pas ?</p>
-              <Textarea
-                value={feedback}
-                onChange={e => setFeedback(e.target.value)}
-                placeholder="Ex : ton trop formel, ajouter plus d'humour, mettre en avant le pain bio…"
-                rows={3}
-                className="text-sm"
-              />
-              <Button onClick={handleRequestChanges} disabled={!feedback.trim()} fullWidth size="lg">
-                Regénérer les messages
-              </Button>
-            </div>
-          )}
+          <Button onClick={onNext} fullWidth size="lg">
+            Valider les messages
+          </Button>
         </>
       )}
     </div>
