@@ -663,7 +663,7 @@ const ProspectSection: React.FC<ProspectSectionProps> = ({
               context={prospect.context}
               offers={prospect.offers}
               lastSentDate={prospect.lastSentDate}
-              isNew={prospect.isNew}
+              isNew={isWithinOneWeek(prospect.responseReceivedAt)}
               onClick={() => onCardClick(prospect)}
               compact={compactCards}
               showResponseAction={showResponseAction}
