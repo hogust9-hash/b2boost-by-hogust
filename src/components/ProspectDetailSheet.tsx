@@ -107,8 +107,9 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
     );
   };
 
-  // Use mock history for demo
-  const emailHistory = mockEmailHistory;
+  // Split emails into sent and next
+  const sentEmails = emailHistory.filter(e => e.sent);
+  const nextEmail = emailHistory.find(e => !e.sent);
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
