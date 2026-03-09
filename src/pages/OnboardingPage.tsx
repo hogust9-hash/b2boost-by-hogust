@@ -4,13 +4,12 @@ import StepWelcome from "@/components/onboarding/StepWelcome";
 import StepBakery from "@/components/onboarding/StepBakery";
 import StepProspects from "@/components/onboarding/StepProspects";
 import StepOffers, { type OfferEntry } from "@/components/onboarding/StepOffers";
-import StepValidateOffers from "@/components/onboarding/StepValidateOffers";
 import StepMessages, { type MessageEntry, fetchMessages } from "@/components/onboarding/StepMessages";
 import StepCampaignRecap from "@/components/onboarding/StepCampaignRecap";
 import StepPayment from "@/components/onboarding/StepPayment";
 import StepSuccess from "@/components/onboarding/StepSuccess";
 
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 8;
 
 interface BakeryEntry {
   id: string;
@@ -33,8 +32,8 @@ const OnboardingPage = () => {
   const [messagesLoading, setMessagesLoading] = useState(false);
 
   const goToStep = async (s: number) => {
-    // When entering step 6, fetch messages from webhook
-    if (s === 6 && messages.length === 0) {
+    // When entering step 5 (messages), fetch messages from webhook
+    if (s === 5 && messages.length === 0) {
       setStep(s);
       setMessagesLoading(true);
       try {
@@ -75,16 +74,8 @@ const OnboardingPage = () => {
           />
         )}
         {step === 5 && (
-          <StepValidateOffers
-            onNext={() => goToStep(6)}
-            offers={offers}
-            selectedOfferIds={selectedOfferIds}
-            onOffersChange={setOffers}
-          />
-        )}
-        {step === 6 && (
           <StepMessages
-            onNext={() => goToStep(7)}
+            onNext={() => goToStep(6)}
             messages={messages}
             onMessagesChange={setMessages}
             bakeries={bakeries}
@@ -92,9 +83,9 @@ const OnboardingPage = () => {
             selectedOfferIds={selectedOfferIds}
           />
         )}
-        {step === 7 && (
+        {step === 6 && (
           <StepCampaignRecap
-            onNext={() => goToStep(8)}
+            onNext={() => goToStep(7)}
             bakeries={bakeries}
             offers={offers}
             selectedOfferIds={selectedOfferIds}
@@ -103,7 +94,7 @@ const OnboardingPage = () => {
             onTargetCategoryChange={setTargetCategoryId}
           />
         )}
-        {step === 8 && (
+        {step === 7 && (
           <StepPayment
             bakeries={bakeries}
             offers={offers}
@@ -111,10 +102,10 @@ const OnboardingPage = () => {
             messages={messages}
             targetCategoryId={targetCategoryId}
             waveSize={waveSize}
-            onSuccess={() => goToStep(9)}
+            onSuccess={() => goToStep(8)}
           />
         )}
-        {step === 9 && <StepSuccess />}
+        {step === 8 && <StepSuccess />}
       </div>
     </div>
   );
