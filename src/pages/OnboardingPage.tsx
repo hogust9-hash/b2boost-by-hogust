@@ -81,6 +81,7 @@ const OnboardingPage = () => {
             selectedOfferIds={selectedOfferIds}
             onSelectedChange={setSelectedOfferIds}
             sessionId={sessionId}
+            bakeries={bakeries}
           />
         )}
         {step === 5 && (
