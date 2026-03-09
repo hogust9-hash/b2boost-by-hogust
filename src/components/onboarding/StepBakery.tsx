@@ -25,7 +25,7 @@ interface StepBakeryProps {
   onBakeriesChange: (bakeries: BakeryEntry[]) => void;
 }
 
-const estimateProspects = (radiusKm: number) => Math.round(radiusKm * radiusKm * 0.8 + radiusKm * 5);
+
 
 const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -208,8 +208,6 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
     onNext();
   };
 
-  const totalEstimated = bakeries.reduce((sum, b) => sum + estimateProspects(b.radiusKm), 0)
-    + (selectedCoords ? estimateProspects(radiusKm) : 0);
 
   return (
     <div className="space-y-6 px-4 py-6">
@@ -221,11 +219,6 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
       {/* Map */}
       <div ref={mapContainer} className="w-full h-64 rounded-xl border border-border overflow-hidden" />
 
-      {/* Prospect estimate */}
-      <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3 text-center">
-        <p className="text-sm text-muted-foreground">Cibles B2B estimées</p>
-        <p className="text-2xl font-bold text-primary">{totalEstimated}</p>
-      </div>
 
       {/* Added bakeries */}
       {bakeries.length > 0 && (
@@ -282,7 +275,7 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
                 <span className="text-sm font-medium text-primary">{radiusKm} km</span>
               </div>
               <Slider value={[radiusKm]} onValueChange={([v]) => setRadiusKm(v)} min={5} max={50} step={1} />
-              <p className="text-xs text-muted-foreground">≈ {estimateProspects(radiusKm)} cibles B2B dans cette zone</p>
+              
             </div>
           )}
 
