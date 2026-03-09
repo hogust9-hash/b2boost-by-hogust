@@ -275,7 +275,7 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
                 <span className="text-sm font-medium text-primary">{radiusKm} km</span>
               </div>
               <Slider value={[radiusKm]} onValueChange={([v]) => setRadiusKm(v)} min={5} max={50} step={1} />
-              <p className="text-xs text-muted-foreground">≈ {estimateProspects(radiusKm)} cibles B2B dans cette zone</p>
+              
             </div>
           )}
 
