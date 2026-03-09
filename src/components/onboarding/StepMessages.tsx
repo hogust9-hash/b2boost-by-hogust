@@ -31,27 +31,39 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const startPolling = () => {
+  const fetchMessages = async (): Promise<boolean> => {
+    if (!sessionId) return false;
+    const { data, error } = await supabase
+      .from("onboarding_messages")
+      .select("*")
+      .eq("session_id", sessionId)
+      .order("step_number", { ascending: true });
+
+    if (!error && data && data.length >= 3) {
+      const msgs: MessageEntry[] = data.map(m => ({
+        subject: m.subject || "",
+        body: m.body || "",
+      }));
+      onMessagesChange(msgs);
+      setIsLoading(false);
+      return true;
+    }
+    return false;
+  };
+
+  const startPolling = async () => {
     if (!sessionId) return;
     setIsLoading(true);
 
+    // Immediate check first
+    const found = await fetchMessages();
+    if (found) return;
+
     pollingRef.current = setInterval(async () => {
-      const { data, error } = await supabase
-        .from("onboarding_messages")
-        .select("*")
-        .eq("session_id", sessionId)
-        .order("step_number", { ascending: true });
-
-      if (!error && data && data.length >= 3) {
-        if (pollingRef.current) clearInterval(pollingRef.current);
+      const done = await fetchMessages();
+      if (done && pollingRef.current) {
+        clearInterval(pollingRef.current);
         pollingRef.current = null;
-
-        const msgs: MessageEntry[] = data.map(m => ({
-          subject: m.subject || "",
-          body: m.body || "",
-        }));
-        onMessagesChange(msgs);
-        setIsLoading(false);
       }
     }, 3000);
   };
