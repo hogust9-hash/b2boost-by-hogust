@@ -274,6 +274,41 @@ export type Database = {
           },
         ]
       }
+      onboarding_prospect_stats: {
+        Row: {
+          categories: Json | null
+          created_at: string
+          id: string
+          session_id: string
+          total_cibles: string | null
+          total_cibles_adressables: string | null
+        }
+        Insert: {
+          categories?: Json | null
+          created_at?: string
+          id?: string
+          session_id: string
+          total_cibles?: string | null
+          total_cibles_adressables?: string | null
+        }
+        Update: {
+          categories?: Json | null
+          created_at?: string
+          id?: string
+          session_id?: string
+          total_cibles?: string | null
+          total_cibles_adressables?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_prospect_stats_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "onboarding_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_sessions: {
         Row: {
           bakery_address: string | null
