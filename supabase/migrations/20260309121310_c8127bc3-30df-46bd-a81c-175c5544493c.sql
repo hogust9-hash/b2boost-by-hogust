@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can delete messages" ON public.onboarding_messages FOR DELETE TO public USING (true);
