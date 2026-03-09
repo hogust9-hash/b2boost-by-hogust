@@ -88,9 +88,6 @@ const OnboardingPage = () => {
             onNext={() => goToStep(6)}
             messages={messages}
             onMessagesChange={setMessages}
-            bakeries={bakeries}
-            offers={offers}
-            selectedOfferIds={selectedOfferIds}
             sessionId={sessionId}
           />
         )}
