@@ -168,9 +168,13 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       >
         <input ref={fileRef} type="file" accept=".pdf,.docx,.txt,.doc" className="hidden" onChange={handleFile} />
         {isExtracting ? (
-          <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">Extraction en cours…</p>
+          <div className="flex flex-col items-center gap-3 py-2">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <p className="text-sm font-medium text-foreground">Analyse de ton catalogue…</p>
+            <p className="text-xs text-muted-foreground">Ça peut prendre jusqu'à 30 secondes</p>
+            <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full animate-pulse" style={{ width: '60%' }} />
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
