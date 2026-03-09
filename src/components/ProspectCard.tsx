@@ -223,7 +223,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
 
       {/* Line 4: Date */}
       <p className="text-xs text-muted-foreground">
-        Dernier envoi : {lastSentDate}
+        {stageType === "response" ? "Réponse client" : "Dernier envoi"} : {lastSentDate}
       </p>
 
       {/* Response Action Section */}
