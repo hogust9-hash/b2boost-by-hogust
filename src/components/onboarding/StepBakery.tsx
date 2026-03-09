@@ -219,11 +219,6 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
       {/* Map */}
       <div ref={mapContainer} className="w-full h-64 rounded-xl border border-border overflow-hidden" />
 
-      {/* Prospect estimate */}
-      <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3 text-center">
-        <p className="text-sm text-muted-foreground">Cibles B2B estimées</p>
-        <p className="text-2xl font-bold text-primary">{totalEstimated}</p>
-      </div>
 
       {/* Added bakeries */}
       {bakeries.length > 0 && (
