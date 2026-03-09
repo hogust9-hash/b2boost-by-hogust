@@ -81,13 +81,64 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
         formData.append("bakery_city", bakeries[0].city);
       }
 
-      fetch(WEBHOOK_DOC, { method: "POST", body: formData })
-        .catch(err => console.error("Webhook error:", err));
+      const response = await fetch(WEBHOOK_DOC, { method: "POST", body: formData });
+      const json = await response.json();
 
-      pollForOffers(sessionId, file.name);
+      // Parse the webhook response: array with output.paniers[]
+      const output = Array.isArray(json) ? json[0]?.output : json?.output;
+      const paniers = output?.paniers || [];
+
+      const allOffers: { name: string; category: string; description: string; price: number | null }[] = [];
+      for (const panier of paniers) {
+        const categoryName = (panier.nom || "autre").toLowerCase();
+        const produits = panier.produits || [];
+        for (const produit of produits) {
+          allOffers.push({
+            name: typeof produit === "string" ? produit : produit.nom || "",
+            category: categoryName,
+            description: "",
+            price: typeof produit === "object" ? produit.price ?? null : null,
+          });
+        }
+      }
+
+      if (allOffers.length > 0) {
+        // Insert all offers into onboarding_offers
+        const rows = allOffers.map(o => ({
+          session_id: sessionId,
+          name: o.name,
+          category: o.category,
+          description: o.description,
+          price: o.price,
+          is_selected: true,
+        }));
+
+        const { data, error } = await supabase
+          .from("onboarding_offers")
+          .insert(rows)
+          .select("*");
+
+        if (!error && data) {
+          const extracted: OfferEntry[] = data.map(o => ({
+            id: o.id,
+            name: o.name || "",
+            category: o.category || "autre",
+            description: o.description || "",
+            price: o.price ? Number(o.price) : null,
+          }));
+          onOffersChange(extracted);
+          const newIds = new Set<string>();
+          extracted.forEach(o => newIds.add(o.id));
+          onSelectedChange(newIds);
+        }
+      }
+
+      setFileName(file.name);
+      setIsExtracting(false);
     } catch (err) {
       console.error("Upload error:", err);
-      setIsExtracting(false);
+      // Fallback: poll for offers written by n8n
+      pollForOffers(sessionId, file.name);
     }
   };
 
