@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
 import { MapPin, Package, Mail, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { OfferEntry } from "./StepOffers";
@@ -26,13 +24,11 @@ interface StepCampaignRecapProps {
   messages: MessageEntry[];
   targetCategoryId: string;
   onTargetCategoryChange: (id: string) => void;
-  waveSize: number;
-  onWaveSizeChange: (size: number) => void;
 }
 
 const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
   onNext, bakeries, offers, selectedOfferIds, messages,
-  targetCategoryId, onTargetCategoryChange, waveSize, onWaveSizeChange,
+  targetCategoryId, onTargetCategoryChange,
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -88,18 +84,6 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         </div>
       </div>
 
-      {/* Wave size */}
-      <div className="bg-card rounded-xl border border-border p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <Label className="flex items-center gap-2 mb-0">
-            <Users className="h-4 w-4 text-primary" />
-            Taille de vague
-          </Label>
-          <span className="text-sm font-bold text-primary">{waveSize} contacts</span>
-        </div>
-        <Slider value={[waveSize]} onValueChange={([v]) => onWaveSizeChange(v)} min={5} max={100} step={5} />
-      </div>
-
       {/* Active offers */}
       <div className="bg-card rounded-xl border border-border p-4 space-y-2">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -127,7 +111,7 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
       </div>
 
       <Button onClick={onNext} fullWidth size="lg">
-        Lancer la campagne
+        Choisir mon rythme de prospection
       </Button>
     </div>
   );

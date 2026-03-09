@@ -5,11 +5,12 @@ import StepBakery from "@/components/onboarding/StepBakery";
 import StepProspects from "@/components/onboarding/StepProspects";
 import StepOffers, { type OfferEntry } from "@/components/onboarding/StepOffers";
 import StepValidateOffers from "@/components/onboarding/StepValidateOffers";
-import StepMessages, { type MessageEntry, generateMessages } from "@/components/onboarding/StepMessages";
+import StepMessages, { type MessageEntry, fetchMessages } from "@/components/onboarding/StepMessages";
 import StepCampaignRecap from "@/components/onboarding/StepCampaignRecap";
 import StepPayment from "@/components/onboarding/StepPayment";
+import StepSuccess from "@/components/onboarding/StepSuccess";
 
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 9;
 
 interface BakeryEntry {
   id: string;
@@ -26,18 +27,24 @@ const OnboardingPage = () => {
   const [bakeries, setBakeries] = useState<BakeryEntry[]>([]);
   const [offers, setOffers] = useState<OfferEntry[]>([]);
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
-  const [messages, setMessages] = useState<MessageEntry[]>([
-    { subject: "", body: "" },
-    { subject: "", body: "" },
-    { subject: "", body: "" },
-  ]);
+  const [messages, setMessages] = useState<MessageEntry[]>([]);
   const [targetCategoryId, setTargetCategoryId] = useState("");
   const [waveSize, setWaveSize] = useState(25);
+  const [messagesLoading, setMessagesLoading] = useState(false);
 
-  // Generate messages when entering step 6
-  const goToStep = (s: number) => {
-    if (s === 6 && messages[0].subject === "") {
-      setMessages(generateMessages(bakeries, offers, selectedOfferIds));
+  const goToStep = async (s: number) => {
+    // When entering step 6, fetch messages from webhook
+    if (s === 6 && messages.length === 0) {
+      setStep(s);
+      setMessagesLoading(true);
+      try {
+        const fetched = await fetchMessages(bakeries, offers, selectedOfferIds);
+        setMessages(fetched);
+      } catch (err) {
+        console.error("Error fetching messages:", err);
+      }
+      setMessagesLoading(false);
+      return;
     }
     setStep(s);
   };
@@ -94,8 +101,6 @@ const OnboardingPage = () => {
             messages={messages}
             targetCategoryId={targetCategoryId}
             onTargetCategoryChange={setTargetCategoryId}
-            waveSize={waveSize}
-            onWaveSizeChange={setWaveSize}
           />
         )}
         {step === 8 && (
@@ -106,8 +111,10 @@ const OnboardingPage = () => {
             messages={messages}
             targetCategoryId={targetCategoryId}
             waveSize={waveSize}
+            onSuccess={() => goToStep(9)}
           />
         )}
+        {step === 9 && <StepSuccess />}
       </div>
     </div>
   );

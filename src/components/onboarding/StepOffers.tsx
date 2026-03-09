@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, Plus, Loader2, FileText, Trash2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 export interface OfferEntry {
   id: string;
@@ -35,23 +34,17 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
     setIsExtracting(true);
 
     try {
-      let content = "";
-      if (file.type === "text/plain" || file.name.endsWith(".txt")) {
-        content = await file.text();
-      } else {
-        // For PDF/Word, read as base64 and send to edge function
-        const buffer = await file.arrayBuffer();
-        const bytes = new Uint8Array(buffer);
-        let binary = "";
-        bytes.forEach(b => binary += String.fromCharCode(b));
-        content = btoa(binary);
-      }
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("filename", file.name);
 
-      const { data, error } = await supabase.functions.invoke("extract-offers", {
-        body: { content, filename: file.name },
+      const res = await fetch("https://n8n.beautifulflow.ai/webhook/depot-offres", {
+        method: "POST",
+        body: formData,
       });
 
-      if (error) throw error;
+      if (!res.ok) throw new Error(`Erreur ${res.status}`);
+      const data = await res.json();
 
       const extracted: OfferEntry[] = (data.offers || []).map((o: any) => ({
         id: crypto.randomUUID(),
@@ -63,7 +56,6 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
 
       const updated = [...offers, ...extracted];
       onOffersChange(updated);
-      // Select all new ones
       const newIds = new Set(selectedOfferIds);
       extracted.forEach(o => newIds.add(o.id));
       onSelectedChange(newIds);
@@ -132,7 +124,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
         ) : (
           <div className="flex flex-col items-center gap-2">
             <Upload className="h-8 w-8 text-muted-foreground" />
-            <p className="text-sm font-medium text-foreground">Glissez ou cliquez pour uploader</p>
+            <p className="text-sm font-medium text-foreground">Glisse ou clique pour uploader</p>
             <p className="text-xs text-muted-foreground">PDF, Word ou texte brut</p>
           </div>
         )}
