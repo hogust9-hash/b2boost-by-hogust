@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { MapPin, Package, Mail, Users, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { OfferEntry } from "./StepOffers";
@@ -49,6 +50,8 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
     });
   }, []);
 
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     if (!sessionId) return;
     const fetchStats = async () => {
@@ -65,9 +68,22 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
           total_cibles_adressables: data.total_cibles_adressables,
           categories: data.categories as Record<string, number> | null,
         });
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
+        }
       }
     };
     fetchStats();
+    if (!stats) {
+      pollingRef.current = setInterval(fetchStats, 3000);
+    }
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
   }, [sessionId]);
 
   const activeOffers = offers.filter(o => selectedOfferIds.has(o.id));
@@ -85,8 +101,12 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         <p className="text-sm text-muted-foreground mt-1">Vérifie les paramètres avant de continuer.</p>
       </div>
 
-      {/* Prospect stats */}
-      {stats && (
+      {!stats ? (
+        <div className="bg-card rounded-xl border border-border p-6 flex flex-col items-center justify-center gap-3">
+          <Loader2 className="h-6 w-6 text-primary animate-spin" />
+          <p className="text-sm text-muted-foreground text-center">Analyse de ton marché en cours…</p>
+        </div>
+      ) : (
         <div className="bg-card rounded-xl border border-border p-4 space-y-4">
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
             <Target className="h-4 w-4 text-primary" />
