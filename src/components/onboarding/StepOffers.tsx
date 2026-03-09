@@ -56,7 +56,6 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
   const fileRef = useRef<HTMLInputElement>(null);
 
   const processFile = async (file: File) => {
-    setFileName(file.name);
     setIsExtracting(true);
 
     try {
