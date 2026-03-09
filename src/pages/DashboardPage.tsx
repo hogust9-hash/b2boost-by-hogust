@@ -657,7 +657,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               context={prospect.context}
               offers={prospect.offers}
               lastSentDate={prospect.lastSentDate}
-              isNew={prospect.isNew}
+              isNew={(() => { if (!prospect.responseReceivedAt) return false; const d = new Date(prospect.responseReceivedAt); return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000; })()}
               onClick={() => { onKpiSheetChange(null); navigate("/prospects"); }}
             />
           ))}
