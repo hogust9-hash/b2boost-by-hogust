@@ -37,14 +37,31 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
     };
   }, []);
 
+  const lastCountRef = useRef(0);
+  const stableTicksRef = useRef(0);
+
   const pollForOffers = (sid: string, uploadedFileName: string) => {
+    lastCountRef.current = 0;
+    stableTicksRef.current = 0;
+
     pollingRef.current = setInterval(async () => {
       const { data, error } = await supabase
         .from("onboarding_offers")
         .select("*")
         .eq("session_id", sid);
 
-      if (!error && data && data.length > 0) {
+      if (error || !data) return;
+
+      const count = data.length;
+      if (count > 0 && count === lastCountRef.current) {
+        stableTicksRef.current++;
+      } else {
+        stableTicksRef.current = 0;
+      }
+      lastCountRef.current = count;
+
+      // Wait until count is stable for 2 consecutive ticks (6s)
+      if (count > 0 && stableTicksRef.current >= 2) {
         if (pollingRef.current) clearInterval(pollingRef.current);
         pollingRef.current = null;
 
