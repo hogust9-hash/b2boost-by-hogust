@@ -1,0 +1,1 @@
+ALTER TABLE public.prospects ADD COLUMN response_received_at timestamp with time zone DEFAULT NULL;

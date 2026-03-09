@@ -410,6 +410,7 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           name: string
+          response_received_at: string | null
           status: string
         }
         Insert: {
@@ -422,6 +423,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           name: string
+          response_received_at?: string | null
           status?: string
         }
         Update: {
@@ -434,6 +436,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           name?: string
+          response_received_at?: string | null
           status?: string
         }
         Relationships: [
