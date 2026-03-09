@@ -1,6 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, Plus, Loader2, FileText, Trash2 } from "lucide-react";
 
@@ -12,8 +11,6 @@ export interface OfferEntry {
   price: number | null;
 }
 
-const CATEGORIES = ["snacking", "viennoiserie", "pâtisserie", "traiteur", "pain", "autre"];
-
 interface StepOffersProps {
   onNext: () => void;
   offers: OfferEntry[];
@@ -22,14 +19,43 @@ interface StepOffersProps {
   onSelectedChange: (ids: Set<string>) => void;
 }
 
+function parsePaniersResponse(data: any): OfferEntry[] {
+  const offers: OfferEntry[] = [];
+
+  // Handle array wrapper: response can be [{ action, response: { output: { paniers } } }]
+  let root = data;
+  if (Array.isArray(root)) root = root[0];
+  
+  const paniers =
+    root?.response?.output?.paniers ||
+    root?.output?.paniers ||
+    root?.paniers ||
+    [];
+
+  for (const panier of paniers) {
+    const categoryName = (panier.nom || "autre").toLowerCase();
+    const produits = panier.produits || [];
+    for (const produit of produits) {
+      offers.push({
+        id: crypto.randomUUID(),
+        name: typeof produit === "string" ? produit : produit.name || "",
+        category: categoryName,
+        description: "",
+        price: null,
+      });
+    }
+  }
+
+  return offers;
+}
+
 const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange, selectedOfferIds, onSelectedChange }) => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processFile = async (file: File) => {
     setFileName(file.name);
     setIsExtracting(true);
 
@@ -46,33 +72,50 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       if (!res.ok) throw new Error(`Erreur ${res.status}`);
       const data = await res.json();
 
-      const extracted: OfferEntry[] = (data.offers || []).map((o: any) => ({
-        id: crypto.randomUUID(),
-        name: o.name,
-        category: o.category || "autre",
-        description: o.description || "",
-        price: o.price ?? null,
-      }));
+      const extracted = parsePaniersResponse(data);
 
-      const updated = [...offers, ...extracted];
-      onOffersChange(updated);
-      const newIds = new Set(selectedOfferIds);
-      extracted.forEach(o => newIds.add(o.id));
-      onSelectedChange(newIds);
+      if (extracted.length > 0) {
+        const updated = [...offers, ...extracted];
+        onOffersChange(updated);
+        const newIds = new Set(selectedOfferIds);
+        extracted.forEach(o => newIds.add(o.id));
+        onSelectedChange(newIds);
+      }
     } catch (err) {
       console.error("Extraction error:", err);
     }
     setIsExtracting(false);
   };
 
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await processFile(file);
+  };
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) await processFile(file);
+  }, [offers, selectedOfferIds]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
   const toggleOffer = (id: string) => {
     const next = new Set(selectedOfferIds);
     if (next.has(id)) next.delete(id); else next.add(id);
     onSelectedChange(next);
-  };
-
-  const updateOffer = (id: string, field: keyof OfferEntry, value: string | number | null) => {
-    onOffersChange(offers.map(o => o.id === id ? { ...o, [field]: value } : o));
   };
 
   const removeOffer = (id: string) => {
@@ -96,24 +139,32 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
     onSelectedChange(next);
   };
 
-  const grouped = CATEGORIES.map(cat => ({
-    category: cat,
-    items: offers.filter(o => o.category === cat),
-  })).filter(g => g.items.length > 0);
+  // Group by category
+  const categoryMap = new Map<string, OfferEntry[]>();
+  for (const o of offers) {
+    const cat = o.category || "autre";
+    if (!categoryMap.has(cat)) categoryMap.set(cat, []);
+    categoryMap.get(cat)!.push(o);
+  }
 
   return (
     <div className="space-y-6 px-4 py-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">Importe tes offres</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Uploade ton catalogue ou ajoute tes paniers manuellement.
+          Uploade ton catalogue ou ajoute tes produits manuellement.
         </p>
       </div>
 
-      {/* Upload zone */}
+      {/* Upload zone with drag & drop */}
       <div
-        className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+        className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+          isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+        }`}
         onClick={() => fileRef.current?.click()}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
       >
         <input ref={fileRef} type="file" accept=".pdf,.docx,.txt,.doc" className="hidden" onChange={handleFile} />
         {isExtracting ? (
@@ -138,48 +189,20 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       )}
 
       {/* Offers grouped by category */}
-      {grouped.map(({ category, items }) => (
+      {Array.from(categoryMap.entries()).map(([category, items]) => (
         <div key={category} className="space-y-2">
           <h3 className="text-sm font-semibold text-foreground capitalize">{category}</h3>
           {items.map(offer => (
-            <div key={offer.id} className="bg-card rounded-lg border border-border p-3 space-y-2">
-              <div className="flex items-start gap-3">
+            <div key={offer.id} className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-3">
                 <Checkbox
                   checked={selectedOfferIds.has(offer.id)}
                   onCheckedChange={() => toggleOffer(offer.id)}
-                  className="mt-1"
                 />
-                <div className="flex-1 space-y-2">
-                  <Input
-                    value={offer.name}
-                    onChange={e => updateOffer(offer.id, "name", e.target.value)}
-                    placeholder="Nom de l'offre"
-                    className="h-9 text-sm"
-                  />
-                  <div className="flex gap-2">
-                    <Input
-                      value={offer.description}
-                      onChange={e => updateOffer(offer.id, "description", e.target.value)}
-                      placeholder="Description"
-                      className="h-9 text-sm flex-1"
-                    />
-                    <Input
-                      type="number"
-                      value={offer.price ?? ""}
-                      onChange={e => updateOffer(offer.id, "price", e.target.value ? parseFloat(e.target.value) : null)}
-                      placeholder="Prix €"
-                      className="h-9 text-sm w-24"
-                    />
-                  </div>
-                  <select
-                    value={offer.category}
-                    onChange={e => updateOffer(offer.id, "category", e.target.value)}
-                    className="text-xs rounded border border-border bg-background px-2 py-1"
-                  >
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <button onClick={() => removeOffer(offer.id)} className="text-muted-foreground hover:text-destructive mt-1">
+                <span className="flex-1 text-sm text-foreground">
+                  {offer.name || <span className="text-muted-foreground italic">Sans nom</span>}
+                </span>
+                <button onClick={() => removeOffer(offer.id)} className="text-muted-foreground hover:text-destructive">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
@@ -191,7 +214,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       {/* Add manual */}
       <Button variant="outline" onClick={addManualOffer} fullWidth>
         <Plus className="h-4 w-4" />
-        Ajouter une offre manuellement
+        Ajouter un produit manuellement
       </Button>
 
       {/* Next */}
