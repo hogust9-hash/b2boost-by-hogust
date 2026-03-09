@@ -73,54 +73,6 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
     };
   }, [sessionId]);
 
-  const handleRequestChanges = async () => {
-    if (!feedback.trim() || !sessionId) return;
-    setIsLoading(true);
-
-    try {
-      const activeOffers = offers.filter(o => selectedOfferIds.has(o.id));
-      
-      // Call webhook with feedback for regeneration
-      await fetch("https://n8n.beautifulflow.ai/webhook/exemples-messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          session_id: sessionId,
-          bakeries: bakeries.map(b => ({ name: b.name, city: b.city })),
-          offers: activeOffers.map(o => ({ name: o.name, category: o.category, description: o.description, price: o.price })),
-          feedback,
-        }),
-      });
-
-      // Poll for updated messages
-      pollingRef.current = setInterval(async () => {
-        const { data, error } = await supabase
-          .from("onboarding_messages")
-          .select("*")
-          .eq("session_id", sessionId)
-          .order("step_number", { ascending: true });
-
-        if (!error && data && data.length >= 3) {
-          const msgs: MessageEntry[] = data.map(m => ({
-            subject: m.subject || "",
-            body: m.body || "",
-          }));
-          // Check if content changed
-          if (msgs[0].subject !== messages[0]?.subject || msgs[0].body !== messages[0]?.body) {
-            if (pollingRef.current) clearInterval(pollingRef.current);
-            pollingRef.current = null;
-            onMessagesChange(msgs);
-            setFeedback("");
-            setShowFeedback(false);
-            setIsLoading(false);
-          }
-        }
-      }, 3000);
-    } catch (err) {
-      console.error("Error requesting message changes:", err);
-      setIsLoading(false);
-    }
-  };
 
   const hasMessages = messages.length > 0 && messages[0].subject !== "";
 
