@@ -125,7 +125,7 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
       <div>
         <h2 className="text-xl font-bold text-foreground">Séquence de prospection</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          {isLoading ? "Génération de tes messages en cours…" : "Voici les 3 messages proposés pour ta campagne."}
+          {isLoading ? "Génération de tes messages en cours…" : "Voici des exemples de messages pour ta campagne."}
         </p>
       </div>
 
