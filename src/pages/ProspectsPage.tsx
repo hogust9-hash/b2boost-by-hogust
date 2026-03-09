@@ -344,12 +344,12 @@ const ProspectsPage = () => {
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-foreground hover:bg-muted/80"
             )}>
-              {cardFilter === "all" ? "Cartes" : "Ma to-do"}
+              {cardFilter === "all" ? "Fiche" : "Ma to-do"}
               <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[160px]">
               <DropdownMenuItem onClick={() => setCardFilter("all")} className={cn("cursor-pointer text-sm", cardFilter === "all" && "bg-primary/10 text-primary font-medium")}>
-                Toutes mes cartes
+                Toutes mes cfichs
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setCardFilter("todo")} className={cn("cursor-pointer text-sm", cardFilter === "todo" && "bg-primary/10 text-primary font-medium")}>
                 Ma to-do
