@@ -50,6 +50,8 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
     });
   }, []);
 
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     if (!sessionId) return;
     const fetchStats = async () => {
@@ -66,9 +68,22 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
           total_cibles_adressables: data.total_cibles_adressables,
           categories: data.categories as Record<string, number> | null,
         });
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
+        }
       }
     };
     fetchStats();
+    if (!stats) {
+      pollingRef.current = setInterval(fetchStats, 3000);
+    }
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
   }, [sessionId]);
 
   const activeOffers = offers.filter(o => selectedOfferIds.has(o.id));
