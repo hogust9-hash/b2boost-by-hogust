@@ -23,11 +23,12 @@ interface BakeryEntry {
 interface StepBakeryProps {
   onNext: () => void;
   onBakeriesChange: (bakeries: BakeryEntry[]) => void;
+  sessionId: string | null;
 }
 
+const WEBHOOK_POI = "https://n8n.beautifulflow.ai/webhook/adresse-poi";
 
-
-const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => {
+const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessionId }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
@@ -191,6 +192,22 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
     const updated = [...bakeries, entry];
     setBakeries(updated);
     onBakeriesChange(updated);
+
+    // POST to webhook
+    fetch(WEBHOOK_POI, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: sessionId,
+        bakery_name: entry.name,
+        bakery_address: entry.address,
+        bakery_city: entry.city,
+        latitude: entry.latitude,
+        longitude: entry.longitude,
+        radius_km: entry.radiusKm,
+      }),
+    }).catch(err => console.error("Webhook POI error:", err));
+
     setCurrentBakery({ name: "", address: "" });
     setSelectedCoords(null);
     setSelectedCity("");
