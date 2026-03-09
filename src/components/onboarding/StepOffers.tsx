@@ -23,20 +23,7 @@ interface StepOffersProps {
   bakeries: { name: string; address: string; city: string }[];
 }
 
-const PREBUILT_CATALOG: Record<string, string[]> = {
-  "Traiteur": ["Mini Burgers", "Mini Croques Monsieur", "Mini Wraps", "Mini Quiches", "Mini Pain Apéro salé", "Malicettes (Bouchées Pains fourrés)", "Apérange (Pain surprise 1 seul niveau)", "Bruschetta indiv / Baguettines", "Navettes", "Plaque de Quiche", "Plaque de Pizza", "Verrines Sucrées", "Chouquettes Garnies Chantilly", "Mignardises", "Plaque Tarte", "Plaque Fondant Chocolat"],
-  "Viennoiseries": ["Mini Croissant", "Mini Pain Chocolat", "Mini Pain Raisins", "Mini Chausson Pomme", "Croissant", "Pain Chocolat", "Pain Raisins", "Babka indiv", "Briochette nature"],
-  "Pain": ["Baguette Blanche", "Baguette Tradition", "Pain serviette tradition", "Pain serviette Graines", "Pain Bun's Burger", "Pain Hot Dog"],
-  "Pâtisseries": ["Royal Chocolat", "Flan Nature", "Tarte Fraise", "Tarte Framboise", "Paris Brest", "Tarte aux Pommes", "Eclair choco", "Eclair Café", "Gâteaux d'anniversaire (sur demande)", "Pièces Montées (sur demande)"],
-  "Gâteaux de voyage": ["Cookies individuel", "Grand Cookies à partager", "Muffins pépites de Chocolat", "Muffins Myrtille", "Muffins Nutella", "Brookie indiv", "Madeleines Nature", "Financier indiv", "Mini Financier", "Mini Madeleine", "Mini Sablé", "Mini Meringue"],
-  "Snacking": ["Sandwiches", "Burger", "Hot Dog", "Pizza", "Pain Apéro (olive, chorizo...)", "Salades", "Soupes", "Poke Bowl"],
-  "Boissons": ["Jus de fruits", "Thé", "Café", "Soda", "Bière sans alcool", "Jus d'orange pressé"],
-};
-
 const WEBHOOK_DOC = "https://n8n.beautifulflow.ai/webhook/depot-offres-doc";
-const WEBHOOK_MANUAL = "https://n8n.beautifulflow.ai/webhook/depot-offres-manuel";
-
-type Mode = null | "document" | "manual";
 
 const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange, selectedOfferIds, onSelectedChange, sessionId, bakeries }) => {
   const [mode, setMode] = useState<Mode>(offers.length > 0 ? "manual" : null);
