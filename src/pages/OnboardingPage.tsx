@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 import StepWelcome from "@/components/onboarding/StepWelcome";
 import StepBakery from "@/components/onboarding/StepBakery";
-ing/StepOffers";
+import StepOffers, { type OfferEntry } from "@/components/onboarding/StepOffers";
 import StepMessages, { type MessageEntry } from "@/components/onboarding/StepMessages";
 import StepCampaignRecap from "@/components/onboarding/StepCampaignRecap";
 import StepPayment from "@/components/onboarding/StepPayment";
