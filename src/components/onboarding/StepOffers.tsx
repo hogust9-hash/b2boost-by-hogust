@@ -1,7 +1,8 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, Plus, Loader2, FileText, Trash2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface OfferEntry {
   id: string;
@@ -17,74 +18,76 @@ interface StepOffersProps {
   onOffersChange: (offers: OfferEntry[]) => void;
   selectedOfferIds: Set<string>;
   onSelectedChange: (ids: Set<string>) => void;
+  sessionId: string | null;
 }
 
-function parsePaniersResponse(data: any): OfferEntry[] {
-  const offers: OfferEntry[] = [];
-
-  // Handle array wrapper: response can be [{ action, response: { output: { paniers } } }]
-  let root = data;
-  if (Array.isArray(root)) root = root[0];
-  
-  const paniers =
-    root?.response?.output?.paniers ||
-    root?.output?.paniers ||
-    root?.paniers ||
-    [];
-
-  for (const panier of paniers) {
-    const categoryName = (panier.nom || "autre").toLowerCase();
-    const produits = panier.produits || [];
-    for (const produit of produits) {
-      offers.push({
-        id: crypto.randomUUID(),
-        name: typeof produit === "string" ? produit : produit.name || "",
-        category: categoryName,
-        description: "",
-        price: null,
-      });
-    }
-  }
-
-  return offers;
-}
-
-const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange, selectedOfferIds, onSelectedChange }) => {
+const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange, selectedOfferIds, onSelectedChange, sessionId }) => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
+
+  const pollForOffers = (sid: string, uploadedFileName: string) => {
+    pollingRef.current = setInterval(async () => {
+      const { data, error } = await supabase
+        .from("onboarding_offers")
+        .select("*")
+        .eq("session_id", sid);
+
+      if (!error && data && data.length > 0) {
+        // Offers are ready
+        if (pollingRef.current) clearInterval(pollingRef.current);
+        pollingRef.current = null;
+
+        const extracted: OfferEntry[] = data.map(o => ({
+          id: o.id,
+          name: o.name || "",
+          category: o.category || "autre",
+          description: o.description || "",
+          price: o.price ? Number(o.price) : null,
+        }));
+
+        const updated = [...offers, ...extracted];
+        onOffersChange(updated);
+        const newIds = new Set(selectedOfferIds);
+        extracted.forEach(o => newIds.add(o.id));
+        onSelectedChange(newIds);
+        setFileName(uploadedFileName);
+        setIsExtracting(false);
+      }
+    }, 3000); // Poll every 3 seconds
+  };
 
   const processFile = async (file: File) => {
+    if (!sessionId) return;
     setIsExtracting(true);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("filename", file.name);
+      formData.append("session_id", sessionId);
 
-      const res = await fetch("https://n8n.beautifulflow.ai/webhook/depot-offres", {
+      // Fire and forget — n8n will process and write to Supabase
+      fetch("https://n8n.beautifulflow.ai/webhook/depot-offres", {
         method: "POST",
         body: formData,
-      });
+      }).catch(err => console.error("Webhook error:", err));
 
-      if (!res.ok) throw new Error(`Erreur ${res.status}`);
-      const data = await res.json();
-
-      const extracted = parsePaniersResponse(data);
-
-      if (extracted.length > 0) {
-        const updated = [...offers, ...extracted];
-        onOffersChange(updated);
-        const newIds = new Set(selectedOfferIds);
-        extracted.forEach(o => newIds.add(o.id));
-        onSelectedChange(newIds);
-        setFileName(file.name);
-      }
+      // Start polling Supabase for results
+      pollForOffers(sessionId, file.name);
     } catch (err) {
-      console.error("Extraction error:", err);
+      console.error("Upload error:", err);
+      setIsExtracting(false);
     }
-    setIsExtracting(false);
   };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +101,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file) await processFile(file);
-  }, [offers, selectedOfferIds]);
+  }, [sessionId, offers, selectedOfferIds]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -116,6 +119,13 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
     const next = new Set(selectedOfferIds);
     if (next.has(id)) next.delete(id); else next.add(id);
     onSelectedChange(next);
+
+    // Sync selection to Supabase
+    supabase
+      .from("onboarding_offers")
+      .update({ is_selected: next.has(id) })
+      .eq("id", id)
+      .then(() => {});
   };
 
   const removeOffer = (id: string) => {
@@ -125,7 +135,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
     onSelectedChange(next);
   };
 
-  const addManualOffer = () => {
+  const addManualOffer = async () => {
     const newOffer: OfferEntry = {
       id: crypto.randomUUID(),
       name: "",
@@ -133,6 +143,24 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       description: "",
       price: null,
     };
+
+    // Insert into Supabase if session exists
+    if (sessionId) {
+      const { data } = await supabase
+        .from("onboarding_offers")
+        .insert({
+          session_id: sessionId,
+          name: "",
+          category: "autre",
+          description: "",
+          price: null,
+          is_selected: true,
+        })
+        .select("id")
+        .single();
+      if (data) newOffer.id = data.id;
+    }
+
     onOffersChange([...offers, newOffer]);
     const next = new Set(selectedOfferIds);
     next.add(newOffer.id);
@@ -152,7 +180,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       <div>
         <h2 className="text-xl font-bold text-foreground">Importe tes offres</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Uploade ton catalogue ou ajoute tes produits manuellement.
+          Uploade ton catalogue ou ajoute tes offres manuellement.
         </p>
       </div>
 
