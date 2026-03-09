@@ -53,6 +53,10 @@ const OnboardingPage = () => {
     setStep(s);
   };
 
+  const goBack = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-lg mx-auto">
@@ -60,7 +64,7 @@ const OnboardingPage = () => {
           <h1 className="text-lg font-bold text-primary text-center">B2Boost</h1>
         </div>
 
-        <OnboardingProgress currentStep={step} totalSteps={TOTAL_STEPS} />
+        <OnboardingProgress currentStep={step} totalSteps={TOTAL_STEPS} onBack={goBack} />
 
         {step === 1 && <StepWelcome onNext={() => goToStep(2)} />}
         {step === 2 && (
