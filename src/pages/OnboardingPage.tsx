@@ -97,6 +97,7 @@ const OnboardingPage = () => {
             messages={messages}
             targetCategoryId={targetCategoryId}
             onTargetCategoryChange={setTargetCategoryId}
+            sessionId={sessionId}
           />
         )}
         {step === 6 && (
