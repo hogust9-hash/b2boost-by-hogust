@@ -208,8 +208,6 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => 
     onNext();
   };
 
-  const totalEstimated = bakeries.reduce((sum, b) => sum + estimateProspects(b.radiusKm), 0)
-    + (selectedCoords ? estimateProspects(radiusKm) : 0);
 
   return (
     <div className="space-y-6 px-4 py-6">
