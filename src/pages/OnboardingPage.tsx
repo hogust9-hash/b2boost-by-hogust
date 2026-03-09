@@ -67,7 +67,7 @@ const OnboardingPage = () => {
 
         {step === 1 && <StepWelcome onNext={() => goToStep(2)} />}
         {step === 2 && (
-          <StepBakery onNext={() => goToStep(3)} onBakeriesChange={setBakeries} />
+          <StepBakery onNext={() => goToStep(3)} onBakeriesChange={setBakeries} sessionId={sessionId} />
         )}
         {step === 3 && (
           <StepOffers
