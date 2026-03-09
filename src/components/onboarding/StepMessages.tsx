@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Loader2, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import type { OfferEntry } from "./StepOffers";
 
 export interface MessageEntry {
@@ -22,6 +23,7 @@ interface StepMessagesProps {
   bakeries: BakeryEntry[];
   offers: OfferEntry[];
   selectedOfferIds: Set<string>;
+  sessionId: string | null;
 }
 
 const MESSAGE_LABELS = [
@@ -30,47 +32,94 @@ const MESSAGE_LABELS = [
   { label: "Message 3 — Dernière chance", color: "bg-red-100 text-red-700" },
 ];
 
-export async function fetchMessages(
-  bakeries: BakeryEntry[],
-  offers: OfferEntry[],
-  selectedOfferIds: Set<string>,
-  feedback?: string,
-): Promise<MessageEntry[]> {
-  const activeOffers = offers.filter(o => selectedOfferIds.has(o.id));
-  const res = await fetch("https://n8n.beautifulflow.ai/webhook/exemples-messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      bakeries: bakeries.map(b => ({ name: b.name, city: b.city })),
-      offers: activeOffers.map(o => ({ name: o.name, category: o.category, description: o.description, price: o.price })),
-      feedback: feedback || undefined,
-    }),
-  });
-  if (!res.ok) throw new Error(`Erreur ${res.status}`);
-  const data = await res.json();
-  return (data.messages || []).slice(0, 3).map((m: any) => ({
-    subject: m.subject || "",
-    body: m.body || "",
-  }));
-}
-
-const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessagesChange, bakeries, offers, selectedOfferIds }) => {
+const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessagesChange, bakeries, offers, selectedOfferIds, sessionId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // On mount, poll Supabase for messages (n8n writes them in background)
+  useEffect(() => {
+    if (!sessionId || messages.length > 0) return;
+
+    setIsLoading(true);
+    
+    const pollMessages = () => {
+      pollingRef.current = setInterval(async () => {
+        const { data, error } = await supabase
+          .from("onboarding_messages")
+          .select("*")
+          .eq("session_id", sessionId)
+          .order("step_number", { ascending: true });
+
+        if (!error && data && data.length >= 3) {
+          if (pollingRef.current) clearInterval(pollingRef.current);
+          pollingRef.current = null;
+
+          const msgs: MessageEntry[] = data.map(m => ({
+            subject: m.subject || "",
+            body: m.body || "",
+          }));
+          onMessagesChange(msgs);
+          setIsLoading(false);
+        }
+      }, 3000);
+    };
+
+    pollMessages();
+
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, [sessionId]);
 
   const handleRequestChanges = async () => {
-    if (!feedback.trim()) return;
+    if (!feedback.trim() || !sessionId) return;
     setIsLoading(true);
+
     try {
-      const newMessages = await fetchMessages(bakeries, offers, selectedOfferIds, feedback);
-      onMessagesChange(newMessages);
-      setFeedback("");
-      setShowFeedback(false);
+      const activeOffers = offers.filter(o => selectedOfferIds.has(o.id));
+      
+      // Call webhook with feedback for regeneration
+      await fetch("https://n8n.beautifulflow.ai/webhook/exemples-messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          bakeries: bakeries.map(b => ({ name: b.name, city: b.city })),
+          offers: activeOffers.map(o => ({ name: o.name, category: o.category, description: o.description, price: o.price })),
+          feedback,
+        }),
+      });
+
+      // Poll for updated messages
+      pollingRef.current = setInterval(async () => {
+        const { data, error } = await supabase
+          .from("onboarding_messages")
+          .select("*")
+          .eq("session_id", sessionId)
+          .order("step_number", { ascending: true });
+
+        if (!error && data && data.length >= 3) {
+          const msgs: MessageEntry[] = data.map(m => ({
+            subject: m.subject || "",
+            body: m.body || "",
+          }));
+          // Check if content changed
+          if (msgs[0].subject !== messages[0]?.subject || msgs[0].body !== messages[0]?.body) {
+            if (pollingRef.current) clearInterval(pollingRef.current);
+            pollingRef.current = null;
+            onMessagesChange(msgs);
+            setFeedback("");
+            setShowFeedback(false);
+            setIsLoading(false);
+          }
+        }
+      }, 3000);
     } catch (err) {
-      console.error("Error fetching messages:", err);
+      console.error("Error requesting message changes:", err);
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const hasMessages = messages.length > 0 && messages[0].subject !== "";
@@ -88,6 +137,9 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
         <div className="flex flex-col items-center gap-3 py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Génération en cours…</p>
+          <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-primary rounded-full animate-[progress_30s_ease-in-out_forwards]" />
+          </div>
         </div>
       )}
 
