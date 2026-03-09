@@ -198,6 +198,124 @@ export type Database = {
           },
         ]
       }
+      onboarding_messages: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          session_id: string
+          step_number: number
+          subject: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          session_id: string
+          step_number: number
+          subject?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          session_id?: string
+          step_number?: number
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "onboarding_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_offers: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_selected: boolean
+          name: string
+          price: number | null
+          session_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_selected?: boolean
+          name?: string
+          price?: number | null
+          session_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_selected?: boolean
+          name?: string
+          price?: number | null
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_offers_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "onboarding_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_sessions: {
+        Row: {
+          bakery_address: string | null
+          bakery_city: string | null
+          bakery_latitude: number | null
+          bakery_longitude: number | null
+          bakery_name: string | null
+          bakery_radius_km: number | null
+          created_at: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          bakery_address?: string | null
+          bakery_city?: string | null
+          bakery_latitude?: number | null
+          bakery_longitude?: number | null
+          bakery_name?: string | null
+          bakery_radius_km?: number | null
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          bakery_address?: string | null
+          bakery_city?: string | null
+          bakery_latitude?: number | null
+          bakery_longitude?: number | null
+          bakery_name?: string | null
+          bakery_radius_km?: number | null
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
