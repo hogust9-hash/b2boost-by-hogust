@@ -75,6 +75,13 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       formData.append("file", file);
       formData.append("filename", file.name);
       formData.append("session_id", sessionId);
+      
+      // Pass bakery info for context
+      if (bakeries.length > 0) {
+        formData.append("bakery_name", bakeries[0].name);
+        formData.append("bakery_address", bakeries[0].address);
+        formData.append("bakery_city", bakeries[0].city);
+      }
 
       // Fire and forget — n8n will process and write to Supabase
       fetch("https://n8n.beautifulflow.ai/webhook/depot-offres", {
