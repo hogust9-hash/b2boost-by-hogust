@@ -20,6 +20,7 @@ interface EmailHistoryItem {
   type: string;
   subject: string;
   body: string;
+  sent: boolean;
 }
 
 interface ProspectDetail {
