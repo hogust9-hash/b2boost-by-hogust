@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 import StepWelcome from "@/components/onboarding/StepWelcome";
 import StepBakery from "@/components/onboarding/StepBakery";
-
-import StepOffers, { type OfferEntry } from "@/components/onboarding/StepOffers";
+ing/StepOffers";
 import StepMessages, { type MessageEntry } from "@/components/onboarding/StepMessages";
 import StepCampaignRecap from "@/components/onboarding/StepCampaignRecap";
 import StepPayment from "@/components/onboarding/StepPayment";
@@ -15,7 +14,7 @@ const TOTAL_STEPS = 8;
 interface BakeryEntry {
   id: string;
   name: string;
-  address: string;
+  addres7: string;
   city: string;
   latitude: number;
   longitude: number;
