@@ -125,6 +125,10 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.5" },
         },
+        "progress": {
+          "0%": { width: "0%" },
+          "100%": { width: "95%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.3s ease-out",
