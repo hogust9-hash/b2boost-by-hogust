@@ -192,6 +192,22 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
     const updated = [...bakeries, entry];
     setBakeries(updated);
     onBakeriesChange(updated);
+
+    // POST to webhook
+    fetch(WEBHOOK_POI, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: sessionId,
+        bakery_name: entry.name,
+        bakery_address: entry.address,
+        bakery_city: entry.city,
+        latitude: entry.latitude,
+        longitude: entry.longitude,
+        radius_km: entry.radiusKm,
+      }),
+    }).catch(err => console.error("Webhook POI error:", err));
+
     setCurrentBakery({ name: "", address: "" });
     setSelectedCoords(null);
     setSelectedCity("");
