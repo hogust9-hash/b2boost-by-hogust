@@ -181,9 +181,6 @@ const StepPayment: React.FC<StepPaymentProps> = ({
     <div className="space-y-6 px-4 py-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">Choisis ton pack</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          25 crédits = 25 nouveaux prospects contactés, soit 75 emails envoyés (3 par prospect).
-        </p>
         <p className="text-xs text-muted-foreground mt-1">Les crédits non utilisés sont conservés pour tes prochaines campagnes.</p>
       </div>
 
