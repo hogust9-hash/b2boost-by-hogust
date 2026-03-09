@@ -19,9 +19,10 @@ interface StepOffersProps {
   selectedOfferIds: Set<string>;
   onSelectedChange: (ids: Set<string>) => void;
   sessionId: string | null;
+  bakeries: { name: string; address: string; city: string }[];
 }
 
-const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange, selectedOfferIds, onSelectedChange, sessionId }) => {
+const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange, selectedOfferIds, onSelectedChange, sessionId, bakeries }) => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
