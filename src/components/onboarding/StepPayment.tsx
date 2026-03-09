@@ -181,9 +181,6 @@ const StepPayment: React.FC<StepPaymentProps> = ({
     <div className="space-y-6 px-4 py-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">Choisis ton pack</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          25 crédits = 25 nouveaux prospects contactés, soit 75 emails envoyés (3 par prospect).
-        </p>
         <p className="text-xs text-muted-foreground mt-1">Les crédits non utilisés sont conservés pour tes prochaines campagnes.</p>
       </div>
 
@@ -201,7 +198,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({
           >
             <div className="text-left">
               <p className="text-sm font-bold text-foreground">{pack.label}</p>
-              <p className="text-xs text-muted-foreground">{pack.credits} crédits</p>
+              <p className="text-xs text-muted-foreground">{pack.credits} crédits — {pack.credits} prospects contactés, {pack.credits * 3} emails envoyés</p>
             </div>
             {selectedPack === i && <Check className="h-5 w-5 text-primary" />}
           </button>
