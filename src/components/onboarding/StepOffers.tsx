@@ -79,6 +79,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
         const newIds = new Set(selectedOfferIds);
         extracted.forEach(o => newIds.add(o.id));
         onSelectedChange(newIds);
+        setFileName(file.name);
       }
     } catch (err) {
       console.error("Extraction error:", err);
