@@ -108,8 +108,8 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
   };
 
   // Split emails into sent and next
-  const sentEmails = emailHistory.filter(e => e.sent);
-  const nextEmail = emailHistory.find(e => !e.sent);
+  const sentEmails = mockEmailHistory.filter(e => e.sent);
+  const nextEmail = mockEmailHistory.find(e => !e.sent);
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
