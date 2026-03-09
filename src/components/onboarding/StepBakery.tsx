@@ -25,7 +25,7 @@ interface StepBakeryProps {
   onBakeriesChange: (bakeries: BakeryEntry[]) => void;
 }
 
-const estimateProspects = (radiusKm: number) => Math.round(radiusKm * radiusKm * 0.8 + radiusKm * 5);
+
 
 const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
