@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Check, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface MessageEntry {
@@ -22,13 +22,17 @@ const MESSAGE_LABELS = [
   { label: "Message 3 — Dernière chance", color: "bg-red-100 text-red-700" },
 ];
 
+const WEBHOOK_URL = "https://n8n.beautifulflow.ai/webhook/depot-offres";
+
 const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessagesChange, sessionId }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    if (!sessionId || messages.length > 0) return;
-
+  const startPolling = () => {
+    if (!sessionId) return;
     setIsLoading(true);
 
     pollingRef.current = setInterval(async () => {
@@ -50,11 +54,50 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
         setIsLoading(false);
       }
     }, 3000);
+  };
 
+  useEffect(() => {
+    if (!sessionId || messages.length > 0) return;
+    startPolling();
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, [sessionId]);
+
+  const handleReject = () => {
+    setShowFeedback(true);
+  };
+
+  const handleSendFeedback = async () => {
+    if (!feedback.trim() || !sessionId) return;
+    setIsSendingFeedback(true);
+
+    try {
+      // Delete existing messages so polling can detect new ones
+      await supabase
+        .from("onboarding_messages")
+        .delete()
+        .eq("session_id", sessionId);
+
+      // Send feedback to webhook
+      const formData = new FormData();
+      formData.append("session_id", sessionId);
+      formData.append("action", "regenerate_messages");
+      formData.append("feedback", feedback.trim());
+
+      await fetch(WEBHOOK_URL, { method: "POST", body: formData });
+
+      // Reset state and re-poll
+      onMessagesChange([]);
+      setShowFeedback(false);
+      setFeedback("");
+      setIsSendingFeedback(false);
+      startPolling();
+    } catch (err) {
+      console.error("Failed to send feedback:", err);
+      setIsSendingFeedback(false);
+    }
+  };
 
   const hasMessages = messages.length > 0 && messages[0].subject !== "";
 
@@ -93,9 +136,44 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
             </div>
           ))}
 
-          <Button onClick={onNext} fullWidth size="lg">
-            Valider les messages
-          </Button>
+          {showFeedback ? (
+            <div className="bg-card rounded-xl border border-border p-4 space-y-3">
+              <p className="text-sm font-medium text-foreground">Qu'est-ce que tu souhaites modifier ?</p>
+              <Textarea
+                placeholder="Ex : Ton trop formel, mettre en avant les viennoiseries, ajouter une offre de bienvenue…"
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={4}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => { setShowFeedback(false); setFeedback(""); }}
+                  className="flex-1"
+                >
+                  Annuler
+                </Button>
+                <Button
+                  onClick={handleSendFeedback}
+                  disabled={!feedback.trim() || isSendingFeedback}
+                  className="flex-1"
+                >
+                  {isSendingFeedback ? <Loader2 className="h-4 w-4 animate-spin" /> : "Régénérer"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <Button onClick={onNext} fullWidth size="lg">
+                <Check className="h-4 w-4" />
+                Valider les messages
+              </Button>
+              <Button variant="outline" onClick={handleReject} fullWidth size="lg">
+                <MessageSquare className="h-4 w-4" />
+                Demander des modifications
+              </Button>
+            </div>
+          )}
         </>
       )}
     </div>
