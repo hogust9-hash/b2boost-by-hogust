@@ -23,11 +23,12 @@ interface BakeryEntry {
 interface StepBakeryProps {
   onNext: () => void;
   onBakeriesChange: (bakeries: BakeryEntry[]) => void;
+  sessionId: string | null;
 }
 
+const WEBHOOK_POI = "https://n8n.beautifulflow.ai/webhook/adresse-poi";
 
-
-const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange }) => {
+const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessionId }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
