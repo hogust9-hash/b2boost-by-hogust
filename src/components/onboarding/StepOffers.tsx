@@ -218,7 +218,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       {/* Add manual */}
       <Button variant="outline" onClick={addManualOffer} fullWidth>
         <Plus className="h-4 w-4" />
-        Ajouter un produit manuellement
+        Ajouter une offre manuellement
       </Button>
 
       {/* Next */}
