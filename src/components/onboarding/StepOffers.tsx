@@ -173,7 +173,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
             <p className="text-sm font-medium text-foreground">Analyse de ton catalogue…</p>
             <p className="text-xs text-muted-foreground">Ça peut prendre jusqu'à 30 secondes</p>
             <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-primary rounded-full animate-pulse" style={{ width: '60%' }} />
+              <div className="h-full bg-primary rounded-full animate-[progress_30s_ease-in-out_forwards]" />
             </div>
           </div>
         ) : (
