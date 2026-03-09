@@ -85,9 +85,6 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
                 <span className={`text-xs font-medium px-2 py-1 rounded-full ${MESSAGE_LABELS[i]?.color || ""}`}>
                   {MESSAGE_LABELS[i]?.label || `Message ${i + 1}`}
                 </span>
-                <Badge variant="outline" className="text-xs gap-1">
-                  <Sparkles className="h-3 w-3" /> généré
-                </Badge>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-foreground">{msg.subject}</p>
