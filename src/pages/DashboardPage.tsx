@@ -400,7 +400,7 @@ interface DashboardProspect {
   context: string;
   offers: string[];
   lastSentDate: string;
-  isNew: boolean;
+  responseReceivedAt?: string | null;
   status: "response" | "contacted";
 }
 
