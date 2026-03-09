@@ -205,27 +205,43 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
         </div>
       )}
 
-      {Array.from(categoryMap.entries()).map(([category, items]) => (
-        <div key={category} className="space-y-2">
-          <h3 className="text-sm font-semibold text-foreground capitalize">{category}</h3>
-          {items.map(offer => (
-            <div key={offer.id} className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  checked={selectedOfferIds.has(offer.id)}
-                  onCheckedChange={() => toggleOffer(offer.id)}
-                />
-                <span className="flex-1 text-sm text-foreground">
-                  {offer.name || <span className="text-muted-foreground italic">Sans nom</span>}
-                </span>
-                <button onClick={() => removeOffer(offer.id)} className="text-muted-foreground hover:text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+      {Array.from(categoryMap.entries()).map(([category, items]) => {
+        // Each item may contain multiple products in the description field (comma-separated)
+        const products: { offerId: string; productName: string }[] = [];
+        for (const offer of items) {
+          const desc = offer.description?.trim();
+          if (desc) {
+            // Products are comma-separated in the description
+            const parts = desc.split(",").map(p => p.trim()).filter(p => p.length > 0);
+            for (const part of parts) {
+              products.push({ offerId: offer.id, productName: part });
+            }
+          } else {
+            // Fallback: use the offer name itself if no description
+            products.push({ offerId: offer.id, productName: offer.name });
+          }
+        }
+
+        return (
+          <div key={category} className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-foreground capitalize">{category.toLowerCase()}</h3>
+              <span className="text-xs text-muted-foreground">{products.length} produit{products.length > 1 ? "s" : ""}</span>
             </div>
-          ))}
-        </div>
-      ))}
+            {products.map((product, idx) => (
+              <div key={`${product.offerId}-${idx}`} className="bg-card rounded-lg border border-border p-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={selectedOfferIds.has(product.offerId)}
+                    onCheckedChange={() => toggleOffer(product.offerId)}
+                  />
+                  <span className="flex-1 text-sm text-foreground">{product.productName}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })}
 
       {offers.length > 0 && (
         <Button onClick={onNext} disabled={selectedOfferIds.size === 0} fullWidth size="lg">
