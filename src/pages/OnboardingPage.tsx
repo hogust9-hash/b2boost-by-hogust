@@ -14,7 +14,7 @@ const TOTAL_STEPS = 8;
 interface BakeryEntry {
   id: string;
   name: string;
-  addres7: string;
+  address: string;
   city: string;
   latitude: number;
   longitude: number;
