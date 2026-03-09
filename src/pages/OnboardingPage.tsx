@@ -70,11 +70,8 @@ const OnboardingPage = () => {
           <StepBakery onNext={() => goToStep(3)} onBakeriesChange={setBakeries} />
         )}
         {step === 3 && (
-          <StepProspects bakeries={bakeries} onNext={() => goToStep(4)} />
-        )}
-        {step === 4 && (
           <StepOffers
-            onNext={() => goToStep(5)}
+            onNext={() => goToStep(4)}
             offers={offers}
             onOffersChange={setOffers}
             selectedOfferIds={selectedOfferIds}
@@ -83,17 +80,17 @@ const OnboardingPage = () => {
             bakeries={bakeries}
           />
         )}
-        {step === 5 && (
+        {step === 4 && (
           <StepMessages
-            onNext={() => goToStep(6)}
+            onNext={() => goToStep(5)}
             messages={messages}
             onMessagesChange={setMessages}
             sessionId={sessionId}
           />
         )}
-        {step === 6 && (
+        {step === 5 && (
           <StepCampaignRecap
-            onNext={() => goToStep(7)}
+            onNext={() => goToStep(6)}
             bakeries={bakeries}
             offers={offers}
             selectedOfferIds={selectedOfferIds}
@@ -102,7 +99,7 @@ const OnboardingPage = () => {
             onTargetCategoryChange={setTargetCategoryId}
           />
         )}
-        {step === 7 && (
+        {step === 6 && (
           <StepPayment
             bakeries={bakeries}
             offers={offers}
@@ -110,10 +107,10 @@ const OnboardingPage = () => {
             messages={messages}
             targetCategoryId={targetCategoryId}
             waveSize={waveSize}
-            onSuccess={() => goToStep(8)}
+            onSuccess={() => goToStep(7)}
           />
         )}
-        {step === 8 && <StepSuccess />}
+        {step === 7 && <StepSuccess />}
       </div>
     </div>
   );
