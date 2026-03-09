@@ -344,7 +344,7 @@ const ProspectsPage = () => {
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-foreground hover:bg-muted/80"
             )}>
-              {cardFilter === "all" ? "Fiche : "Ma to-do"}
+              {cardFilter === "all" ? "Fiche" : "Ma to-do"}
               <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[160px]">
