@@ -18,6 +18,15 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
+// Helper: check if a date is less than 7 days ago
+const isWithinOneWeek = (dateStr: string | null | undefined): boolean => {
+  if (!dateStr) return false;
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  return diffMs >= 0 && diffMs < 7 * 24 * 60 * 60 * 1000;
+};
+
 interface Prospect {
   id: string;
   name: string;
@@ -31,7 +40,7 @@ interface Prospect {
   context: string;
   offers: string[];
   lastSentDate: string;
-  isNew: boolean;
+  responseReceivedAt?: string | null;
   status: "response" | "in_progress" | "finished";
 }
 
