@@ -136,28 +136,7 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         ))}
       </div>
 
-      {/* Target category */}
-      <div className="bg-card rounded-xl border border-border p-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <Users className="h-4 w-4 text-primary" />
-          Catégorie cible
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => onTargetCategoryChange(cat.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                targetCategoryId === cat.id
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-foreground border-border hover:border-primary/50"
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </div>
+
 
       {/* Active offers */}
       <div className="bg-card rounded-xl border border-border p-4 space-y-2">

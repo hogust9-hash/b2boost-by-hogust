@@ -198,7 +198,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({
           >
             <div className="text-left">
               <p className="text-sm font-bold text-foreground">{pack.label}</p>
-              <p className="text-xs text-muted-foreground">{pack.credits} crédits</p>
+              <p className="text-xs text-muted-foreground">{pack.credits} crédits — {pack.credits} prospects contactés, {pack.credits * 3} emails envoyés</p>
             </div>
             {selectedPack === i && <Check className="h-5 w-5 text-primary" />}
           </button>

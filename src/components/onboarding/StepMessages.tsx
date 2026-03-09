@@ -170,7 +170,7 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
                   disabled={!feedback.trim() || isSendingFeedback}
                   className="flex-1"
                 >
-                  {isSendingFeedback ? <Loader2 className="h-4 w-4 animate-spin" /> : "Régénérer"}
+                  {isSendingFeedback ? <Loader2 className="h-4 w-4 animate-spin" /> : "Envoyer"}
                 </Button>
               </div>
             </div>
