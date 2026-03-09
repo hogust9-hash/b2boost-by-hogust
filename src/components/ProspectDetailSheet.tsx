@@ -171,68 +171,85 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
         {/* Spacer for sticky button */}
         {onToggleCalled && !prospect.hasResponse && <div className="h-20" />}
 
-        {/* Email Timeline */}
-        <div>
-          <h3 className="font-semibold text-foreground mb-4">Historique des emails</h3>
-          
-          <div className="relative">
-            {/* Vertical Line */}
-            <div className="absolute left-[7px] top-3 bottom-3 w-0.5 bg-border" />
-
-            {/* Timeline Items */}
-            <div className="space-y-4">
-              {emailHistory.map((email, index) => (
-                <div key={email.id} className="relative pl-7">
-                  {/* Dot */}
-                  <div
-                    className={cn(
-                      "absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 bg-card",
-                      index === 0 ? "border-primary" : "border-border"
-                    )}
-                  />
-
-                  {/* Content */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm text-muted-foreground">{email.date}</span>
-                      <span className="font-medium text-foreground">{email.type}</span>
-                    </div>
-                    
-                    <p className="text-sm text-foreground mb-2">
-                      Objet : {email.subject}
-                    </p>
-
-                    <button
-                      onClick={() => toggleEmail(email.id)}
-                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline underline-offset-4 transition-all"
-                    >
-                      {expandedEmails.includes(email.id) ? (
-                        <>
-                          <ChevronUp className="h-4 w-4" />
-                          Masquer l'email
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown className="h-4 w-4" />
-                          Voir l'email
-                        </>
-                      )}
-                    </button>
-
-                    {/* Expanded Email Content */}
-                    {expandedEmails.includes(email.id) && (
-                      <div className="mt-3 bg-background rounded-lg p-4 border border-border">
-                        <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
-                          {email.body}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+        {/* Next Email */}
+        {nextEmail && (
+          <div className="mb-6">
+            <h3 className="font-semibold text-foreground mb-3">Prochain email</h3>
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Mail className="h-4 w-4 text-primary" />
+                <span className="font-medium text-foreground">{nextEmail.type}</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-1">Envoi prévu le {nextEmail.date}</p>
+              <p className="text-sm text-foreground">Objet : {nextEmail.subject}</p>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Sent Emails Timeline */}
+        {sentEmails.length > 0 && (
+          <div>
+            <h3 className="font-semibold text-foreground mb-4">Emails envoyés</h3>
+            
+            <div className="relative">
+              {/* Vertical Line */}
+              <div className="absolute left-[7px] top-3 bottom-3 w-0.5 bg-border" />
+
+              {/* Timeline Items */}
+              <div className="space-y-4">
+                {sentEmails.map((email, index) => (
+                  <div key={email.id} className="relative pl-7">
+                    {/* Dot */}
+                    <div
+                      className={cn(
+                        "absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 bg-card",
+                        index === 0 ? "border-primary" : "border-border"
+                      )}
+                    />
+
+                    {/* Content */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm text-muted-foreground">{email.date}</span>
+                        <span className="font-medium text-foreground">{email.type}</span>
+                      </div>
+                      
+                      <p className="text-sm text-foreground mb-2">
+                        Objet : {email.subject}
+                      </p>
+
+                      <button
+                        onClick={() => toggleEmail(email.id)}
+                        className="inline-flex items-center gap-1 text-sm text-primary hover:underline underline-offset-4 transition-all"
+                      >
+                        {expandedEmails.includes(email.id) ? (
+                          <>
+                            <ChevronUp className="h-4 w-4" />
+                            Masquer l'email
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-4 w-4" />
+                            Voir l'email
+                          </>
+                        )}
+                      </button>
+
+                      {/* Expanded Email Content */}
+                      {expandedEmails.includes(email.id) && (
+                        <div className="mt-3 bg-background rounded-lg p-4 border border-border">
+                          <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+                            {email.body}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Fixed CTA for responses */}
