@@ -173,6 +173,38 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
           </div>
         </div>
 
+        {/* Client Response */}
+        {prospect.hasResponse && (
+          <div className="mb-6">
+            <button
+              onClick={() => toggleEmail("client-response")}
+              className="inline-flex items-center gap-1 text-sm font-medium text-success hover:underline underline-offset-4 transition-all"
+            >
+              {expandedEmails.includes("client-response") ? (
+                <>
+                  <ChevronUp className="h-4 w-4" />
+                  Masquer la réponse reçue
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4" />
+                  Voir la réponse reçue
+                </>
+              )}
+            </button>
+
+            {expandedEmails.includes("client-response") && (
+              <div className="mt-3 bg-success/5 border border-success/20 rounded-lg p-4">
+                <p className="text-xs text-muted-foreground mb-1">De : {prospect.name}</p>
+                <p className="text-sm text-foreground font-medium mb-2">Re: {sentEmails.length > 0 ? sentEmails[0].subject : "Partenariat boulanger"}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+                  Bonjour,{"\n\n"}Merci pour votre proposition, cela m'intéresse beaucoup ! Pourriez-vous passer cette semaine pour qu'on en discute autour d'un café ?{"\n\n"}Je suis disponible mardi et jeudi matin.{"\n\n"}Cordialement,{"\n"}{prospect.name}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Spacer for sticky button */}
         {onToggleCalled && !prospect.hasResponse && <div className="h-20" />}
 
