@@ -415,6 +415,7 @@ interface ActiveDashboardProps {
   onPeriodChange: (period: DashboardPeriodFilter) => void;
   kpiSheetType: "responses" | "contacted" | null;
   onKpiSheetChange: (type: "responses" | "contacted" | null) => void;
+  onProspectClick: (prospect: DashboardProspect) => void;
 }
 
 // Mock prospect data for KPI BottomSheets
