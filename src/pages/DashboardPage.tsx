@@ -2,6 +2,7 @@ import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProspectCard, StageType } from "@/components/ProspectCard";
+import { ProspectDetailSheet, ProspectDetail } from "@/components/ProspectDetailSheet";
 import { CategoryType } from "@/components/ui/badge-category";
 import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
@@ -259,6 +260,8 @@ const DashboardPage = () => {
   const [isEmpty] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<DashboardPeriodFilter>("quarter");
   const [kpiSheetType, setKpiSheetType] = useState<"responses" | "contacted" | null>(null);
+  const [selectedProspect, setSelectedProspect] = useState<ProspectDetail | null>(null);
+  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
   
   // Get data based on selection
   const getData = (): DashboardData => {
@@ -338,6 +341,22 @@ const DashboardPage = () => {
             onPeriodChange={setSelectedPeriod}
             kpiSheetType={kpiSheetType}
             onKpiSheetChange={setKpiSheetType}
+            onProspectClick={(prospect) => {
+              const detail: ProspectDetail = {
+                id: prospect.id,
+                name: prospect.name,
+                category: prospect.category,
+                categoryLabel: prospect.category === "restauration" ? "Restaurant" : prospect.category === "hebergement" ? "Hôtel" : prospect.category === "education" ? "Lycée" : prospect.category === "entreprises" ? "Entreprise" : "Collectivité",
+                hasResponse: prospect.status === "response",
+                currentStage: prospect.stage,
+                currentStageDate: prospect.lastSentDate,
+                totalStages: prospect.totalSteps,
+                completedStages: prospect.currentStep,
+                emailHistory: [],
+              };
+              setSelectedProspect(detail);
+              setIsDetailSheetOpen(true);
+            }}
           />
         )}
       </main>
@@ -348,6 +367,16 @@ const DashboardPage = () => {
       <BottomSheet isOpen={!!selectedBasket} onClose={() => setSelectedBasket(null)}>
         {selectedBasket && <BasketDetailContent basket={selectedBasket} />}
       </BottomSheet>
+
+      {/* Prospect Detail Sheet */}
+      <ProspectDetailSheet
+        isOpen={isDetailSheetOpen}
+        onClose={() => {
+          setIsDetailSheetOpen(false);
+          setTimeout(() => setSelectedProspect(null), 300);
+        }}
+        prospect={selectedProspect}
+      />
     </div>
   );
 };
@@ -386,6 +415,7 @@ interface ActiveDashboardProps {
   onPeriodChange: (period: DashboardPeriodFilter) => void;
   kpiSheetType: "responses" | "contacted" | null;
   onKpiSheetChange: (type: "responses" | "contacted" | null) => void;
+  onProspectClick: (prospect: DashboardProspect) => void;
 }
 
 // Mock prospect data for KPI BottomSheets
@@ -426,8 +456,8 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   onPeriodChange,
   kpiSheetType,
   onKpiSheetChange,
+  onProspectClick,
 }) => {
-  const navigate = useNavigate();
   const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
   
   const responseProspects = dashboardMockProspects.filter(p => p.status === "response");
@@ -658,7 +688,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               offers={prospect.offers}
               lastSentDate={prospect.lastSentDate}
               isNew={(() => { if (!prospect.responseReceivedAt) return false; const d = new Date(prospect.responseReceivedAt); return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000; })()}
-              onClick={() => { onKpiSheetChange(null); navigate("/prospects"); }}
+              onClick={() => { onKpiSheetChange(null); onProspectClick(prospect); }}
             />
           ))}
           {(kpiSheetType === "responses" ? responseProspects : toContactProspects).length === 0 && (
