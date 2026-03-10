@@ -142,9 +142,11 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
         {/* Status Block */}
         <div className="bg-muted rounded-xl p-4 mb-6">
           <div className="flex items-center gap-3 mb-3">
-            <Mail className="h-5 w-5 text-primary" />
+            <Mail className={cn("h-5 w-5", prospect.hasResponse ? "text-success" : "text-primary")} />
             <div>
-              <p className="font-medium text-foreground">{prospect.currentStage} envoyée</p>
+              <p className="font-medium text-foreground">
+                {prospect.hasResponse ? "Réponse reçue !!" : `${prospect.currentStage} envoyée`}
+              </p>
               <p className="text-sm text-muted-foreground">le {prospect.currentStageDate}</p>
             </div>
           </div>
