@@ -341,8 +341,23 @@ const DashboardPage = () => {
             onPeriodChange={setSelectedPeriod}
             kpiSheetType={kpiSheetType}
             onKpiSheetChange={setKpiSheetType}
+            onProspectClick={(prospect) => {
+              const detail: ProspectDetail = {
+                id: prospect.id,
+                name: prospect.name,
+                category: prospect.category,
+                categoryLabel: prospect.category === "restauration" ? "Restaurant" : prospect.category === "hebergement" ? "Hôtel" : prospect.category === "education" ? "Lycée" : prospect.category === "entreprises" ? "Entreprise" : "Collectivité",
+                hasResponse: prospect.status === "response",
+                currentStage: prospect.stage,
+                currentStageDate: prospect.lastSentDate,
+                totalStages: prospect.totalSteps,
+                completedStages: prospect.currentStep,
+                emailHistory: [],
+              };
+              setSelectedProspect(detail);
+              setIsDetailSheetOpen(true);
+            }}
           />
-        )}
       </main>
 
       <BottomNavigation />
