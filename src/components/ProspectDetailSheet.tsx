@@ -184,7 +184,32 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
                 <span className="font-medium text-foreground">{nextEmail.type}</span>
               </div>
               <p className="text-sm text-muted-foreground mb-1">Envoi prévu le {nextEmail.date}</p>
-              <p className="text-sm text-foreground">Objet : {nextEmail.subject}</p>
+              <p className="text-sm text-foreground mb-2">Objet : {nextEmail.subject}</p>
+
+              <button
+                onClick={() => toggleEmail(`next-${nextEmail.id}`)}
+                className="inline-flex items-center gap-1 text-sm text-primary hover:underline underline-offset-4 transition-all"
+              >
+                {expandedEmails.includes(`next-${nextEmail.id}`) ? (
+                  <>
+                    <ChevronUp className="h-4 w-4" />
+                    Masquer l'email
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4" />
+                    Voir l'email
+                  </>
+                )}
+              </button>
+
+              {expandedEmails.includes(`next-${nextEmail.id}`) && (
+                <div className="mt-3 bg-background rounded-lg p-4 border border-border">
+                  <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+                    {nextEmail.body}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
