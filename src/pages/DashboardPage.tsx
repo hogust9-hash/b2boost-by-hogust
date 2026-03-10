@@ -260,6 +260,8 @@ const DashboardPage = () => {
   const [isEmpty] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<DashboardPeriodFilter>("quarter");
   const [kpiSheetType, setKpiSheetType] = useState<"responses" | "contacted" | null>(null);
+  const [selectedProspect, setSelectedProspect] = useState<ProspectDetail | null>(null);
+  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
   
   // Get data based on selection
   const getData = (): DashboardData => {
