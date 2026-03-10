@@ -459,7 +459,6 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   onProspectClick,
 }) => {
   const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
-  const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
   
   const responseProspects = dashboardMockProspects.filter(p => p.status === "response");
   const toContactProspects = dashboardMockProspects.filter(p => p.status === "response");
