@@ -2,6 +2,7 @@ import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProspectCard, StageType } from "@/components/ProspectCard";
+import { ProspectDetailSheet, ProspectDetail } from "@/components/ProspectDetailSheet";
 import { CategoryType } from "@/components/ui/badge-category";
 import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
