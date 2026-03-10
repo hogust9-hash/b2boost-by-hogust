@@ -456,8 +456,9 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   onPeriodChange,
   kpiSheetType,
   onKpiSheetChange,
+  onProspectClick,
 }) => {
-  const navigate = useNavigate();
+  const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
   const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
   
   const responseProspects = dashboardMockProspects.filter(p => p.status === "response");
