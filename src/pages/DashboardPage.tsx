@@ -358,6 +358,7 @@ const DashboardPage = () => {
               setIsDetailSheetOpen(true);
             }}
           />
+        )}
       </main>
 
       <BottomNavigation />
@@ -366,6 +367,16 @@ const DashboardPage = () => {
       <BottomSheet isOpen={!!selectedBasket} onClose={() => setSelectedBasket(null)}>
         {selectedBasket && <BasketDetailContent basket={selectedBasket} />}
       </BottomSheet>
+
+      {/* Prospect Detail Sheet */}
+      <ProspectDetailSheet
+        isOpen={isDetailSheetOpen}
+        onClose={() => {
+          setIsDetailSheetOpen(false);
+          setTimeout(() => setSelectedProspect(null), 300);
+        }}
+        prospect={selectedProspect}
+      />
     </div>
   );
 };
