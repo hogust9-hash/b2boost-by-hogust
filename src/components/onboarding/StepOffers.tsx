@@ -1,7 +1,8 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload, Loader2, FileText, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Upload, Loader2, FileText, Plus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface OfferEntry {
@@ -23,11 +24,28 @@ interface StepOffersProps {
 }
 
 const WEBHOOK_DOC = "https://n8n.beautifulflow.ai/webhook/depot-offres-doc";
+const WEBHOOK_REDACTION = "https://n8n.beautifulflow.ai/webhook/redaction-messages";
+
+const CATEGORY_OPTIONS = [
+  "snacking",
+  "viennoiserie",
+  "pâtisserie",
+  "traiteur",
+  "boulangerie",
+  "autre",
+];
+
+// Build a unique key for each individual product
+const productKey = (offerId: string, idx: number) => `${offerId}-${idx}`;
 
 const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange, selectedOfferIds, onSelectedChange, sessionId, bakeries }) => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newProductName, setNewProductName] = useState("");
+  const [newProductCategory, setNewProductCategory] = useState("autre");
+  const [isSendingWebhook, setIsSendingWebhook] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -60,7 +78,6 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       }
       lastCountRef.current = count;
 
-      // Wait until count is stable for 2 consecutive ticks (6s)
       if (count > 0 && stableTicksRef.current >= 2) {
         if (pollingRef.current) clearInterval(pollingRef.current);
         pollingRef.current = null;
@@ -74,8 +91,17 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
         }));
 
         onOffersChange(extracted);
+        // Select all individual products by default
         const newIds = new Set<string>();
-        extracted.forEach(o => newIds.add(o.id));
+        for (const o of extracted) {
+          const desc = o.description?.trim();
+          if (desc) {
+            const parts = desc.split(",").map(p => p.trim()).filter(p => p.length > 0);
+            parts.forEach((_, idx) => newIds.add(productKey(o.id, idx)));
+          } else {
+            newIds.add(productKey(o.id, 0));
+          }
+        }
         onSelectedChange(newIds);
         setFileName(uploadedFileName);
         setIsExtracting(false);
@@ -99,12 +125,9 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       }
 
       await fetch(WEBHOOK_DOC, { method: "POST", body: formData });
-
-      // n8n writes offers to DB — poll until they appear
       pollForOffers(sessionId, file.name);
     } catch (err) {
       console.error("Upload error:", err);
-      // Fallback: poll for offers written by n8n
       pollForOffers(sessionId, file.name);
     }
   };
@@ -132,32 +155,101 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
     setIsDragging(false);
   }, []);
 
-  const toggleOffer = (id: string) => {
+  const toggleProduct = (key: string) => {
     const next = new Set(selectedOfferIds);
-    if (next.has(id)) next.delete(id); else next.add(id);
+    if (next.has(key)) next.delete(key); else next.add(key);
     onSelectedChange(next);
+  };
 
-    supabase
+  const addManualProduct = async () => {
+    if (!newProductName.trim() || !sessionId) return;
+
+    // Insert into onboarding_offers table
+    const { data, error } = await supabase
       .from("onboarding_offers")
-      .update({ is_selected: next.has(id) })
-      .eq("id", id)
-      .then(() => {});
+      .insert({
+        session_id: sessionId,
+        name: newProductCategory,
+        category: newProductCategory,
+        description: newProductName.trim(),
+        is_selected: true,
+      })
+      .select()
+      .single();
+
+    if (data && !error) {
+      const newOffer: OfferEntry = {
+        id: data.id,
+        name: data.name || "",
+        category: data.category || "autre",
+        description: data.description || "",
+        price: null,
+      };
+      const updatedOffers = [...offers, newOffer];
+      onOffersChange(updatedOffers);
+
+      const next = new Set(selectedOfferIds);
+      next.add(productKey(data.id, 0));
+      onSelectedChange(next);
+    }
+
+    setNewProductName("");
+    setNewProductCategory("autre");
+    setShowAddForm(false);
   };
 
-  const removeOffer = (id: string) => {
-    onOffersChange(offers.filter(o => o.id !== id));
-    const next = new Set(selectedOfferIds);
-    next.delete(id);
-    onSelectedChange(next);
-  };
+  // Build product list with individual keys
+  const allProducts: { key: string; offerId: string; productName: string; category: string }[] = [];
+  const categoryMap = new Map<string, typeof allProducts>();
 
-  // Group offers by category
-  const categoryMap = new Map<string, OfferEntry[]>();
-  for (const o of offers) {
-    const cat = o.category || "autre";
-    if (!categoryMap.has(cat)) categoryMap.set(cat, []);
-    categoryMap.get(cat)!.push(o);
+  for (const offer of offers) {
+    const cat = offer.category || "autre";
+    const desc = offer.description?.trim();
+    if (desc) {
+      const parts = desc.split(",").map(p => p.trim()).filter(p => p.length > 0);
+      for (let idx = 0; idx < parts.length; idx++) {
+        const key = productKey(offer.id, idx);
+        const product = { key, offerId: offer.id, productName: parts[idx], category: cat };
+        allProducts.push(product);
+        if (!categoryMap.has(cat)) categoryMap.set(cat, []);
+        categoryMap.get(cat)!.push(product);
+      }
+    } else {
+      const key = productKey(offer.id, 0);
+      const product = { key, offerId: offer.id, productName: offer.name, category: cat };
+      allProducts.push(product);
+      if (!categoryMap.has(cat)) categoryMap.set(cat, []);
+      categoryMap.get(cat)!.push(product);
+    }
   }
+
+  const handleContinue = async () => {
+    if (!sessionId) return;
+    setIsSendingWebhook(true);
+
+    // Collect selected product names
+    const selectedProducts = allProducts
+      .filter(p => selectedOfferIds.has(p.key))
+      .map(p => ({ name: p.productName, category: p.category }));
+
+    try {
+      const formData = new FormData();
+      formData.append("session_id", sessionId);
+      formData.append("offers", JSON.stringify(selectedProducts));
+      if (bakeries.length > 0) {
+        formData.append("bakery_name", bakeries[0].name);
+        formData.append("bakery_address", bakeries[0].address);
+        formData.append("bakery_city", bakeries[0].city);
+      }
+
+      await fetch(WEBHOOK_REDACTION, { method: "POST", body: formData });
+    } catch (err) {
+      console.error("Webhook redaction error:", err);
+    }
+
+    setIsSendingWebhook(false);
+    onNext();
+  };
 
   return (
     <div className="space-y-6 px-4 py-6">
@@ -205,48 +297,65 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
         </div>
       )}
 
-      {Array.from(categoryMap.entries()).map(([category, items]) => {
-        // Each item may contain multiple products in the description field (comma-separated)
-        const products: { offerId: string; productName: string }[] = [];
-        for (const offer of items) {
-          const desc = offer.description?.trim();
-          if (desc) {
-            // Products are comma-separated in the description
-            const parts = desc.split(",").map(p => p.trim()).filter(p => p.length > 0);
-            for (const part of parts) {
-              products.push({ offerId: offer.id, productName: part });
-            }
-          } else {
-            // Fallback: use the offer name itself if no description
-            products.push({ offerId: offer.id, productName: offer.name });
-          }
-        }
-
-        return (
-          <div key={category} className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground capitalize">{category.toLowerCase()}</h3>
-              <span className="text-xs text-muted-foreground">{products.length} produit{products.length > 1 ? "s" : ""}</span>
-            </div>
-            {products.map((product, idx) => (
-              <div key={`${product.offerId}-${idx}`} className="bg-card rounded-lg border border-border p-3">
-                <div className="flex items-center gap-3">
-                  <Checkbox
-                    checked={selectedOfferIds.has(product.offerId)}
-                    onCheckedChange={() => toggleOffer(product.offerId)}
-                  />
-                  <span className="flex-1 text-sm text-foreground">{product.productName}</span>
-                </div>
-              </div>
-            ))}
+      {Array.from(categoryMap.entries()).map(([category, products]) => (
+        <div key={category} className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground capitalize">{category.toLowerCase()}</h3>
+            <span className="text-xs text-muted-foreground">{products.length} produit{products.length > 1 ? "s" : ""}</span>
           </div>
-        );
-      })}
+          {products.map((product) => (
+            <div key={product.key} className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  checked={selectedOfferIds.has(product.key)}
+                  onCheckedChange={() => toggleProduct(product.key)}
+                />
+                <span className="flex-1 text-sm text-foreground">{product.productName}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
 
       {offers.length > 0 && (
-        <Button onClick={onNext} disabled={selectedOfferIds.size === 0} fullWidth size="lg">
-          Continuer
-        </Button>
+        <>
+          {showAddForm ? (
+            <div className="bg-card rounded-xl border border-border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-foreground">Ajouter un produit</p>
+                <button onClick={() => setShowAddForm(false)} className="text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <Input
+                placeholder="Nom du produit"
+                value={newProductName}
+                onChange={(e) => setNewProductName(e.target.value)}
+              />
+              <select
+                className="w-full h-12 rounded-lg border border-border bg-card px-4 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                value={newProductCategory}
+                onChange={(e) => setNewProductCategory(e.target.value)}
+              >
+                {CATEGORY_OPTIONS.map(c => (
+                  <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+                ))}
+              </select>
+              <Button onClick={addManualProduct} disabled={!newProductName.trim()} fullWidth>
+                Ajouter
+              </Button>
+            </div>
+          ) : (
+            <Button variant="outline" onClick={() => setShowAddForm(true)} fullWidth>
+              <Plus className="h-4 w-4" />
+              Ajouter une offre
+            </Button>
+          )}
+
+          <Button onClick={handleContinue} disabled={selectedOfferIds.size === 0 || isSendingWebhook} fullWidth size="lg">
+            {isSendingWebhook ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continuer"}
+          </Button>
+        </>
       )}
     </div>
   );
