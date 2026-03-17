@@ -36,7 +36,7 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
   const [currentBakery, setCurrentBakery] = useState({ name: "", address: "" });
   const [selectedCoords, setSelectedCoords] = useState<{ lng: number; lat: number } | null>(null);
   const [selectedCity, setSelectedCity] = useState("");
-  const [radiusKm, setRadiusKm] = useState(15);
+  const [radiusKm, setRadiusKm] = useState(1);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   
   const [searchLoading, setSearchLoading] = useState(false);
