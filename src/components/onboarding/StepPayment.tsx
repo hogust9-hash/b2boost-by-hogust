@@ -253,7 +253,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({
               <><CreditCard className="h-4 w-4" />Créer mon compte</>
             )}
           </Button>
-          <p className="text-xs text-muted-foreground text-center">Paiement simulé — aucun prélèvement réel</p>
+          
         </div>
       )}
     </div>
