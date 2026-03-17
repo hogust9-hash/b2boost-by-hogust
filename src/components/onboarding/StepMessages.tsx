@@ -46,9 +46,10 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
       .order("step_number", { ascending: true });
 
     if (!error && data && data.length >= 5) {
-      const msgs: MessageEntry[] = data.map(m => ({
+      const msgs: MessageEntry[] = data.slice(0, 5).map(m => ({
         subject: m.subject || "",
         body: m.body || "",
+        cible: m.cible || "",
       }));
       onMessagesChange(msgs);
       return true;
