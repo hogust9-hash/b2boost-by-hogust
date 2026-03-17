@@ -154,7 +154,7 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
 
       {!isLoading && hasMessages && (
         <>
-          {messages.map((msg, i) => (
+          {messages.slice(0, 5).map((msg, i) => (
             <React.Fragment key={i}>
               <div className="bg-card rounded-xl border border-border p-4 space-y-3">
                 <div className="flex items-center justify-between">
@@ -162,6 +162,9 @@ const StepMessages: React.FC<StepMessagesProps> = ({ onNext, messages, onMessage
                     {MESSAGE_LABELS[i]?.label || `Message ${i + 1}`}
                   </span>
                 </div>
+                {msg.cible && (
+                  <p className="text-xs text-muted-foreground italic">Exemple pour <strong>{msg.cible}</strong></p>
+                )}
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-foreground">{msg.subject}</p>
                   <p className="text-sm text-muted-foreground whitespace-pre-line">{msg.body}</p>
