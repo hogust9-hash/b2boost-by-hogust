@@ -119,8 +119,8 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
               <p className="text-xs text-muted-foreground mt-0.5">cibles identifiées</p>
             </div>
             <div className="flex-1 bg-primary/5 rounded-lg p-3 text-center border border-primary/20">
-              <p className="text-2xl font-bold text-primary">{stats.total_cibles_adressables ? Number(stats.total_cibles_adressables).toLocaleString("fr-FR") : "–"}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">cibles adressables</p>
+              <p className="text-2xl font-bold text-primary">{stats.total_cibles_adressables ? `~${Number(stats.total_cibles_adressables).toLocaleString("fr-FR")}` : "–"}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">cibles adressables (est.)</p>
             </div>
           </div>
 
