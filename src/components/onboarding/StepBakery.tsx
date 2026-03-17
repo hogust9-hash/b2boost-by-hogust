@@ -36,7 +36,7 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
   const [currentBakery, setCurrentBakery] = useState({ name: "", address: "" });
   const [selectedCoords, setSelectedCoords] = useState<{ lng: number; lat: number } | null>(null);
   const [selectedCity, setSelectedCity] = useState("");
-  const [radiusKm, setRadiusKm] = useState(15);
+  const [radiusKm, setRadiusKm] = useState(1);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   
   const [searchLoading, setSearchLoading] = useState(false);
@@ -291,7 +291,7 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
                 <Label>Rayon de couverture</Label>
                 <span className="text-sm font-medium text-primary">{radiusKm} km</span>
               </div>
-              <Slider value={[radiusKm]} onValueChange={([v]) => setRadiusKm(v)} min={1} max={50} step={1} />
+              <Slider value={[radiusKm]} onValueChange={([v]) => setRadiusKm(v)} min={0} max={5} step={0.5} />
               
             </div>
           )}
