@@ -201,6 +201,7 @@ export type Database = {
       onboarding_messages: {
         Row: {
           body: string | null
+          cible: string | null
           created_at: string
           id: string
           session_id: string
@@ -209,6 +210,7 @@ export type Database = {
         }
         Insert: {
           body?: string | null
+          cible?: string | null
           created_at?: string
           id?: string
           session_id: string
@@ -217,6 +219,7 @@ export type Database = {
         }
         Update: {
           body?: string | null
+          cible?: string | null
           created_at?: string
           id?: string
           session_id?: string
