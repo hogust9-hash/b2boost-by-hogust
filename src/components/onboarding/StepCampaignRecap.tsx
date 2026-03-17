@@ -37,7 +37,7 @@ interface StepCampaignRecapProps {
 
 const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
   onNext, bakeries, offers, selectedOfferIds, messages,
-  targetCategoryId, onTargetCategoryChange, sessionId,
+  targetCategoryId, onTargetCategoryChange, sessionId
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [stats, setStats] = useState<ProspectStats | null>(null);
@@ -56,18 +56,18 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
   useEffect(() => {
     if (!sessionId) return;
     const fetchStats = async () => {
-      const { data } = await supabase
-        .from("onboarding_prospect_stats")
-        .select("*")
-        .eq("session_id", sessionId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const { data } = await supabase.
+      from("onboarding_prospect_stats").
+      select("*").
+      eq("session_id", sessionId).
+      order("created_at", { ascending: false }).
+      limit(1).
+      maybeSingle();
       if (data) {
         setStats({
           total_cibles: data.total_cibles,
           total_cibles_adressables: data.total_cibles_adressables,
-          categories: data.categories as Record<string, number> | null,
+          categories: data.categories as Record<string, number> | null
         });
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
@@ -87,28 +87,28 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
     };
   }, [sessionId]);
 
-  const activeOffers = offers.filter(o => selectedOfferIds.has(o.id));
+  const activeOffers = offers.filter((o) => selectedOfferIds.has(o.id));
 
   // Sort categories by count descending for visual ranking
-  const sortedCategories = stats?.categories
-    ? Object.entries(stats.categories).sort(([, a], [, b]) => b - a)
-    : [];
+  const sortedCategories = stats?.categories ?
+  Object.entries(stats.categories).sort(([, a], [, b]) => b - a) :
+  [];
   const maxCount = sortedCategories.length > 0 ? sortedCategories[0][1] : 1;
 
   return (
     <div className="space-y-6 px-4 py-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">Récap de ta campagne</h2>
-        <p className="text-sm text-muted-foreground mt-1">Vérifie les paramètres avant de continuer.</p>
+        
       </div>
 
-      {!stats ? (
-        <div className="bg-card rounded-xl border border-border p-6 flex flex-col items-center justify-center gap-3">
+      {!stats ?
+      <div className="bg-card rounded-xl border border-border p-6 flex flex-col items-center justify-center gap-3">
           <Loader2 className="h-6 w-6 text-primary animate-spin" />
           <p className="text-sm text-muted-foreground text-center">Analyse de ton marché en cours…</p>
-        </div>
-      ) : (
-        <div className="bg-card rounded-xl border border-border p-4 space-y-4">
+        </div> :
+
+      <div className="bg-card rounded-xl border border-border p-4 space-y-4">
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
             <Target className="h-4 w-4 text-primary" />
             Potentiel de prospection
@@ -124,27 +124,27 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
             </div>
           </div>
 
-          {sortedCategories.length > 0 && (
-            <div className="space-y-1.5 pt-1">
+          {sortedCategories.length > 0 &&
+        <div className="space-y-1.5 pt-1">
               <p className="text-xs font-medium text-muted-foreground mb-2">Répartition par secteur</p>
               {sortedCategories.map(([name, count]) => {
-                const ratio = count / maxCount;
-                return (
-                  <div key={name} className="flex items-center gap-2">
+            const ratio = count / maxCount;
+            return (
+              <div key={name} className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground w-[140px] truncate shrink-0">{name}</span>
                     <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-primary/70 rounded-full transition-all"
-                        style={{ width: `${Math.max(ratio * 100, 4)}%` }}
-                      />
+                    className="h-full bg-primary/70 rounded-full transition-all"
+                    style={{ width: `${Math.max(ratio * 100, 4)}%` }} />
+                  
                     </div>
-                  </div>
-                );
-              })}
+                  </div>);
+
+          })}
             </div>
-          )}
+        }
         </div>
-      )}
+      }
 
       {/* Bakeries */}
       <div className="bg-card rounded-xl border border-border p-4 space-y-2">
@@ -152,12 +152,12 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
           <MapPin className="h-4 w-4 text-primary" />
           Boulangerie{bakeries.length > 1 ? "s" : ""}
         </div>
-        {bakeries.map((b, i) => (
-          <div key={i} className="ml-6">
+        {bakeries.map((b, i) =>
+        <div key={i} className="ml-6">
             <p className="text-sm font-medium text-foreground">{b.name}</p>
             <p className="text-xs text-muted-foreground">{b.address}</p>
           </div>
-        ))}
+        )}
       </div>
 
 
@@ -169,21 +169,21 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
           {activeOffers.length} offre{activeOffers.length > 1 ? "s" : ""} active{activeOffers.length > 1 ? "s" : ""}
         </div>
         <div className="max-h-40 overflow-y-auto space-y-2 pr-1">
-          {activeOffers.map(o => (
-            <div key={o.id} className="bg-background rounded-lg border border-border px-3 py-2">
+          {activeOffers.map((o) =>
+          <div key={o.id} className="bg-background rounded-lg border border-border px-3 py-2">
               <p className="text-sm font-medium text-foreground">{o.name}</p>
               {o.price && <p className="text-xs text-muted-foreground">{o.price.toFixed(2)} €</p>}
               {o.category && <p className="text-xs text-muted-foreground">{o.category}</p>}
             </div>
-          ))}
+          )}
         </div>
       </div>
 
       <Button onClick={onNext} fullWidth size="lg">
         Choisir mon rythme de prospection
       </Button>
-    </div>
-  );
+    </div>);
+
 };
 
 export default StepCampaignRecap;
