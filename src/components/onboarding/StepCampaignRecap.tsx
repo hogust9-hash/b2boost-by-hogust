@@ -153,7 +153,10 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
           Boulangerie{bakeries.length > 1 ? "s" : ""}
         </div>
         {bakeries.map((b, i) => (
-          <p key={i} className="text-sm text-muted-foreground ml-6">{b.name} — {b.city}</p>
+          <div key={i} className="ml-6">
+            <p className="text-sm font-medium text-foreground">{b.name}</p>
+            <p className="text-xs text-muted-foreground">{b.address}</p>
+          </div>
         ))}
       </div>
 
