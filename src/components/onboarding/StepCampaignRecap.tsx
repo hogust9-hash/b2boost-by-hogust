@@ -168,15 +168,21 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
           <Package className="h-4 w-4 text-primary" />
           {activeOffers.length} offre{activeOffers.length > 1 ? "s" : ""} active{activeOffers.length > 1 ? "s" : ""}
         </div>
-        <div className="max-h-40 overflow-y-auto space-y-2 pr-1">
-          {activeOffers.map((o) =>
-          <div key={o.id} className="bg-background rounded-lg border border-border px-3 py-2">
-              <p className="text-sm font-medium text-foreground">{o.name}</p>
-              {o.price && <p className="text-xs text-muted-foreground">{o.price.toFixed(2)} €</p>}
-              {o.category && <p className="text-xs text-muted-foreground">{o.category}</p>}
-            </div>
-          )}
-        </div>
+        {activeOffers.length === 0 ? (
+          <p className="text-xs text-muted-foreground ml-6">Aucune offre sélectionnée</p>
+        ) : (
+          <div className="max-h-48 overflow-y-auto space-y-2 pr-1 snap-y snap-mandatory scroll-smooth">
+            {activeOffers.map((o) => (
+              <div key={o.id} className="bg-background rounded-lg border border-border px-3 py-2.5 snap-start">
+                <p className="text-sm font-medium text-foreground">{o.name}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  {o.price != null && <span className="text-xs font-medium text-primary">{o.price.toFixed(2)} €</span>}
+                  {o.category && <span className="text-xs text-muted-foreground">· {o.category}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <Button onClick={onNext} fullWidth size="lg">
