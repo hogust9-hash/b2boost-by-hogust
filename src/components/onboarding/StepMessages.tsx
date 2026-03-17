@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface MessageEntry {
   subject: string;
   body: string;
+  cible: string;
 }
 
 interface StepMessagesProps {
