@@ -8,6 +8,7 @@ import type { MessageEntry } from "./StepMessages";
 
 interface BakeryEntry {
   name: string;
+  address: string;
   city: string;
 }
 
