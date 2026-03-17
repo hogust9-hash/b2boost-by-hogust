@@ -1,6 +1,5 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { PartyPopper, ArrowRight } from "lucide-react";
+import { PartyPopper } from "lucide-react";
 
 const StepSuccess: React.FC = () => {
   return (
@@ -15,11 +14,6 @@ const StepSuccess: React.FC = () => {
           Ta campagne est créée ! On a bien reçu ta demande. D'ici 48h, nous te contacterons pour valider son lancement.
         </p>
       </div>
-
-      <Button onClick={() => window.location.href = "/dashboard"} size="lg" className="mt-4 gap-2">
-        Accéder à mon tableau de bord
-        <ArrowRight className="h-4 w-4" />
-      </Button>
     </div>
   );
 };
