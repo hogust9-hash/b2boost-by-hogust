@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { MapPin, Package, Mail, Users, Target } from "lucide-react";
+import { MapPin, Package, Users, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { OfferEntry } from "./StepOffers";
 import type { MessageEntry } from "./StepMessages";
 
 interface BakeryEntry {
   name: string;
+  address: string;
   city: string;
 }
 
@@ -118,8 +119,8 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
               <p className="text-xs text-muted-foreground mt-0.5">cibles identifiées</p>
             </div>
             <div className="flex-1 bg-primary/5 rounded-lg p-3 text-center border border-primary/20">
-              <p className="text-2xl font-bold text-primary">{stats.total_cibles_adressables ? Number(stats.total_cibles_adressables).toLocaleString("fr-FR") : "–"}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">cibles adressables</p>
+              <p className="text-2xl font-bold text-primary">{stats.total_cibles_adressables ? `~${Number(stats.total_cibles_adressables).toLocaleString("fr-FR")}` : "–"}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">cibles adressables (est.)</p>
             </div>
           </div>
 
@@ -152,36 +153,30 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
           Boulangerie{bakeries.length > 1 ? "s" : ""}
         </div>
         {bakeries.map((b, i) => (
-          <p key={i} className="text-sm text-muted-foreground ml-6">{b.name} — {b.city}</p>
+          <div key={i} className="ml-6">
+            <p className="text-sm font-medium text-foreground">{b.name}</p>
+            <p className="text-xs text-muted-foreground">{b.address}</p>
+          </div>
         ))}
       </div>
 
 
 
-      {/* Active offers */}
+      {/* Active offers — vertical carousel */}
       <div className="bg-card rounded-xl border border-border p-4 space-y-2">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <Package className="h-4 w-4 text-primary" />
           {activeOffers.length} offre{activeOffers.length > 1 ? "s" : ""} active{activeOffers.length > 1 ? "s" : ""}
         </div>
-        {activeOffers.map(o => (
-          <p key={o.id} className="text-sm text-muted-foreground ml-6">
-            {o.name}{o.price ? ` — ${o.price.toFixed(2)} €` : ""}
-          </p>
-        ))}
-      </div>
-
-      {/* Messages preview */}
-      <div className="bg-card rounded-xl border border-border p-4 space-y-2">
-        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <Mail className="h-4 w-4 text-primary" />
-          Séquence de 3 messages
+        <div className="max-h-40 overflow-y-auto space-y-2 pr-1">
+          {activeOffers.map(o => (
+            <div key={o.id} className="bg-background rounded-lg border border-border px-3 py-2">
+              <p className="text-sm font-medium text-foreground">{o.name}</p>
+              {o.price && <p className="text-xs text-muted-foreground">{o.price.toFixed(2)} €</p>}
+              {o.category && <p className="text-xs text-muted-foreground">{o.category}</p>}
+            </div>
+          ))}
         </div>
-        {messages.map((m, i) => (
-          <p key={i} className="text-sm text-muted-foreground ml-6 truncate">
-            {i + 1}. {m.subject}
-          </p>
-        ))}
       </div>
 
       <Button onClick={onNext} fullWidth size="lg">
