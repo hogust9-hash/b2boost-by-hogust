@@ -162,30 +162,21 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
 
 
 
-      {/* Active offers */}
+      {/* Active offers — vertical carousel */}
       <div className="bg-card rounded-xl border border-border p-4 space-y-2">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <Package className="h-4 w-4 text-primary" />
           {activeOffers.length} offre{activeOffers.length > 1 ? "s" : ""} active{activeOffers.length > 1 ? "s" : ""}
         </div>
-        {activeOffers.map(o => (
-          <p key={o.id} className="text-sm text-muted-foreground ml-6">
-            {o.name}{o.price ? ` — ${o.price.toFixed(2)} €` : ""}
-          </p>
-        ))}
-      </div>
-
-      {/* Messages preview */}
-      <div className="bg-card rounded-xl border border-border p-4 space-y-2">
-        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <Mail className="h-4 w-4 text-primary" />
-          Séquence de 3 messages
+        <div className="max-h-40 overflow-y-auto space-y-2 pr-1">
+          {activeOffers.map(o => (
+            <div key={o.id} className="bg-background rounded-lg border border-border px-3 py-2">
+              <p className="text-sm font-medium text-foreground">{o.name}</p>
+              {o.price && <p className="text-xs text-muted-foreground">{o.price.toFixed(2)} €</p>}
+              {o.category && <p className="text-xs text-muted-foreground">{o.category}</p>}
+            </div>
+          ))}
         </div>
-        {messages.map((m, i) => (
-          <p key={i} className="text-sm text-muted-foreground ml-6 truncate">
-            {i + 1}. {m.subject}
-          </p>
-        ))}
       </div>
 
       <Button onClick={onNext} fullWidth size="lg">
