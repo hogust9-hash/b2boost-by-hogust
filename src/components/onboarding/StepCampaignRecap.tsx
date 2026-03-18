@@ -87,7 +87,30 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
     };
   }, [sessionId]);
 
-  const activeOffers = offers.filter((o) => selectedOfferIds.has(o.id));
+  const selectedProducts = offers
+    .flatMap((offer) => {
+      const category = offer.category || "autre";
+      const description = offer.description?.trim();
+      const productNames = description
+        ? description.split(",").map((part) => part.trim()).filter(Boolean)
+        : [offer.name].filter(Boolean);
+
+      return productNames.map((productName, index) => ({
+        key: `${offer.id}-${index}`,
+        name: productName,
+        category,
+        price: offer.price,
+      }));
+    })
+    .filter((product) => selectedOfferIds.has(product.key));
+
+  const selectedProductsByCategory = Object.entries(
+    selectedProducts.reduce<Record<string, typeof selectedProducts>>((acc, product) => {
+      if (!acc[product.category]) acc[product.category] = [];
+      acc[product.category].push(product);
+      return acc;
+    }, {}),
+  ).sort(([categoryA], [categoryB]) => categoryA.localeCompare(categoryB, "fr"));
 
   // Sort categories by count descending for visual ranking
   const sortedCategories = stats?.categories ?
@@ -160,24 +183,43 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         )}
       </div>
 
-
-
-      {/* Active offers — vertical carousel */}
-      <div className="bg-card rounded-xl border border-border p-4 space-y-2">
-        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <Package className="h-4 w-4 text-primary" />
-          {activeOffers.length} offre{activeOffers.length > 1 ? "s" : ""} active{activeOffers.length > 1 ? "s" : ""}
+      <div className="bg-card rounded-xl border border-border p-4 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Package className="h-4 w-4 text-primary" />
+            Offres sélectionnées
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {selectedProducts.length} produit{selectedProducts.length > 1 ? "s" : ""}
+          </span>
         </div>
-        {activeOffers.length === 0 ? (
-          <p className="text-xs text-muted-foreground ml-6">Aucune offre sélectionnée</p>
+
+        {selectedProducts.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Aucune offre sélectionnée à l’étape d’import.</p>
         ) : (
-          <div className="max-h-48 overflow-y-auto space-y-2 pr-1 snap-y snap-mandatory scroll-smooth">
-            {activeOffers.map((o) => (
-              <div key={o.id} className="bg-background rounded-lg border border-border px-3 py-2.5 snap-start">
-                <p className="text-sm font-medium text-foreground">{o.name}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  {o.price != null && <span className="text-xs font-medium text-primary">{o.price.toFixed(2)} €</span>}
-                  {o.category && <span className="text-xs text-muted-foreground">· {o.category}</span>}
+          <div className="max-h-56 overflow-y-auto space-y-3 pr-1">
+            {selectedProductsByCategory.map(([category, products]) => (
+              <div key={category} className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-medium text-muted-foreground capitalize">{category}</p>
+                  <span className="text-[11px] text-muted-foreground">
+                    {products.length} sélectionné{products.length > 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {products.map((product) => (
+                    <div key={product.key} className="bg-background rounded-lg border border-border px-3 py-2.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-medium text-foreground">{product.name}</p>
+                        {product.price != null && (
+                          <span className="text-xs font-medium text-primary whitespace-nowrap">
+                            {product.price.toFixed(2)} €
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
