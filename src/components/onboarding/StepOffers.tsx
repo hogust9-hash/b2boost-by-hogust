@@ -78,7 +78,6 @@ interface StepOffersProps {
 }
 
 const WEBHOOK_DOC = "https://n8n.beautifulflow.ai/webhook/depot-offres-doc";
-const WEBHOOK_REDACTION = "https://n8n.beautifulflow.ai/webhook/redaction-messages";
 
 const CATEGORY_OPTIONS = [
   "snacking",
