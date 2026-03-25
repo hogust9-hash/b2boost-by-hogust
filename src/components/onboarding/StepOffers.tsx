@@ -5,6 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Upload, Loader2, FileText, Plus, X, Pencil, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface OfferEntry {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  price: number | null;
+}
+
 // Editable category header
 const CategoryHeader: React.FC<{
   category: string;
