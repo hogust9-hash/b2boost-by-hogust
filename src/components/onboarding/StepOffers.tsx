@@ -2,8 +2,61 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Upload, Loader2, FileText, Plus, X } from "lucide-react";
+import { Upload, Loader2, FileText, Plus, X, Pencil, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+
+// Editable category header
+const CategoryHeader: React.FC<{
+  category: string;
+  count: number;
+  offers: OfferEntry[];
+  onOffersChange: (offers: OfferEntry[]) => void;
+}> = ({ category, count, offers, onOffersChange }) => {
+  const [editing, setEditing] = useState(false);
+  const [newName, setNewName] = useState(category);
+
+  const handleRename = () => {
+    if (newName.trim() && newName.trim() !== category) {
+      const updated = offers.map(o =>
+        o.category === category ? { ...o, category: newName.trim() } : o
+      );
+      onOffersChange(updated);
+    }
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-2">
+        <Input
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleRename()}
+          className="h-8 text-sm font-semibold"
+          autoFocus
+        />
+        <button onClick={handleRename} className="text-primary hover:text-primary/80">
+          <Check className="h-4 w-4" />
+        </button>
+        <button onClick={() => { setEditing(false); setNewName(category); }} className="text-muted-foreground hover:text-foreground">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1.5">
+        <h3 className="text-sm font-semibold text-foreground capitalize">{category.toLowerCase()}</h3>
+        <button onClick={() => { setNewName(category); setEditing(true); }} className="text-muted-foreground hover:text-foreground">
+          <Pencil className="h-3 w-3" />
+        </button>
+      </div>
+      <span className="text-xs text-muted-foreground">{count} produit{count > 1 ? "s" : ""}</span>
+    </div>
+  );
+};
 
 export interface OfferEntry {
   id: string;
