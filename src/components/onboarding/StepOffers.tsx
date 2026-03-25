@@ -66,13 +66,6 @@ const CategoryHeader: React.FC<{
   );
 };
 
-export interface OfferEntry {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  price: number | null;
-}
 
 interface StepOffersProps {
   onNext: () => void;
