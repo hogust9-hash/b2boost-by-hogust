@@ -298,11 +298,13 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
       )}
 
       {Array.from(categoryMap.entries()).map(([category, products]) => (
-        <div key={category} className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground capitalize">{category.toLowerCase()}</h3>
-            <span className="text-xs text-muted-foreground">{products.length} produit{products.length > 1 ? "s" : ""}</span>
-          </div>
+      <div key={category} className="space-y-2">
+          <CategoryHeader
+            category={category}
+            count={products.length}
+            offers={offers}
+            onOffersChange={onOffersChange}
+          />
           {products.map((product) => (
             <div key={product.key} className="bg-card rounded-lg border border-border p-3">
               <div className="flex items-center gap-3">
