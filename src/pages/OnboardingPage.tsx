@@ -3,13 +3,12 @@ import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 import StepWelcome from "@/components/onboarding/StepWelcome";
 import StepBakery from "@/components/onboarding/StepBakery";
 import StepOffers, { type OfferEntry } from "@/components/onboarding/StepOffers";
-import StepMessages, { type MessageEntry } from "@/components/onboarding/StepMessages";
 import StepCampaignRecap from "@/components/onboarding/StepCampaignRecap";
 import StepPayment from "@/components/onboarding/StepPayment";
 import StepSuccess from "@/components/onboarding/StepSuccess";
 import { supabase } from "@/integrations/supabase/client";
 
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 7;
 
 interface BakeryEntry {
   id: string;
@@ -27,11 +26,9 @@ const OnboardingPage = () => {
   const [bakeries, setBakeries] = useState<BakeryEntry[]>([]);
   const [offers, setOffers] = useState<OfferEntry[]>([]);
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
-  const [messages, setMessages] = useState<MessageEntry[]>([]);
   const [targetCategoryId, setTargetCategoryId] = useState("");
   const [waveSize, setWaveSize] = useState(25);
 
-  // Create onboarding session on mount
   useEffect(() => {
     const createSession = async () => {
       const { data, error } = await supabase
@@ -81,37 +78,28 @@ const OnboardingPage = () => {
           />
         )}
         {step === 4 && (
-          <StepMessages
-            onNext={() => goToStep(5)}
-            messages={messages}
-            onMessagesChange={setMessages}
-            sessionId={sessionId}
-          />
-        )}
-        {step === 5 && (
           <StepCampaignRecap
-            onNext={() => goToStep(6)}
+            onNext={() => goToStep(5)}
             bakeries={bakeries}
             offers={offers}
             selectedOfferIds={selectedOfferIds}
-            messages={messages}
             targetCategoryId={targetCategoryId}
             onTargetCategoryChange={setTargetCategoryId}
             sessionId={sessionId}
           />
         )}
-        {step === 6 && (
+        {step === 5 && (
           <StepPayment
             bakeries={bakeries}
             offers={offers}
             selectedOfferIds={selectedOfferIds}
-            messages={messages}
+            messages={[]}
             targetCategoryId={targetCategoryId}
             waveSize={waveSize}
-            onSuccess={() => goToStep(7)}
+            onSuccess={() => goToStep(6)}
           />
         )}
-        {step === 7 && <StepSuccess />}
+        {step === 6 && <StepSuccess />}
       </div>
     </div>
   );
