@@ -293,16 +293,13 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
             )}
           </div>
 
-          {selectedCoords && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Où souhaitez-vous livrer ?</Label>
-                <span className="text-sm font-medium text-primary">{radiusKm} km</span>
-              </div>
-              <Slider value={[radiusKm]} onValueChange={([v]) => setRadiusKm(v)} min={0} max={5} step={0.5} />
-              
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label>Où souhaitez-vous livrer ?</Label>
+              <span className="text-sm font-medium text-primary">{radiusKm} km</span>
             </div>
-          )}
+            <Slider value={[radiusKm]} onValueChange={([v]) => setRadiusKm(v)} min={0} max={5} step={0.5} />
+          </div>
 
         </div>
       )}
