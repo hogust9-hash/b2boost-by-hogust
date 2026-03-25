@@ -98,7 +98,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
   const [showAddForm, setShowAddForm] = useState(false);
   const [newProductName, setNewProductName] = useState("");
   const [newProductCategory, setNewProductCategory] = useState("autre");
-  const [isSendingWebhook, setIsSendingWebhook] = useState(false);
+  
   const fileRef = useRef<HTMLInputElement>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -383,8 +383,8 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
             </Button>
           )}
 
-          <Button onClick={handleContinue} disabled={selectedOfferIds.size === 0 || isSendingWebhook} fullWidth size="lg">
-            {isSendingWebhook ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continuer"}
+          <Button onClick={handleContinue} disabled={selectedOfferIds.size === 0} fullWidth size="lg">
+            Continuer
           </Button>
         </>
       )}
