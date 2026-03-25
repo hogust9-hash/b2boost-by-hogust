@@ -49,7 +49,7 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/mapbox/light-v11",
+      style: "mapbox://styles/mapbox/streets-v12",
       center: [2.3488, 46.8534], // France center
       zoom: 5,
     });
@@ -178,8 +178,9 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
     setSuggestions([]);
   };
 
-  const addBakery = () => {
-    if (!currentBakery.name || !selectedCoords) return;
+  // Auto-validate bakery when name + address are set
+  const autoValidateBakery = useCallback(() => {
+    if (!currentBakery.name || !selectedCoords || bakeries.length > 0) return;
     const entry: BakeryEntry = {
       id: crypto.randomUUID(),
       name: currentBakery.name,
@@ -212,7 +213,14 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
     setSelectedCoords(null);
     setSelectedCity("");
     setRadiusKm(15);
-  };
+  }, [currentBakery, selectedCoords, selectedCity, radiusKm, bakeries, sessionId, onBakeriesChange]);
+
+  // Trigger auto-validation when both name and coords are ready
+  useEffect(() => {
+    if (currentBakery.name && selectedCoords && bakeries.length === 0) {
+      autoValidateBakery();
+    }
+  }, [selectedCoords]);
 
   const removeBakery = (id: string) => {
     const updated = bakeries.filter((b) => b.id !== id);
@@ -288,7 +296,7 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
           {selectedCoords && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Rayon de couverture</Label>
+                <Label>Où souhaitez-vous livrer ?</Label>
                 <span className="text-sm font-medium text-primary">{radiusKm} km</span>
               </div>
               <Slider value={[radiusKm]} onValueChange={([v]) => setRadiusKm(v)} min={0} max={5} step={0.5} />
@@ -296,10 +304,6 @@ const StepBakery: React.FC<StepBakeryProps> = ({ onNext, onBakeriesChange, sessi
             </div>
           )}
 
-          <Button variant="outline" onClick={addBakery} disabled={!currentBakery.name || !selectedCoords} fullWidth>
-            <Plus className="h-4 w-4" />
-            Valider ma boulangerie
-          </Button>
         </div>
       )}
 
