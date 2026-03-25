@@ -277,31 +277,7 @@ const StepOffers: React.FC<StepOffersProps> = ({ onNext, offers, onOffersChange,
     }
   }
 
-  const handleContinue = async () => {
-    if (!sessionId) return;
-    setIsSendingWebhook(true);
-
-    // Collect selected product names
-    const selectedProducts = allProducts
-      .filter(p => selectedOfferIds.has(p.key))
-      .map(p => ({ name: p.productName, category: p.category }));
-
-    try {
-      const formData = new FormData();
-      formData.append("session_id", sessionId);
-      formData.append("offers", JSON.stringify(selectedProducts));
-      if (bakeries.length > 0) {
-        formData.append("bakery_name", bakeries[0].name);
-        formData.append("bakery_address", bakeries[0].address);
-        formData.append("bakery_city", bakeries[0].city);
-      }
-
-      await fetch(WEBHOOK_REDACTION, { method: "POST", body: formData });
-    } catch (err) {
-      console.error("Webhook redaction error:", err);
-    }
-
-    setIsSendingWebhook(false);
+  const handleContinue = () => {
     onNext();
   };
 
