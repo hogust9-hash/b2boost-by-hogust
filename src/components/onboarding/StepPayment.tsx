@@ -161,7 +161,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({
         user_id: userId,
         amount: pack.credits,
         type: "purchase",
-        description: `Achat pack ${pack.label} — ${pack.credits} crédits`,
+        description: `Achat pack ${pack.label} — ${pack.credits} prospects`,
       });
       if (creditErr) throw creditErr;
 
