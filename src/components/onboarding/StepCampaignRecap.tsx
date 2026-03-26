@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Package, Target, Mail, Clock } from "lucide-react";
+import { Loader2, MapPin, Package, Target, Mail } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import type { OfferEntry } from "./StepOffers";
 
@@ -123,6 +124,20 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         <h2 className="text-xl font-bold text-foreground">Récap de ta campagne</h2>
       </div>
 
+      {/* Bakery — first */}
+      <div className="bg-card rounded-2xl border border-border p-4 space-y-2">
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <MapPin className="h-4 w-4 text-primary" />
+          Boulangerie{bakeries.length > 1 ? "s" : ""}
+        </div>
+        {bakeries.map((b, i) => (
+          <div key={i} className="ml-6">
+            <p className="text-sm font-medium text-foreground">{b.name}</p>
+            <p className="text-xs text-muted-foreground">{b.address}</p>
+          </div>
+        ))}
+      </div>
+
       {/* Prospect stats */}
       {!stats ? (
         <div className="bg-card rounded-2xl border border-border p-6 flex flex-col items-center justify-center gap-3">
@@ -173,21 +188,7 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         </div>
       )}
 
-      {/* Bakery */}
-      <div className="bg-card rounded-2xl border border-border p-4 space-y-2">
-        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <MapPin className="h-4 w-4 text-primary" />
-          Boulangerie{bakeries.length > 1 ? "s" : ""}
-        </div>
-        {bakeries.map((b, i) => (
-          <div key={i} className="ml-6">
-            <p className="text-sm font-medium text-foreground">{b.name}</p>
-            <p className="text-xs text-muted-foreground">{b.address}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Selected offers */}
+      {/* Selected offers with visible scrollbar */}
       <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -201,62 +202,59 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         {selectedProducts.length === 0 ? (
           <p className="text-xs text-muted-foreground">Aucune offre sélectionnée à l'étape d'import.</p>
         ) : (
-          <div className="max-h-48 overflow-y-auto space-y-3 pr-1">
-            {selectedProductsByCategory.map(([category, products]) => (
-              <div key={category} className="space-y-1.5">
-                <p className="text-xs font-medium text-muted-foreground capitalize">
-                  {category} ({products.length})
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {products.map((product) => (
-                    <span
-                      key={product.key}
-                      className="inline-flex items-center gap-1 text-xs bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground"
-                    >
-                      {product.name}
-                      {product.price != null && (
-                        <span className="text-primary font-medium">{product.price.toFixed(2)}€</span>
-                      )}
-                    </span>
-                  ))}
+          <ScrollArea className="max-h-48">
+            <div className="space-y-3 pr-3">
+              {selectedProductsByCategory.map(([category, products]) => (
+                <div key={category} className="space-y-1.5">
+                  <p className="text-xs font-medium text-muted-foreground capitalize">
+                    {category} ({products.length})
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {products.map((product) => (
+                      <span
+                        key={product.key}
+                        className="inline-flex items-center gap-1 text-xs bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground"
+                      >
+                        {product.name}
+                        {product.price != null && (
+                          <span className="text-primary font-medium">{product.price.toFixed(2)}€</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ScrollArea>
         )}
       </div>
 
-      {/* Prospection sequence timeline */}
+      {/* Prospection sequence timeline — badges only for delays */}
       <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <Mail className="h-4 w-4 text-primary" />
           Séquence de prospection
         </div>
         <p className="text-xs text-muted-foreground">
-          Un cycle sur <strong>3 semaines</strong> : un premier email suivi de relances espacées.
+          Un cycle sur <strong>3 semaines</strong> : un premier email suivi de relances espacées pour créer du lien et marquer les esprits.
         </p>
 
         <div className="relative ml-3">
-          {/* Vertical line */}
           <div className="absolute left-[7px] top-3 bottom-3 w-[2px] bg-gradient-to-b from-primary/60 via-primary/30 to-primary/10 rounded-full" />
 
           <div className="space-y-0">
             {SEQUENCE_STEPS.map((item, i) => {
               if ("delay" in item) {
-                // Delay node
                 return (
                   <div key={i} className="flex items-center gap-3 py-1.5 pl-0">
-                    <div className="relative z-10 flex items-center justify-center w-4 h-4">
-                      <Clock className="h-3 w-3 text-muted-foreground" />
-                    </div>
-                    <span className="text-[11px] font-semibold text-primary bg-primary/8 border border-primary/15 px-2 py-0.5 rounded-md">
+                    <div className="relative z-10 w-4 h-4" />
+                    <span className="text-[11px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
                       {item.delay}
                     </span>
                   </div>
                 );
               }
 
-              // Message node
               const stepIndex = SEQUENCE_STEPS.filter((s, si) => si <= i && "label" in s).length;
               return (
                 <div key={i} className="flex items-center gap-3 py-2 pl-0">
