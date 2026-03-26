@@ -18,9 +18,9 @@ interface BakeryEntry {
 }
 
 const PACKS = [
-  { credits: 25, label: "Starter" },
-  { credits: 50, label: "Pro" },
-  { credits: 100, label: "Business" },
+  { credits: 25, label: "Lite" },
+  { credits: 50, label: "Medium" },
+  { credits: 100, label: "Large" },
 ];
 
 interface StepPaymentProps {
@@ -161,7 +161,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({
         user_id: userId,
         amount: pack.credits,
         type: "purchase",
-        description: `Achat pack ${pack.label} — ${pack.credits} crédits`,
+        description: `Achat pack ${pack.label} — ${pack.credits} prospects`,
       });
       if (creditErr) throw creditErr;
 
@@ -181,7 +181,7 @@ const StepPayment: React.FC<StepPaymentProps> = ({
     <div className="space-y-6 px-4 py-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">Choisis ton pack</h2>
-        <p className="text-xs text-muted-foreground mt-1">Les crédits non utilisés sont conservés pour tes prochaines campagnes.</p>
+        <p className="text-xs text-muted-foreground mt-1">Choisis le volume de prospection qui te convient.</p>
       </div>
 
       {/* Pack selection */}
@@ -198,7 +198,8 @@ const StepPayment: React.FC<StepPaymentProps> = ({
           >
             <div className="text-left">
               <p className="text-sm font-bold text-foreground">{pack.label}</p>
-              <p className="text-xs text-muted-foreground">{pack.credits} crédits — {pack.credits} prospects contactés, {pack.credits * 5} emails envoyés</p>
+              <p className="text-xs text-muted-foreground">{pack.credits} nouveaux prospects contactés par mois</p>
+              <p className="text-xs text-muted-foreground">soit environ {pack.credits * 5} emails de prospection envoyés</p>
             </div>
             {selectedPack === i && <Check className="h-5 w-5 text-primary" />}
           </button>
