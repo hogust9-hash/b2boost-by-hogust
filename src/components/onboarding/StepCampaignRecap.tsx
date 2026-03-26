@@ -25,6 +25,7 @@ interface StepCampaignRecapProps {
   targetCategoryId: string;
   onTargetCategoryChange: (id: string) => void;
   sessionId: string | null;
+  onProspectCountChange?: (count: number) => void;
 }
 
 const SEQUENCE_STEPS = [
@@ -41,7 +42,7 @@ const SEQUENCE_STEPS = [
 
 const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
   onNext, bakeries, offers, selectedOfferIds,
-  targetCategoryId, onTargetCategoryChange, sessionId
+  targetCategoryId, onTargetCategoryChange, sessionId, onProspectCountChange
 }) => {
   const [stats, setStats] = useState<ProspectStats | null>(null);
 
@@ -66,11 +67,13 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         .limit(1)
         .maybeSingle();
       if (data) {
+        const adressables = data.total_cibles_adressables ? Number(data.total_cibles_adressables) : 0;
         setStats({
           total_cibles: data.total_cibles,
           total_cibles_adressables: data.total_cibles_adressables,
           categories: data.categories as Record<string, number> | null,
         });
+        onProspectCountChange?.(adressables);
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
