@@ -30,14 +30,16 @@ interface StepPaymentProps {
   messages: MessageEntry[];
   targetCategoryId: string;
   waveSize: number;
+  prospectCount: number;
   onSuccess: () => void;
 }
 
 const StepPayment: React.FC<StepPaymentProps> = ({
-  bakeries, offers, selectedOfferIds, messages, targetCategoryId, waveSize, onSuccess,
+  bakeries, offers, selectedOfferIds, messages, targetCategoryId, waveSize, prospectCount, onSuccess,
 }) => {
-  const [selectedPack, setSelectedPack] = useState(0);
-  const [showSignup, setShowSignup] = useState(false);
+  const recommendedPack = prospectCount <= 30 ? 0 : prospectCount <= 60 ? 1 : 2;
+  const [selectedPack, setSelectedPack] = useState(recommendedPack);
+  const [showSignup, setShowSignup] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -181,7 +183,16 @@ const StepPayment: React.FC<StepPaymentProps> = ({
     <div className="space-y-6 px-4 py-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">Choisis ton pack</h2>
-        <p className="text-xs text-muted-foreground mt-1">Choisis le volume de prospection qui te convient.</p>
+        {prospectCount > 0 && (
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 mt-2">
+            <p className="text-sm text-foreground">
+              On a identifié environ <strong className="text-primary">{prospectCount.toLocaleString("fr-FR")} prospects adressables</strong> autour de ta boulangerie. Le pack <strong className="text-primary">{PACKS[recommendedPack].label}</strong> est le plus adapté pour toi.
+            </p>
+          </div>
+        )}
+        {!prospectCount && (
+          <p className="text-xs text-muted-foreground mt-1">Choisis le volume de prospection qui te convient.</p>
+        )}
       </div>
 
       {/* Pack selection */}
@@ -197,7 +208,14 @@ const StepPayment: React.FC<StepPaymentProps> = ({
             }`}
           >
             <div className="text-left">
-              <p className="text-sm font-bold text-foreground">{pack.label}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-bold text-foreground">{pack.label}</p>
+                {i === recommendedPack && (
+                  <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
+                    Recommandé
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">{pack.credits} nouveaux prospects contactés par mois</p>
               <p className="text-xs text-muted-foreground">soit environ {pack.credits * 5} emails de prospection envoyés</p>
             </div>

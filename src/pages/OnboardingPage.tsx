@@ -28,6 +28,7 @@ const OnboardingPage = () => {
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
   const [targetCategoryId, setTargetCategoryId] = useState("");
   const [waveSize, setWaveSize] = useState(25);
+  const [prospectCount, setProspectCount] = useState(0);
 
   useEffect(() => {
     const createSession = async () => {
@@ -86,6 +87,7 @@ const OnboardingPage = () => {
             targetCategoryId={targetCategoryId}
             onTargetCategoryChange={setTargetCategoryId}
             sessionId={sessionId}
+            onProspectCountChange={setProspectCount}
           />
         )}
         {step === 5 && (
@@ -96,6 +98,7 @@ const OnboardingPage = () => {
             messages={[]}
             targetCategoryId={targetCategoryId}
             waveSize={waveSize}
+            prospectCount={prospectCount}
             onSuccess={() => goToStep(6)}
           />
         )}
