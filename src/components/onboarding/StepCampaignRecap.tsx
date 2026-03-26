@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Package, Target, Mail, Clock } from "lucide-react";
+import { Loader2, MapPin, Package, Target, Mail } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import type { OfferEntry } from "./StepOffers";
 
