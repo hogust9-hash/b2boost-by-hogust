@@ -28,15 +28,15 @@ interface StepCampaignRecapProps {
 }
 
 const SEQUENCE_STEPS = [
-  { label: "Email initial", icon: "📨" },
+  { label: "Email initial" },
   { delay: "J+3" },
-  { label: "Relance 1", icon: "🔄" },
+  { label: "Relance 1" },
   { delay: "J+3" },
-  { label: "Relance 2", icon: "🔄" },
+  { label: "Relance 2" },
   { delay: "J+4" },
-  { label: "Relance 3", icon: "📋" },
+  { label: "Relance 3" },
   { delay: "J+6" },
-  { label: "Dernière chance", icon: "🎯" },
+  { label: "Dernière chance" },
 ];
 
 const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
@@ -160,10 +160,10 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
             <div className="flex-1 bg-primary/5 rounded-xl p-3 text-center border border-primary/20">
               <p className="text-2xl font-bold text-primary">
                 {stats.total_cibles_adressables
-                  ? `~${Number(stats.total_cibles_adressables).toLocaleString("fr-FR")}`
+                  ? `environ ${Number(stats.total_cibles_adressables).toLocaleString("fr-FR")}`
                   : "–"}
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">cibles adressables (est.)</p>
+              <p className="text-xs text-muted-foreground mt-0.5">cibles adressables (estimation)</p>
             </div>
           </div>
           {sortedCategories.length > 0 && (
@@ -262,7 +262,6 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
                     {stepIndex}
                   </div>
                   <div className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2 flex-1">
-                    <span className="text-sm">{item.icon}</span>
                     <span className="text-sm font-medium text-foreground">{item.label}</span>
                   </div>
                 </div>
