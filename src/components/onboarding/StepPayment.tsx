@@ -157,15 +157,26 @@ const StepPayment: React.FC<StepPaymentProps> = ({
       const { error: msgErr } = await supabase.from("campaign_messages").insert(msgInserts);
       if (msgErr) throw msgErr;
 
-      // 9. Insert credit transaction
+      // 9. Insert credit transaction via edge function
       const pack = PACKS[selectedPack];
-      const { error: creditErr } = await supabase.from("credit_transactions").insert({
-        user_id: userId,
-        amount: pack.credits,
-        type: "purchase",
-        description: `Achat pack ${pack.label} — ${pack.credits} prospects`,
-      });
-      if (creditErr) throw creditErr;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const creditRes = await fetch(
+        `https://zqvafezledonlsgjivke.supabase.co/functions/v1/insert-credits`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            amount: pack.credits,
+            type: "purchase",
+            description: `Achat pack ${pack.label} — ${pack.credits} prospects`,
+          }),
+        }
+      );
+      if (!creditRes.ok) throw new Error("Erreur lors de l'enregistrement des crédits.");
 
       // 10. Mark onboarding completed
       await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", userId);

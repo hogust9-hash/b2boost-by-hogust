@@ -2,3 +2,6 @@ project_id = "zqvafezledonlsgjivke"
 
 [functions.extract-offers]
 verify_jwt = false
+
+[functions.insert-credits]
+verify_jwt = false
