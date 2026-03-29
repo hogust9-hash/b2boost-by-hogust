@@ -8,7 +8,7 @@ import StepPayment from "@/components/onboarding/StepPayment";
 import StepSuccess from "@/components/onboarding/StepSuccess";
 import { supabase } from "@/integrations/supabase/client";
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 6;
 
 interface BakeryEntry {
   id: string;
