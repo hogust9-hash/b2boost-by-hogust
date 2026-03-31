@@ -251,12 +251,11 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
 
               return (
                 <React.Fragment key={i}>
-                  <div className="flex items-center gap-3 py-2 pl-0">
-                    <div className="relative z-10 flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold shadow-sm">
+                  <div className="flex items-center gap-3 py-1.5 pl-0">
+                    <div className="relative z-10 flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold shadow-sm">
                       {i + 1}
                     </div>
-                    <div className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2 flex-1">
-                      <span className="text-xs text-muted-foreground font-medium w-12 shrink-0">J{step.day === 0 ? "our 0" : `+${step.day}`}</span>
+                    <div className="flex items-center bg-background border border-border rounded-lg px-3 py-2 flex-1">
                       <span className="text-sm font-medium text-foreground">{step.label}</span>
                     </div>
                   </div>
