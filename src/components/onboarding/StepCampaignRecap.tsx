@@ -29,15 +29,11 @@ interface StepCampaignRecapProps {
 }
 
 const SEQUENCE_STEPS = [
-  { label: "Email initial" },
-  { delay: "J+3" },
-  { label: "Relance 1" },
-  { delay: "J+3" },
-  { label: "Relance 2" },
-  { delay: "J+4" },
-  { label: "Relance 3" },
-  { delay: "J+6" },
-  { label: "Dernière chance" },
+  { day: 0, label: "Premier contact" },
+  { day: 3, label: "Relance 1" },
+  { day: 8, label: "Relance 2" },
+  { day: 17, label: "Relance 3" },
+  { day: 30, label: "Clôture" },
 ];
 
 const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
