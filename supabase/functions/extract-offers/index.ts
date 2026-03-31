@@ -5,13 +5,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const CATEGORIES = ['snacking', 'viennoiserie', 'pâtisserie', 'traiteur', 'pain', 'autre'];
+const CATEGORIES = ['snacking', 'viennoiserie', 'pâtisserie', 'gâteaux de voyage', 'traiteur', 'pain', 'autre'];
 
 function guessCategory(name: string): string {
   const lower = name.toLowerCase();
   if (/sandwich|wrap|quiche|pizza|croque|salade|panini|burger/i.test(lower)) return 'snacking';
   if (/croissant|pain au chocolat|chocolatine|brioche|chausson/i.test(lower)) return 'viennoiserie';
-  if (/tarte|gâteau|éclair|macaron|mille.?feuille|mousse|fondant|cookie|brownie/i.test(lower)) return 'pâtisserie';
+  if (/cake|marbré|financier|quatre.?quarts|madele|canelé|sablé|biscuit|cookies/i.test(lower)) return 'gâteaux de voyage';
+  if (/tarte|gâteau|éclair|macaron|mille.?feuille|mousse|fondant|brownie/i.test(lower)) return 'pâtisserie';
   if (/plateau|buffet|canapé|verrine|traiteur/i.test(lower)) return 'traiteur';
   if (/baguette|pain|campagne|seigle|complet|céréale/i.test(lower)) return 'pain';
   return 'autre';

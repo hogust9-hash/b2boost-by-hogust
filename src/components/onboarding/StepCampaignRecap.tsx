@@ -231,42 +231,44 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         )}
       </div>
 
-      {/* Prospection sequence timeline — badges only for delays */}
+      {/* Prospection sequence timeline */}
       <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <Mail className="h-4 w-4 text-primary" />
           Séquence de prospection
         </div>
         <p className="text-xs text-muted-foreground">
-          Un cycle sur <strong>3 semaines</strong> : un premier email suivi de relances espacées pour créer du lien et marquer les esprits.
+          Un cycle sur <strong>30 jours</strong> : un premier email suivi de relances espacées pour créer du lien et marquer les esprits.
         </p>
 
         <div className="relative ml-3">
           <div className="absolute left-[7px] top-3 bottom-3 w-[2px] bg-gradient-to-b from-primary/60 via-primary/30 to-primary/10 rounded-full" />
 
           <div className="space-y-0">
-            {SEQUENCE_STEPS.map((item, i) => {
-              if ("delay" in item) {
-                return (
-                  <div key={i} className="flex items-center gap-3 py-1.5 pl-0">
-                    <div className="relative z-10 w-4 h-4" />
-                    <span className="text-[11px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
-                      {item.delay}
-                    </span>
-                  </div>
-                );
-              }
+            {SEQUENCE_STEPS.map((step, i) => {
+              const nextStep = SEQUENCE_STEPS[i + 1];
+              const gap = nextStep ? nextStep.day - step.day : null;
 
-              const stepIndex = SEQUENCE_STEPS.filter((s, si) => si <= i && "label" in s).length;
               return (
-                <div key={i} className="flex items-center gap-3 py-2 pl-0">
-                  <div className="relative z-10 flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold shadow-sm">
-                    {stepIndex}
+                <React.Fragment key={i}>
+                  <div className="flex items-center gap-3 py-2 pl-0">
+                    <div className="relative z-10 flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold shadow-sm">
+                      {i + 1}
+                    </div>
+                    <div className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2 flex-1">
+                      <span className="text-xs text-muted-foreground font-medium w-12 shrink-0">J{step.day === 0 ? "our 0" : `+${step.day}`}</span>
+                      <span className="text-sm font-medium text-foreground">{step.label}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2 flex-1">
-                    <span className="text-sm font-medium text-foreground">{item.label}</span>
-                  </div>
-                </div>
+                  {gap != null && (
+                    <div className="flex items-center gap-3 py-1 pl-0">
+                      <div className="relative z-10 w-4 h-4" />
+                      <span className="text-[11px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
+                        +{gap}j
+                      </span>
+                    </div>
+                  )}
+                </React.Fragment>
               );
             })}
           </div>
