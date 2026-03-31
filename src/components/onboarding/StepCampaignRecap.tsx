@@ -201,30 +201,33 @@ const StepCampaignRecap: React.FC<StepCampaignRecapProps> = ({
         {selectedProducts.length === 0 ? (
           <p className="text-xs text-muted-foreground">Aucune offre sélectionnée à l'étape d'import.</p>
         ) : (
-          <ScrollArea className="max-h-48">
-            <div className="space-y-3 pr-3">
-              {selectedProductsByCategory.map(([category, products]) => (
-                <div key={category} className="space-y-1.5">
-                  <p className="text-xs font-medium text-muted-foreground capitalize">
-                    {category} ({products.length})
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {products.map((product) => (
-                      <span
-                        key={product.key}
-                        className="inline-flex items-center gap-1 text-xs bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground"
-                      >
-                        {product.name}
-                        {product.price != null && (
-                          <span className="text-primary font-medium">{product.price.toFixed(2)}€</span>
-                        )}
-                      </span>
-                    ))}
+          <div className="relative">
+            <ScrollArea className="h-48">
+              <div className="space-y-3 pr-3 pb-4">
+                {selectedProductsByCategory.map(([category, products]) => (
+                  <div key={category} className="space-y-1.5">
+                    <p className="text-xs font-medium text-muted-foreground capitalize">
+                      {category} ({products.length})
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {products.map((product) => (
+                        <span
+                          key={product.key}
+                          className="inline-flex items-center gap-1 text-xs bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground"
+                        >
+                          {product.name}
+                          {product.price != null && (
+                            <span className="text-primary font-medium">{product.price.toFixed(2)}€</span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+                ))}
+              </div>
+            </ScrollArea>
+            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-card to-transparent pointer-events-none rounded-b-2xl" />
+          </div>
         )}
       </div>
 
