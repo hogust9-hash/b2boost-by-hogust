@@ -83,7 +83,7 @@ const CATEGORY_OPTIONS = [
   "snacking",
   "viennoiserie",
   "pâtisserie",
-  "gâteaux de voyage",
+  "gamme américaine",
   "traiteur",
   "boulangerie",
   "autre",
