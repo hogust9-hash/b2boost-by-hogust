@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const CATEGORIES = ['snacking', 'viennoiserie', 'pâtisserie', 'gâteaux de voyage', 'traiteur', 'pain', 'autre'];
+const CATEGORIES = ['snacking', 'viennoiserie', 'pâtisserie', 'gamme américaine', 'traiteur', 'pain', 'autre'];
 
 function guessCategory(name: string): string {
   const lower = name.toLowerCase();
