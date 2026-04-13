@@ -16,7 +16,7 @@ const StepSuccess: React.FC = () => {
           Ta demande est bien enregistrée. On récolte les informations sur les prospects identifiés.
         </p>
         <p className="text-sm font-semibold text-primary">
-          Tu auras bientôt accès à ton dashboard.
+          On revient vers toi d'ici 48h avec ton dashboard prêt.
         </p>
       </div>
 

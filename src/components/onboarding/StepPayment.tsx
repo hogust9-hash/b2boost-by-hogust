@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CreditCard, Check, Loader2, Upload, Image } from "lucide-react";
+import { CreditCard, Check, Loader2, Upload, Image, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { OfferEntry } from "./StepOffers";
 import type { MessageEntry } from "./StepMessages";
@@ -42,7 +42,9 @@ const StepPayment: React.FC<StepPaymentProps> = ({
   const [showSignup, setShowSignup] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -57,7 +59,8 @@ const StepPayment: React.FC<StepPaymentProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!email || !password || !fullName) {
+    const fullName = `${firstName} ${lastName}`.trim();
+    if (!email || !password || !firstName || !lastName) {
       setError("Remplis tous les champs.");
       return;
     }
@@ -239,9 +242,15 @@ const StepPayment: React.FC<StepPaymentProps> = ({
       {showSignup && (
         <div className="bg-card rounded-xl border border-border p-4 space-y-4">
           <h3 className="text-sm font-semibold text-foreground">Crée ton compte</h3>
-          <div className="space-y-1">
-            <Label>Nom complet</Label>
-            <Input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Jean Dupont" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Prénom</Label>
+              <Input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Jean" />
+            </div>
+            <div className="space-y-1">
+              <Label>Nom</Label>
+              <Input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Dupont" />
+            </div>
           </div>
           <div className="space-y-1">
             <Label>Email</Label>
@@ -249,7 +258,13 @@ const StepPayment: React.FC<StepPaymentProps> = ({
           </div>
           <div className="space-y-1">
             <Label>Mot de passe</Label>
-            <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 6 caractères" />
+            <div className="relative">
+              <Input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 6 caractères" className="pr-10" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
 
           {/* Logo upload */}
