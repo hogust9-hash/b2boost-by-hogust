@@ -10,6 +10,7 @@ import ProfilePage from "./pages/ProfilePage";
 import OnboardingPage from "./pages/OnboardingPage";
 import CampaignConfigPage from "./pages/CampaignConfigPage";
 import StrategyPage from "./pages/StrategyPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/profil" element={<ProfilePage />} />
             <Route path="/campaign/config" element={<CampaignConfigPage />} />
             <Route path="/campaign/strategy" element={<StrategyPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
