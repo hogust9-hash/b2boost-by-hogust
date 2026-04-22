@@ -85,11 +85,67 @@ export type Database = {
           },
         ]
       }
+      campaign_prospects: {
+        Row: {
+          campaign_id: string
+          created_at: string | null
+          current_step: number | null
+          id: string
+          instantly_lead_id: string | null
+          last_sent_at: string | null
+          prospect_id: string
+          replied_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string | null
+          current_step?: number | null
+          id?: string
+          instantly_lead_id?: string | null
+          last_sent_at?: string | null
+          prospect_id: string
+          replied_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string | null
+          current_step?: number | null
+          id?: string
+          instantly_lead_id?: string | null
+          last_sent_at?: string | null
+          prospect_id?: string
+          replied_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_prospects_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_prospects_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           bakery_id: string
           created_at: string
           id: string
+          instantly_campaign_id: string | null
+          instantly_status: string | null
           started_at: string | null
           status: string
           target_category_id: string | null
@@ -99,6 +155,8 @@ export type Database = {
           bakery_id: string
           created_at?: string
           id?: string
+          instantly_campaign_id?: string | null
+          instantly_status?: string | null
           started_at?: string | null
           status?: string
           target_category_id?: string | null
@@ -108,6 +166,8 @@ export type Database = {
           bakery_id?: string
           created_at?: string
           id?: string
+          instantly_campaign_id?: string | null
+          instantly_status?: string | null
           started_at?: string | null
           status?: string
           target_category_id?: string | null
@@ -156,6 +216,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      email_events: {
+        Row: {
+          body: string | null
+          campaign_prospect_id: string
+          created_at: string | null
+          event_type: string
+          id: number
+          occurred_at: string
+          raw: Json | null
+          step_number: number | null
+          subject: string | null
+        }
+        Insert: {
+          body?: string | null
+          campaign_prospect_id: string
+          created_at?: string | null
+          event_type: string
+          id?: number
+          occurred_at: string
+          raw?: Json | null
+          step_number?: number | null
+          subject?: string | null
+        }
+        Update: {
+          body?: string | null
+          campaign_prospect_id?: string
+          created_at?: string | null
+          event_type?: string
+          id?: number
+          occurred_at?: string
+          raw?: Json | null
+          step_number?: number | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_events_campaign_prospect_id_fkey"
+            columns: ["campaign_prospect_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_prospects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       offers: {
         Row: {
@@ -408,11 +512,14 @@ export type Database = {
           bakery_id: string
           category_id: string | null
           city: string | null
+          contact_name: string | null
           created_at: string
+          email: string | null
           id: string
           latitude: number | null
           longitude: number | null
           name: string
+          offer: string | null
           response_received_at: string | null
           status: string
         }
@@ -421,11 +528,14 @@ export type Database = {
           bakery_id: string
           category_id?: string | null
           city?: string | null
+          contact_name?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
           name: string
+          offer?: string | null
           response_received_at?: string | null
           status?: string
         }
@@ -434,11 +544,14 @@ export type Database = {
           bakery_id?: string
           category_id?: string | null
           city?: string | null
+          contact_name?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
           name?: string
+          offer?: string | null
           response_received_at?: string | null
           status?: string
         }
