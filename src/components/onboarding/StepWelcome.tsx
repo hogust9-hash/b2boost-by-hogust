@@ -29,6 +29,8 @@ const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +55,25 @@ const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
 
     setOpen(false);
     navigate("/prospects");
+  };
+
+  const handleForgotPassword = async () => {
+    setError(null);
+    setResetSent(false);
+    if (!email) {
+      setError("Entre ton email d'abord pour recevoir le lien de réinitialisation");
+      return;
+    }
+    setResetLoading(true);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResetLoading(false);
+    if (resetError) {
+      setError(resetError.message);
+      return;
+    }
+    setResetSent(true);
   };
 
   return (
@@ -139,6 +160,23 @@ const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
                 "Se connecter"
               )}
             </Button>
+
+            {resetSent && (
+              <div className="p-3 bg-success/10 border border-success/20 rounded-lg">
+                <p className="text-sm text-success text-center">
+                  Email envoyé ! Vérifie ta boîte de réception.
+                </p>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={resetLoading}
+              className="w-full text-center text-sm text-primary hover:underline disabled:opacity-50"
+            >
+              {resetLoading ? "Envoi..." : "Mot de passe oublié ?"}
+            </button>
           </form>
         </DialogContent>
       </Dialog>
