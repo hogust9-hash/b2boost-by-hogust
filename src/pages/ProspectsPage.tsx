@@ -268,7 +268,7 @@ const ProspectsPage = () => {
   }, [showToast]);
 
   // Filter prospects
-  const filteredProspects = mockProspects.filter((p) => {
+  const filteredProspects = liveProspects.filter((p) => {
     const catMatch = selectedCategories.length === 0 || selectedCategories.includes(p.category);
     const offerMatch = selectedOffers.length === 0 || p.offers.some((o) => selectedOffers.includes(o));
     const bakeryMatch = selectedBakeries.length === 0 || selectedBakeries.includes(p.bakery);
