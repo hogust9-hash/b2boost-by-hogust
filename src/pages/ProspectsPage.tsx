@@ -138,12 +138,13 @@ const getFilteredKpis = (selectedBakeryIds: string[], period: PeriodFilter) => {
 };
 
 const ProspectsPage = () => {
+  const { prospects: liveProspects, loading: prospectsLoading } = useCampaignProspects();
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("quarter");
   const [selectedCategories, setSelectedCategories] = useState<CategoryFilterType[]>([]);
   const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
   const [selectedBakeries, setSelectedBakeries] = useState<string[]>([]);
   const [cardFilter, setCardFilter] = useState<"all" | "todo">("all");
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = prospectsLoading;
   const [expandedSections, setExpandedSections] = useState({
     responses: true,
     inProgress: true,
