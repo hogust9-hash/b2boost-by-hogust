@@ -216,7 +216,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
           {offers.map((offer, index) => (
             <span
               key={index}
-              className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-700 border border-violet-200"
+              className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#EDE9FE] text-[#6D28D9] border border-[#DDD6FE]"
             >
               {offer}
             </span>
