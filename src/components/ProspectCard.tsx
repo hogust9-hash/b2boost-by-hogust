@@ -210,16 +210,25 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
         )}
       </div>
 
+      {/* Offer badge (violet) just below name */}
+      {offers.length > 0 && (
+        <div className="mb-1.5 flex flex-wrap gap-1.5">
+          {offers.map((offer, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-700 border border-violet-200"
+            >
+              {offer}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Line 2: Context with icon */}
       <p className="text-xs text-muted-foreground mb-1.5 inline-flex items-center gap-1">
         {category && (() => { const Icon = categoryIcon[category]; return <Icon className="h-3 w-3" />; })()}
         {context}
       </p>
-
-      {/* Line 3: Offer Tags */}
-      <div className="mb-1.5">
-        <OfferTags offers={offers} />
-      </div>
 
       {/* Line 4: Date */}
       <p className="text-xs text-muted-foreground">
