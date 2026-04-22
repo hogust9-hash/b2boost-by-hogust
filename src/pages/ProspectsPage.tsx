@@ -8,6 +8,7 @@ import { ProspectCardSkeleton } from "@/components/ui/skeleton-card";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useCustomToast } from "@/components/ui/custom-toast";
 import { CategoryType } from "@/components/ui/badge-category";
+import { useCampaignProspects } from "@/hooks/useCampaignProspects";
 import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter, CalendarDays, LayoutGrid, SlidersHorizontal, UtensilsCrossed, Bed, GraduationCap, Building2, Landmark, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -137,12 +138,13 @@ const getFilteredKpis = (selectedBakeryIds: string[], period: PeriodFilter) => {
 };
 
 const ProspectsPage = () => {
+  const { prospects: liveProspects, loading: prospectsLoading } = useCampaignProspects();
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("quarter");
   const [selectedCategories, setSelectedCategories] = useState<CategoryFilterType[]>([]);
   const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
   const [selectedBakeries, setSelectedBakeries] = useState<string[]>([]);
   const [cardFilter, setCardFilter] = useState<"all" | "todo">("all");
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = prospectsLoading;
   const [expandedSections, setExpandedSections] = useState({
     responses: true,
     inProgress: true,
@@ -266,7 +268,7 @@ const ProspectsPage = () => {
   }, [showToast]);
 
   // Filter prospects
-  const filteredProspects = mockProspects.filter((p) => {
+  const filteredProspects = liveProspects.filter((p) => {
     const catMatch = selectedCategories.length === 0 || selectedCategories.includes(p.category);
     const offerMatch = selectedOffers.length === 0 || p.offers.some((o) => selectedOffers.includes(o));
     const bakeryMatch = selectedBakeries.length === 0 || selectedBakeries.includes(p.bakery);
