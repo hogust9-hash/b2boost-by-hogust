@@ -12,6 +12,8 @@ import CampaignConfigPage from "./pages/CampaignConfigPage";
 import StrategyPage from "./pages/StrategyPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -22,17 +24,40 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to="/onboarding" replace />} />
-            <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/prospects" element={<ProspectsPage />} />
-            <Route path="/profil" element={<ProfilePage />} />
-            <Route path="/campaign/config" element={<CampaignConfigPage />} />
-            <Route path="/campaign/strategy" element={<StrategyPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Navigate to="/onboarding" replace />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute requireOnboarding={false}>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/prospects"
+                element={
+                  <ProtectedRoute requireOnboarding={false}>
+                    <ProspectsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profil"
+                element={
+                  <ProtectedRoute requireOnboarding={false}>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/campaign/config" element={<CampaignConfigPage />} />
+              <Route path="/campaign/strategy" element={<StrategyPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </CustomToastProvider>
     </TooltipProvider>
