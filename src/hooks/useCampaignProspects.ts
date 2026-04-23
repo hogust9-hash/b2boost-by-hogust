@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { CategoryType } from "@/components/ui/badge-category";
 import type { StageType } from "@/components/ProspectCard";
 
-const CAMPAIGN_ID = "5856033d-eb21-4550-a35d-a0cafa0247fc";
+
 
 export interface CampaignProspect {
   id: string;
@@ -74,8 +74,9 @@ export const useCampaignProspects = () => {
         .select(`
           id, status, current_step, last_sent_at, replied_at,
           prospect:prospects ( name, city, offer, category:prospect_categories(name) )
-        `)
-        .eq("campaign_id", CAMPAIGN_ID);
+        `);
+
+      console.log("campaign_prospects data:", data, "error:", error);
 
       if (cancelled) return;
 
