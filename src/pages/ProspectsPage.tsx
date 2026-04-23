@@ -349,16 +349,20 @@ const ProspectsPage = () => {
               <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[180px]">
-              {bakeryOptions.map((b) => (
-                <DropdownMenuCheckboxItem
-                  key={b.id}
-                  checked={selectedBakeries.includes(b.id)}
-                  onCheckedChange={() => toggleBakery(b.id)}
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  🏪 {b.label}
-                </DropdownMenuCheckboxItem>
-              ))}
+              {bakeries.length === 0 ? (
+                <div className="px-2 py-1.5 text-xs text-muted-foreground">Aucune boulangerie</div>
+              ) : (
+                bakeries.map((b) => (
+                  <DropdownMenuCheckboxItem
+                    key={b.id}
+                    checked={selectedBakeries.includes(b.id)}
+                    onCheckedChange={() => toggleBakery(b.id)}
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    🏪 {b.label}
+                  </DropdownMenuCheckboxItem>
+                ))
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
