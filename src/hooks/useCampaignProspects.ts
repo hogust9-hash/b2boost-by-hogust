@@ -77,7 +77,8 @@ export const useCampaignProspects = () => {
         .from("campaign_prospects")
         .select(`
           id, status, current_step, last_sent_at, replied_at,
-          prospect:prospects ( name, city, offer, category:prospect_categories(name) )
+          campaign:campaigns ( bakery_id ),
+          prospect:prospects ( name, city, offer, category_id, category:prospect_categories(name) )
         `);
 
       console.log("campaign_prospects data:", data, "error:", error);
@@ -96,19 +97,24 @@ export const useCampaignProspects = () => {
         const cat = mapCategory(p?.category?.name);
         const stageInfo = buildStage(row.status, row.current_step);
         const city = p?.city ?? "";
+        const bakeryId = row.campaign?.bakery_id ?? null;
         return {
           id: row.id,
           name: p?.name ?? "Prospect",
           category: cat.id,
           categoryLabel: cat.label,
-          bakery: "boulangerie-du-centre",
+          categoryId: p?.category_id ?? null,
+          bakery: bakeryId ?? "",
+          bakeryId,
           stage: stageInfo.stage,
           stageType: stageInfo.stageType,
           currentStep: stageInfo.currentStep,
           totalSteps: 5,
           context: city ? `${cat.label} — ${city}` : cat.label,
           offers: p?.offer ? [p.offer] : [],
+          offer: p?.offer ?? null,
           lastSentDate: formatFrDate(row.last_sent_at),
+          lastSentAt: row.last_sent_at ?? null,
           responseReceivedAt: row.replied_at,
           status: mapStatus(row.status),
         };
