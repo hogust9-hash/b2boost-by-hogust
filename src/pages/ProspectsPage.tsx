@@ -29,22 +29,7 @@ const isWithinOneWeek = (dateStr: string | null | undefined): boolean => {
   return diffMs >= 0 && diffMs < 7 * 24 * 60 * 60 * 1000;
 };
 
-interface Prospect {
-  id: string;
-  name: string;
-  category: CategoryType;
-  categoryLabel: string;
-  bakery: string;
-  stage: string;
-  stageType: StageType;
-  currentStep: number;
-  totalSteps: number;
-  context: string;
-  offers: string[];
-  lastSentDate: string;
-  responseReceivedAt?: string | null;
-  status: "response" | "in_progress" | "finished";
-}
+type Prospect = CampaignProspect;
 
 const bakeryOptions = [
   { id: "boulangerie-du-centre", label: "Boulangerie du Centre" },
