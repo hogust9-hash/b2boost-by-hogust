@@ -10,14 +10,18 @@ export interface CampaignProspect {
   name: string;
   category: CategoryType;
   categoryLabel: string;
+  categoryId: string | null;
   bakery: string;
+  bakeryId: string | null;
   stage: string;
   stageType: StageType;
   currentStep: number;
   totalSteps: number;
   context: string;
   offers: string[];
+  offer: string | null;
   lastSentDate: string;
+  lastSentAt: string | null;
   responseReceivedAt?: string | null;
   status: "response" | "in_progress" | "finished";
 }
