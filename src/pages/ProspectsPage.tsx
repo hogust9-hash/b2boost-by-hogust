@@ -396,16 +396,20 @@ const ProspectsPage = () => {
                 </DropdownMenuCheckboxItem>
               ))}
               <div className="px-2 py-1.5 mt-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider border-t border-border">Panier</div>
-              {offerOptions.map((offer) => (
-                <DropdownMenuCheckboxItem
-                  key={offer}
-                  checked={selectedOffers.includes(offer)}
-                  onCheckedChange={() => toggleOffer(offer)}
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  {offer}
-                </DropdownMenuCheckboxItem>
-              ))}
+              {offerOptions.length === 0 ? (
+                <div className="px-2 py-1.5 text-xs text-muted-foreground">Aucune offre</div>
+              ) : (
+                offerOptions.map((offer) => (
+                  <DropdownMenuCheckboxItem
+                    key={offer}
+                    checked={selectedOffers.includes(offer)}
+                    onCheckedChange={() => toggleOffer(offer)}
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    {offer}
+                  </DropdownMenuCheckboxItem>
+                ))
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
