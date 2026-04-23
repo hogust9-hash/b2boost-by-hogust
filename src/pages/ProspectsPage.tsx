@@ -291,7 +291,7 @@ const ProspectsPage = () => {
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
               "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
-              selectedPeriod !== "quarter"
+              selectedPeriod !== "all"
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-foreground hover:bg-muted/80"
             )}>
