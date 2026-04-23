@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { ProspectCard, StageType } from "@/components/ProspectCard";
@@ -8,7 +8,8 @@ import { ProspectCardSkeleton } from "@/components/ui/skeleton-card";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useCustomToast } from "@/components/ui/custom-toast";
 import { CategoryType } from "@/components/ui/badge-category";
-import { useCampaignProspects } from "@/hooks/useCampaignProspects";
+import { useCampaignProspects, CampaignProspect } from "@/hooks/useCampaignProspects";
+import { supabase } from "@/integrations/supabase/client";
 import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter, CalendarDays, LayoutGrid, SlidersHorizontal, UtensilsCrossed, Bed, GraduationCap, Building2, Landmark, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
