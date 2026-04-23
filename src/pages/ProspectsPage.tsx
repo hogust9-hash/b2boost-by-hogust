@@ -136,11 +136,11 @@ const ProspectsPage = () => {
     setSelectedCategories([]);
     setSelectedOffers([]);
     setSelectedBakeries([]);
-    setSelectedPeriod("quarter");
+    setSelectedPeriod("all");
     setCardFilter("all");
   };
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedOffers.length > 0 || selectedBakeries.length > 0 || cardFilter !== "all" || selectedPeriod !== "quarter";
+  const hasActiveFilters = selectedCategories.length > 0 || selectedOffers.length > 0 || selectedBakeries.length > 0 || cardFilter !== "all" || selectedPeriod !== "all";
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
