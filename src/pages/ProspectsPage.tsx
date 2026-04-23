@@ -71,7 +71,8 @@ const getPeriodStart = (period: PeriodFilter): Date | null => {
 
 const ProspectsPage = () => {
   const { prospects: liveProspects, loading: prospectsLoading } = useCampaignProspects();
-  const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("quarter");
+  const [bakeries, setBakeries] = useState<{ id: string; label: string }[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("all");
   const [selectedCategories, setSelectedCategories] = useState<CategoryFilterType[]>([]);
   const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
   const [selectedBakeries, setSelectedBakeries] = useState<string[]>([]);
@@ -87,6 +88,31 @@ const ProspectsPage = () => {
   const [handledProspects, setHandledProspects] = useState<Record<string, string>>({});
   const [calledProspects, setCalledProspects] = useState<Set<string>>(new Set());
   const { showToast } = useCustomToast();
+
+  // Load bakeries (RLS scopes to current user)
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("bakeries")
+      .select("id, name")
+      .then(({ data }) => {
+        if (cancelled) return;
+        setBakeries((data ?? []).map((b: any) => ({ id: b.id, label: b.name })));
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Derive offer options from loaded prospects
+  const offerOptions = useMemo(() => {
+    return Array.from(
+      new Set(
+        liveProspects
+          .map((p) => p.offer)
+          .filter((o): o is string => Boolean(o && o.trim()))
+      )
+    ).sort();
+  }, [liveProspects]);
+
 
   const toggleCategory = (cat: CategoryFilterType) => {
     setSelectedCategories((prev) =>
