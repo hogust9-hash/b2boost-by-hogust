@@ -225,12 +225,18 @@ const ProspectsPage = () => {
     showToast("success", "Données actualisées !");
   }, [showToast]);
 
-  // Filter prospects
+  // Filter prospects (cumulative: category + offer + bakery + period)
+  const periodStart = useMemo(() => getPeriodStart(selectedPeriod), [selectedPeriod]);
   const filteredProspects = liveProspects.filter((p) => {
     const catMatch = selectedCategories.length === 0 || selectedCategories.includes(p.category);
-    const offerMatch = selectedOffers.length === 0 || p.offers.some((o) => selectedOffers.includes(o));
-    const bakeryMatch = selectedBakeries.length === 0 || selectedBakeries.includes(p.bakery);
-    return catMatch && offerMatch && bakeryMatch;
+    const offerMatch =
+      selectedOffers.length === 0 || (p.offer ? selectedOffers.includes(p.offer) : false);
+    const bakeryMatch =
+      selectedBakeries.length === 0 || (p.bakeryId ? selectedBakeries.includes(p.bakeryId) : false);
+    const periodMatch =
+      !periodStart ||
+      (p.lastSentAt ? new Date(p.lastSentAt).getTime() >= periodStart.getTime() : false);
+    return catMatch && offerMatch && bakeryMatch && periodMatch;
   });
 
   // Sort by date (most recent first), then by stage order
