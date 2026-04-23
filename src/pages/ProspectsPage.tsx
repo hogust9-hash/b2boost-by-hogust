@@ -31,29 +31,6 @@ const isWithinOneWeek = (dateStr: string | null | undefined): boolean => {
 
 type Prospect = CampaignProspect;
 
-const bakeryOptions = [
-  { id: "boulangerie-du-centre", label: "Boulangerie du Centre" },
-  { id: "au-pain-dore", label: "Au Pain Doré" },
-  { id: "la-mie-caline", label: "La Mie Câline" },
-];
-
-// Mock data with new structure
-const mockProspects: Prospect[] = [
-  { id: "1", name: "Restaurant Le Gourmet", category: "restauration", categoryLabel: "Restaurant", bakery: "boulangerie-du-centre", stage: "Réponse reçue", stageType: "response", currentStep: 3, totalSteps: 5, context: "Restaurant — Orléans, à 0.9 km", offers: ["Petit-déjeuner", "Déjeuner", "Traiteur", "Événementiel"], lastSentDate: "05 fév. 2026", responseReceivedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), status: "response" },
-  { id: "2", name: "Hôtel & Spa Le Majestic", category: "hebergement", categoryLabel: "Hôtel", bakery: "au-pain-dore", stage: "Réponse reçue", stageType: "response", currentStep: 2, totalSteps: 5, context: "Hôtel — Orléans, à 1.4 km", offers: ["Viennoiseries", "Petit-déjeuner"], lastSentDate: "02 fév. 2026", responseReceivedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), status: "response" },
-  { id: "3", name: "Lycée Jean Moulin", category: "education", categoryLabel: "Lycée", bakery: "la-mie-caline", stage: "Email initial", stageType: "initial", currentStep: 1, totalSteps: 5, context: "Lycée — Orléans, à 1.2 km", offers: ["Pain bio"], lastSentDate: "01 fév. 2026", status: "in_progress" },
-  { id: "4", name: "TechCorp Solutions", category: "entreprises", categoryLabel: "Entreprise", bakery: "boulangerie-du-centre", stage: "Relance 2/5", stageType: "relance", currentStep: 2, totalSteps: 5, context: "Entreprise — Orléans, à 1.8 km", offers: ["Traiteur", "Petit-déjeuner", "Goûter"], lastSentDate: "28 jan. 2026", status: "in_progress" },
-  { id: "5", name: "Mairie d'Orléans", category: "collectivites", categoryLabel: "Mairie", bakery: "au-pain-dore", stage: "Relance 1/5", stageType: "relance", currentStep: 1, totalSteps: 5, context: "Mairie — Orléans, à 0.6 km", offers: ["Événementiel"], lastSentDate: "25 jan. 2026", status: "in_progress" },
-  { id: "6", name: "Bistrot du Marché", category: "restauration", categoryLabel: "Bistrot", bakery: "boulangerie-du-centre", stage: "Relance 3/5", stageType: "relance", currentStep: 3, totalSteps: 5, context: "Bistrot — Orléans, à 0.8 km", offers: ["Petit-déjeuner", "Déjeuner"], lastSentDate: "24 jan. 2026", status: "in_progress" },
-  { id: "7", name: "Résidence Les Jardins", category: "hebergement", categoryLabel: "Résidence", bakery: "la-mie-caline", stage: "Email initial", stageType: "initial", currentStep: 1, totalSteps: 5, context: "Résidence — Orléans, à 1.7 km", offers: ["Goûter"], lastSentDate: "23 jan. 2026", status: "in_progress" },
-  { id: "8", name: "Coworking L'Atelier", category: "entreprises", categoryLabel: "Coworking", bakery: "au-pain-dore", stage: "Relance 1/5", stageType: "relance", currentStep: 1, totalSteps: 5, context: "Coworking — Orléans, à 0.4 km", offers: ["Petit-déjeuner"], lastSentDate: "22 jan. 2026", status: "in_progress" },
-  { id: "9", name: "École Montessori", category: "education", categoryLabel: "École", bakery: "boulangerie-du-centre", stage: "Relance 2/5", stageType: "relance", currentStep: 2, totalSteps: 5, context: "École — Orléans, à 1.3 km", offers: ["Goûter", "Pain bio"], lastSentDate: "21 jan. 2026", status: "in_progress" },
-  { id: "10", name: "La Table d'Arthur", category: "restauration", categoryLabel: "Restaurant", bakery: "la-mie-caline", stage: "Email initial", stageType: "initial", currentStep: 1, totalSteps: 5, context: "Restaurant — Orléans, à 1.1 km", offers: ["Pain artisanal", "Viennoiseries", "Petit-déjeuner"], lastSentDate: "20 jan. 2026", status: "in_progress" },
-  { id: "11", name: "Café de la Place", category: "restauration", categoryLabel: "Café", bakery: "boulangerie-du-centre", stage: "Terminé", stageType: "finished", currentStep: 5, totalSteps: 5, context: "Café — Orléans, à 0.5 km", offers: ["Viennoiseries"], lastSentDate: "10 jan. 2026", status: "finished" },
-  { id: "12", name: "Hôtel du Commerce", category: "hebergement", categoryLabel: "Hôtel", bakery: "au-pain-dore", stage: "Terminé", stageType: "finished", currentStep: 5, totalSteps: 5, context: "Hôtel — Orléans, à 1.9 km", offers: ["Petit-déjeuner"], lastSentDate: "08 jan. 2026", status: "finished" },
-  { id: "13", name: "Centre Culturel", category: "collectivites", categoryLabel: "Centre culturel", bakery: "la-mie-caline", stage: "Terminé", stageType: "finished", currentStep: 5, totalSteps: 5, context: "Centre culturel — Orléans, à 1.5 km", offers: ["Événementiel", "Traiteur"], lastSentDate: "05 jan. 2026", status: "finished" },
-];
-
 type CategoryFilterType = CategoryType;
 
 const categoryOptions: { id: CategoryFilterType; label: string; icon: LucideIcon }[] = [
@@ -62,17 +39,6 @@ const categoryOptions: { id: CategoryFilterType; label: string; icon: LucideIcon
   { id: "education", label: "Éducation", icon: GraduationCap },
   { id: "entreprises", label: "Entreprises", icon: Building2 },
   { id: "collectivites", label: "Collectivités", icon: Landmark },
-];
-
-const offerOptions = [
-  "Petit-déjeuner",
-  "Déjeuner",
-  "Traiteur",
-  "Événementiel",
-  "Viennoiseries",
-  "Pain bio",
-  "Goûter",
-  "Pain artisanal",
 ];
 
 type PeriodFilter = "all" | "week" | "month" | "quarter";
@@ -84,43 +50,23 @@ const periodLabels: Record<PeriodFilter, string> = {
   quarter: "Ce trimestre",
 };
 
-// Per-bakery KPI data aligned with Dashboard mockBakeriesStats
-const bakeryPeriodKpis: Record<string, Record<PeriodFilter, { emails: number; prospects: number; relances: number }>> = {
-  "boulangerie-du-centre": {
-    all: { emails: 65, prospects: 35, relances: 18 },
-    week: { emails: 5, prospects: 3, relances: 1 },
-    month: { emails: 18, prospects: 10, relances: 5 },
-    quarter: { emails: 47, prospects: 25, relances: 12 },
-  },
-  "au-pain-dore": {
-    all: { emails: 85, prospects: 42, relances: 22 },
-    week: { emails: 5, prospects: 3, relances: 2 },
-    month: { emails: 20, prospects: 10, relances: 4 },
-    quarter: { emails: 62, prospects: 31, relances: 16 },
-  },
-  "la-mie-caline": {
-    all: { emails: 32, prospects: 18, relances: 9 },
-    week: { emails: 2, prospects: 2, relances: 0 },
-    month: { emails: 9, prospects: 5, relances: 2 },
-    quarter: { emails: 23, prospects: 12, relances: 6 },
-  },
-};
-
-const getFilteredKpis = (selectedBakeryIds: string[], period: PeriodFilter) => {
-  const ids = selectedBakeryIds.length > 0
-    ? selectedBakeryIds
-    : Object.keys(bakeryPeriodKpis);
-  return ids.reduce(
-    (acc, id) => {
-      const data = bakeryPeriodKpis[id];
-      if (!data) return acc;
-      acc.emails += data[period].emails;
-      acc.prospects += data[period].prospects;
-      acc.relances += data[period].relances;
-      return acc;
-    },
-    { emails: 0, prospects: 0, relances: 0 }
-  );
+const getPeriodStart = (period: PeriodFilter): Date | null => {
+  if (period === "all") return null;
+  const now = new Date();
+  if (period === "week") {
+    const d = new Date(now);
+    const day = d.getDay(); // 0=Sun
+    const diff = (day === 0 ? -6 : 1 - day); // Monday as start
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+  if (period === "month") {
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+  // quarter
+  const q = Math.floor(now.getMonth() / 3);
+  return new Date(now.getFullYear(), q * 3, 1);
 };
 
 const ProspectsPage = () => {
