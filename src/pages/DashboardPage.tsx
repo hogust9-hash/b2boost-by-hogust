@@ -1,17 +1,14 @@
 import * as React from "react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 import { ProspectCard, StageType } from "@/components/ProspectCard";
 import { ProspectDetailSheet, ProspectDetail } from "@/components/ProspectDetailSheet";
 import { CategoryType } from "@/components/ui/badge-category";
 import { Header } from "@/components/Header";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { Button } from "@/components/ui/button";
-import { 
-  Send, 
-  Users, 
-  TrendingUp, 
-  ChevronDown, 
+import { supabase } from "@/integrations/supabase/client";
+import {
+  ChevronDown,
   ChevronUp,
   ShoppingBasket,
   Rocket,
@@ -34,7 +31,7 @@ import {
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { KpiPanel } from "@/components/ui/kpi-panel";
 
-// Basket detail types
+// Basket detail types (kept as mock — backend doesn't expose basket items yet)
 interface BasketItem {
   name: string;
   quantity: number;
@@ -44,7 +41,7 @@ interface BasketItem {
 interface BasketDetail {
   name: string;
   items: BasketItem[];
-  tvaRate: number; // e.g. 0.055 for 5.5%
+  tvaRate: number;
 }
 
 const mockBasketDetails: Record<string, BasketDetail> = {
@@ -98,67 +95,6 @@ const mockBasketDetails: Record<string, BasketDetail> = {
   },
 };
 
-interface BakeryStats {
-  id: string;
-  name: string;
-  responsesReceived: number;
-  emailsSent: number;
-  prospectsContacted: number;
-  responseRate: number;
-  campaignActive: boolean;
-  campaignStartDate: string | null;
-  offers: string[];
-}
-
-interface DashboardData {
-  responsesReceived: number;
-  emailsSent: number;
-  prospectsContacted: number;
-  responseRate: number;
-  activeCampaigns: number;
-  totalBakeries: number;
-  offers: string[];
-  topCategories: { name: string; responses: number; color: string }[];
-}
-
-// Mock data per bakery
-const mockBakeriesStats: BakeryStats[] = [
-  {
-    id: "1",
-    name: "Boulangerie du Centre",
-    responsesReceived: 3,
-    emailsSent: 47,
-    prospectsContacted: 25,
-    responseRate: 6.4,
-    campaignActive: true,
-    campaignStartDate: "15/01/2026",
-    offers: ["Petit-déjeuner", "Goûter"],
-  },
-  {
-    id: "2",
-    name: "Au Pain Doré",
-    responsesReceived: 5,
-    emailsSent: 62,
-    prospectsContacted: 31,
-    responseRate: 8.1,
-    campaignActive: true,
-    campaignStartDate: "20/01/2026",
-    offers: ["Traiteur", "Pain bio"],
-  },
-  {
-    id: "3",
-    name: "La Mie Câline",
-    responsesReceived: 1,
-    emailsSent: 23,
-    prospectsContacted: 12,
-    responseRate: 4.3,
-    campaignActive: false,
-    campaignStartDate: null,
-    offers: ["Viennoiseries"],
-  },
-];
-
-// Calculate cumulative data
 const categoryLucideMap: Record<string, LucideIcon> = {
   "Restauration": UtensilsCrossed,
   "Hébergement": Bed,
@@ -167,44 +103,20 @@ const categoryLucideMap: Record<string, LucideIcon> = {
   "Collectivités": Landmark,
 };
 
-const calculateCumulativeData = (bakeries: BakeryStats[]): DashboardData => {
-  const totalResponses = bakeries.reduce((sum, b) => sum + b.responsesReceived, 0);
-  const totalEmails = bakeries.reduce((sum, b) => sum + b.emailsSent, 0);
-  const totalProspects = bakeries.reduce((sum, b) => sum + b.prospectsContacted, 0);
-  const avgResponseRate = totalEmails > 0 ? (totalResponses / totalEmails) * 100 : 0;
-  const activeCampaigns = bakeries.filter(b => b.campaignActive).length;
-  const allOffers = [...new Set(bakeries.flatMap(b => b.offers))];
-
-  // Mock top responding categories
-  const topCategories = [
-    { name: "Restauration", responses: 4, color: "#F97316" },
-    { name: "Hébergement", responses: 3, color: "#8B5CF6" },
-    { name: "Entreprises", responses: 2, color: "#3B82F6" },
-  ];
-
-  return {
-    responsesReceived: totalResponses,
-    emailsSent: totalEmails,
-    prospectsContacted: totalProspects,
-    responseRate: Math.round(avgResponseRate * 10) / 10,
-    activeCampaigns,
-    totalBakeries: bakeries.length,
-    offers: allOffers,
-    topCategories,
-  };
+// Map raw category name to internal CategoryType for ProspectCard
+const mapCategoryType = (name?: string | null): { id: CategoryType; label: string } => {
+  const n = (name ?? "").toLowerCase();
+  if (n.startsWith("restaur")) return { id: "restauration", label: "Restaurant" };
+  if (n.startsWith("héberg") || n.startsWith("heberg")) return { id: "hebergement", label: "Hébergement" };
+  if (n.startsWith("éduc") || n.startsWith("educ")) return { id: "education", label: "Éducation" };
+  if (n.startsWith("entrep") || n.startsWith("profess")) return { id: "entreprises", label: "Entreprise" };
+  if (n.startsWith("collectiv")) return { id: "collectivites", label: "Collectivité" };
+  return { id: "entreprises", label: name || "Entreprise" };
 };
 
-const mockCumulativeData = calculateCumulativeData(mockBakeriesStats);
-
-const emptyData: DashboardData = {
-  responsesReceived: 0,
-  emailsSent: 0,
-  prospectsContacted: 0,
-  responseRate: 0,
-  activeCampaigns: 0,
-  totalBakeries: 0,
-  offers: [],
-  topCategories: [],
+const formatFrDate = (iso: string | null | undefined): string => {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
 };
 
 type DashboardPeriodFilter = "all" | "week" | "month" | "quarter";
@@ -216,86 +128,221 @@ const dashboardPeriodLabels: Record<DashboardPeriodFilter, string> = {
   quarter: "Ce trimestre",
 };
 
-const dashboardBakeryPeriodKpis: Record<string, Record<DashboardPeriodFilter, { responses: number; emails: number; prospects: number; relances: number }>> = {
-  "1": {
-    all: { responses: 3, emails: 65, prospects: 35, relances: 18 },
-    week: { responses: 1, emails: 5, prospects: 3, relances: 1 },
-    month: { responses: 2, emails: 18, prospects: 10, relances: 5 },
-    quarter: { responses: 3, emails: 47, prospects: 25, relances: 12 },
-  },
-  "2": {
-    all: { responses: 5, emails: 85, prospects: 42, relances: 22 },
-    week: { responses: 1, emails: 5, prospects: 3, relances: 2 },
-    month: { responses: 3, emails: 20, prospects: 10, relances: 4 },
-    quarter: { responses: 5, emails: 62, prospects: 31, relances: 16 },
-  },
-  "3": {
-    all: { responses: 1, emails: 32, prospects: 18, relances: 9 },
-    week: { responses: 0, emails: 2, prospects: 2, relances: 0 },
-    month: { responses: 1, emails: 9, prospects: 5, relances: 2 },
-    quarter: { responses: 1, emails: 23, prospects: 12, relances: 6 },
-  },
+const getPeriodStart = (period: DashboardPeriodFilter): Date | null => {
+  if (period === "all") return null;
+  const now = new Date();
+  if (period === "week") {
+    const d = new Date(now);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+  if (period === "month") {
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+  const q = Math.floor(now.getMonth() / 3);
+  return new Date(now.getFullYear(), q * 3, 1);
 };
 
-const getDashboardKpis = (selectedBakeryId: string | null, period: DashboardPeriodFilter) => {
-  const ids = selectedBakeryId ? [selectedBakeryId] : Object.keys(dashboardBakeryPeriodKpis);
-  return ids.reduce(
-    (acc, id) => {
-      const data = dashboardBakeryPeriodKpis[id];
-      if (!data) return acc;
-      acc.responses += data[period].responses;
-      acc.emails += data[period].emails;
-      acc.prospects += data[period].prospects;
-      acc.relances += data[period].relances;
-      return acc;
-    },
-    { responses: 0, emails: 0, prospects: 0, relances: 0 }
-  );
+// Live row from Supabase
+interface CampaignProspectRow {
+  id: string;
+  status: string;
+  current_step: number | null;
+  created_at: string | null;
+  last_sent_at: string | null;
+  campaign_id?: string | null;
+  prospect: {
+    name: string | null;
+    city: string | null;
+    offer: string | null;
+    bakery_id?: string | null;
+    category: { name: string | null } | null;
+  } | null;
+}
+
+interface CampaignRow {
+  id: string;
+  status: string;
+  instantly_campaign_id: string | null;
+  bakery_id: string | null;
+}
+
+interface BakeryRow {
+  id: string;
+  name: string;
+}
+
+// Prospect for KPI BottomSheet
+interface DashboardProspect {
+  id: string;
+  name: string;
+  category: CategoryType;
+  categoryLabel: string;
+  stage: string;
+  stageType: StageType;
+  currentStep: number;
+  totalSteps: number;
+  context: string;
+  offers: string[];
+  lastSentDate: string;
+  responseReceivedAt?: string | null;
+  status: "response" | "contacted";
+}
+
+const buildStage = (status: string, currentStep: number | null): { stage: string; stageType: StageType; currentStep: number } => {
+  const step = currentStep ?? 0;
+  if (status === "replied") {
+    return { stage: "Réponse reçue", stageType: "response", currentStep: Math.max(step, 1) };
+  }
+  if (status === "completed_no_reply" || status === "finished") {
+    return { stage: "Terminé", stageType: "finished", currentStep: 5 };
+  }
+  if (step === 0) return { stage: "Email initial", stageType: "initial", currentStep: 1 };
+  return { stage: `Relance ${step}/5`, stageType: "relance", currentStep: step };
 };
 
 const DashboardPage = () => {
   const [isOffersOpen, setIsOffersOpen] = useState(true);
   const [selectedBakeryId, setSelectedBakeryId] = useState<string | null>(null);
   const [selectedBasket, setSelectedBasket] = useState<BasketDetail | null>(null);
-  const [isEmpty] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState<DashboardPeriodFilter>("quarter");
+  const [selectedPeriod, setSelectedPeriod] = useState<DashboardPeriodFilter>("all");
   const [kpiSheetType, setKpiSheetType] = useState<"responses" | "contacted" | null>(null);
   const [selectedProspect, setSelectedProspect] = useState<ProspectDetail | null>(null);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-  
-  // Get data based on selection
-  const getData = (): DashboardData => {
-    if (isEmpty) return emptyData;
-    if (selectedBakeryId === null) return mockCumulativeData;
-    
-    const bakery = mockBakeriesStats.find(b => b.id === selectedBakeryId);
-    if (!bakery) return mockCumulativeData;
-    
+
+  const [campaignProspects, setCampaignProspects] = useState<CampaignProspectRow[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
+  const [bakeries, setBakeries] = useState<BakeryRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch live data
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      const [{ data: cpData }, { data: cData }, { data: bData }] = await Promise.all([
+        supabase
+          .from("campaign_prospects")
+          .select(`
+            id, status, current_step, created_at, last_sent_at, campaign_id,
+            prospect:prospects ( name, city, offer, bakery_id, category:prospect_categories(name) )
+          `),
+        supabase.from("campaigns").select("id, status, instantly_campaign_id, bakery_id"),
+        supabase.from("bakeries").select("id, name"),
+      ]);
+      if (cancelled) return;
+      setCampaignProspects((cpData ?? []) as unknown as CampaignProspectRow[]);
+      setCampaigns((cData ?? []) as CampaignRow[]);
+      setBakeries((bData ?? []) as BakeryRow[]);
+      setLoading(false);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Apply client-side filters (period + bakery)
+  const periodStart = useMemo(() => getPeriodStart(selectedPeriod), [selectedPeriod]);
+  const campaignBakeryMap = useMemo(() => {
+    const m = new Map<string, string | null>();
+    campaigns.forEach((c) => m.set(c.id, c.bakery_id));
+    return m;
+  }, [campaigns]);
+
+  const filteredProspects = useMemo(() => {
+    return campaignProspects.filter((cp) => {
+      const periodOk = !periodStart || (cp.last_sent_at ? new Date(cp.last_sent_at).getTime() >= periodStart.getTime() : false);
+      const bakeryId = cp.prospect?.bakery_id ?? campaignBakeryMap.get(cp.campaign_id ?? "") ?? null;
+      const bakeryOk = !selectedBakeryId || bakeryId === selectedBakeryId;
+      return periodOk && bakeryOk;
+    });
+  }, [campaignProspects, periodStart, selectedBakeryId, campaignBakeryMap]);
+
+  // Derived KPIs
+  const kpis = useMemo(() => {
+    const responses = filteredProspects.filter((cp) => cp.status === "replied").length;
+    const toContact = filteredProspects.filter((cp) => cp.status === "completed_no_reply").length;
+    const prospectsCount = filteredProspects.length;
+    const emails = filteredProspects.filter((cp) => (cp.current_step ?? -1) >= 0 && cp.last_sent_at).length;
+    const relances = filteredProspects.filter((cp) => (cp.current_step ?? 0) > 0).length;
+    return { responses, toContact, prospects: prospectsCount, emails, relances };
+  }, [filteredProspects]);
+
+  // Top responding categories
+  const topCategories = useMemo(() => {
+    const counts = filteredProspects
+      .filter((cp) => cp.status === "replied")
+      .reduce<Record<string, number>>((acc, cp) => {
+        const cat = cp.prospect?.category?.name ?? "Autre";
+        acc[cat] = (acc[cat] ?? 0) + 1;
+        return acc;
+      }, {});
+    return Object.entries(counts)
+      .map(([name, responses]) => ({ name, responses }))
+      .sort((a, b) => b.responses - a.responses);
+  }, [filteredProspects]);
+
+  // Offers (paniers)
+  const offers = useMemo(() => {
+    return Array.from(
+      new Set(
+        filteredProspects
+          .map((cp) => cp.prospect?.offer)
+          .filter((o): o is string => Boolean(o && o.trim()))
+      )
+    ).sort();
+  }, [filteredProspects]);
+
+  // Top-right pill counters
+  const totalBakeries = bakeries.length;
+  const activeCampaigns = campaigns.filter((c) => !!c.instantly_campaign_id).length;
+
+  // Build prospects for KPI panels
+  const buildDashboardProspect = (cp: CampaignProspectRow, status: "response" | "contacted"): DashboardProspect => {
+    const cat = mapCategoryType(cp.prospect?.category?.name);
+    const stageInfo = buildStage(cp.status, cp.current_step);
+    const city = cp.prospect?.city ?? "";
     return {
-      responsesReceived: bakery.responsesReceived,
-      emailsSent: bakery.emailsSent,
-      prospectsContacted: bakery.prospectsContacted,
-      responseRate: bakery.responseRate,
-      activeCampaigns: bakery.campaignActive ? 1 : 0,
-      totalBakeries: 1,
-      offers: bakery.offers,
-      topCategories: [
-        { name: "Restauration", responses: bakery.responsesReceived > 2 ? 2 : 1, color: "#F97316" },
-        { name: "Hébergement", responses: 1, color: "#8B5CF6" },
-      ],
+      id: cp.id,
+      name: cp.prospect?.name ?? "Prospect",
+      category: cat.id,
+      categoryLabel: cat.label,
+      stage: stageInfo.stage,
+      stageType: stageInfo.stageType,
+      currentStep: stageInfo.currentStep,
+      totalSteps: 5,
+      context: city ? `${cat.label} — ${city}` : cat.label,
+      offers: cp.prospect?.offer ? [cp.prospect.offer] : [],
+      lastSentDate: formatFrDate(cp.last_sent_at),
+      responseReceivedAt: null,
+      status,
     };
   };
-  
-  const data = getData();
-  
-  const filterOptions = [
+
+  const responseProspects = useMemo(
+    () => filteredProspects.filter((cp) => cp.status === "replied").map((cp) => buildDashboardProspect(cp, "response")),
+    [filteredProspects]
+  );
+  const toContactProspects = useMemo(
+    () => filteredProspects.filter((cp) => cp.status === "completed_no_reply").map((cp) => buildDashboardProspect(cp, "contacted")),
+    [filteredProspects]
+  );
+
+  const filterOptions: FilterOption[] = [
     { id: null, label: "Toutes mes boulangeries" },
-    ...mockBakeriesStats.map(b => ({ id: b.id, label: b.name })),
+    ...bakeries.map((b) => ({ id: b.id, label: b.name })),
   ];
+
+  const isEmpty = !loading && campaignProspects.length === 0 && campaigns.length === 0;
+
+  // Header sub-text
+  const headerToContact = kpis.responses; // "Nouvelles réponses à traiter"
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <Header notificationCount={data.responsesReceived} />
+      <Header notificationCount={headerToContact} />
 
       {/* Page title */}
       <div className="bg-card px-6 py-4 text-center">
@@ -306,15 +353,14 @@ const DashboardPage = () => {
               Aucune campagne active — <a href="/onboarding" className="underline hover:text-foreground transition-colors">lancez votre première prospection</a>
             </p>
           );
-          const toContactCount = dashboardMockProspects.filter(p => p.status === "response").length;
-          if (toContactCount > 0) return (
+          if (headerToContact > 0) return (
             <p className="text-sm text-success mt-0.5">
-              🎉 {toContactCount} nouvelle{toContactCount > 1 ? "s" : ""} réponse{toContactCount > 1 ? "s" : ""} à traiter
+              🎉 {headerToContact} nouvelle{headerToContact > 1 ? "s" : ""} réponse{headerToContact > 1 ? "s" : ""} à traiter
             </p>
           );
-          if (data.activeCampaigns > 0) return (
+          if (activeCampaigns > 0) return (
             <p className="text-sm text-primary mt-0.5">
-              Campagne en cours — {data.prospectsContacted} prospects contactés
+              Campagne en cours — {kpis.prospects} prospects contactés
             </p>
           );
           return (
@@ -329,24 +375,30 @@ const DashboardPage = () => {
         {isEmpty ? (
           <EmptyState />
         ) : (
-          <ActiveDashboard 
-            data={data} 
+          <ActiveDashboard
+            kpis={kpis}
+            topCategories={topCategories}
+            offers={offers}
+            totalBakeries={totalBakeries}
+            activeCampaigns={activeCampaigns}
             isOffersOpen={isOffersOpen}
             onToggleOffers={() => setIsOffersOpen(!isOffersOpen)}
             filterOptions={filterOptions}
             selectedBakeryId={selectedBakeryId}
             onBakeryChange={setSelectedBakeryId}
-            onBasketClick={(name) => setSelectedBasket(mockBasketDetails[name] || null)}
+            onBasketClick={(name) => setSelectedBasket(mockBasketDetails[name] || { name, items: [], tvaRate: 0.055 })}
             selectedPeriod={selectedPeriod}
             onPeriodChange={setSelectedPeriod}
             kpiSheetType={kpiSheetType}
             onKpiSheetChange={setKpiSheetType}
+            responseProspects={responseProspects}
+            toContactProspects={toContactProspects}
             onProspectClick={(prospect) => {
               const detail: ProspectDetail = {
                 id: prospect.id,
                 name: prospect.name,
                 category: prospect.category,
-                categoryLabel: prospect.category === "restauration" ? "Restaurant" : prospect.category === "hebergement" ? "Hôtel" : prospect.category === "education" ? "Lycée" : prospect.category === "entreprises" ? "Entreprise" : "Collectivité",
+                categoryLabel: prospect.categoryLabel,
                 hasResponse: prospect.status === "response",
                 currentStage: prospect.stage,
                 currentStageDate: prospect.lastSentDate,
@@ -404,7 +456,11 @@ interface FilterOption {
 }
 
 interface ActiveDashboardProps {
-  data: DashboardData;
+  kpis: { responses: number; toContact: number; prospects: number; emails: number; relances: number };
+  topCategories: { name: string; responses: number }[];
+  offers: string[];
+  totalBakeries: number;
+  activeCampaigns: number;
   isOffersOpen: boolean;
   onToggleOffers: () => void;
   filterOptions: FilterOption[];
@@ -415,38 +471,18 @@ interface ActiveDashboardProps {
   onPeriodChange: (period: DashboardPeriodFilter) => void;
   kpiSheetType: "responses" | "contacted" | null;
   onKpiSheetChange: (type: "responses" | "contacted" | null) => void;
+  responseProspects: DashboardProspect[];
+  toContactProspects: DashboardProspect[];
   onProspectClick: (prospect: DashboardProspect) => void;
 }
 
-// Mock prospect data for KPI BottomSheets
-interface DashboardProspect {
-  id: string;
-  name: string;
-  category: CategoryType;
-  stage: string;
-  stageType: StageType;
-  currentStep: number;
-  totalSteps: number;
-  context: string;
-  offers: string[];
-  lastSentDate: string;
-  responseReceivedAt?: string | null;
-  status: "response" | "contacted";
-}
-
-const dashboardMockProspects: DashboardProspect[] = [
-  { id: "d1", name: "Restaurant Le Gourmet", category: "restauration", stage: "Réponse reçue", stageType: "response", currentStep: 3, totalSteps: 5, context: "Restaurant — Orléans, à 0.9 km", offers: ["Petit-déjeuner", "Traiteur"], lastSentDate: "05 fév. 2026", responseReceivedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), status: "response" },
-  { id: "d2", name: "Hôtel & Spa Le Majestic", category: "hebergement", stage: "Réponse reçue", stageType: "response", currentStep: 2, totalSteps: 5, context: "Hôtel — Orléans, à 1.4 km", offers: ["Viennoiseries", "Petit-déjeuner"], lastSentDate: "02 fév. 2026", responseReceivedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), status: "response" },
-  { id: "d3", name: "TechCorp Solutions", category: "entreprises", stage: "Réponse reçue", stageType: "response", currentStep: 4, totalSteps: 5, context: "Entreprise — Orléans, à 1.8 km", offers: ["Traiteur", "Goûter"], lastSentDate: "01 fév. 2026", responseReceivedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), status: "response" },
-  { id: "d4", name: "Lycée Jean Moulin", category: "education", stage: "Réponse reçue", stageType: "response", currentStep: 3, totalSteps: 5, context: "Lycée — Orléans, à 1.2 km", offers: ["Pain bio"], lastSentDate: "30 jan. 2026", responseReceivedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), status: "response" },
-  { id: "d5", name: "Bistrot du Marché", category: "restauration", stage: "Contacté", stageType: "relance", currentStep: 3, totalSteps: 5, context: "Bistrot — Orléans, à 0.8 km", offers: ["Petit-déjeuner", "Déjeuner"], lastSentDate: "28 jan. 2026", status: "contacted" },
-  { id: "d6", name: "Coworking L'Atelier", category: "entreprises", stage: "Contacté", stageType: "relance", currentStep: 2, totalSteps: 5, context: "Coworking — Orléans, à 0.4 km", offers: ["Petit-déjeuner"], lastSentDate: "25 jan. 2026", status: "contacted" },
-  { id: "d7", name: "Mairie d'Orléans", category: "collectivites", stage: "Contacté", stageType: "relance", currentStep: 1, totalSteps: 5, context: "Mairie — Orléans, à 0.6 km", offers: ["Événementiel"], lastSentDate: "22 jan. 2026", status: "contacted" },
-];
-
-const ActiveDashboard: React.FC<ActiveDashboardProps> = ({ 
-  data, 
-  isOffersOpen, 
+const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
+  kpis,
+  topCategories,
+  offers,
+  totalBakeries,
+  activeCampaigns,
+  isOffersOpen,
   onToggleOffers,
   filterOptions,
   selectedBakeryId,
@@ -456,14 +492,12 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
   onPeriodChange,
   kpiSheetType,
   onKpiSheetChange,
+  responseProspects,
+  toContactProspects,
   onProspectClick,
 }) => {
-  const selectedBakery = filterOptions.find(o => o.id === selectedBakeryId && o.id !== null);
-  
-  const responseProspects = dashboardMockProspects.filter(p => p.status === "response");
-  const toContactProspects = dashboardMockProspects.filter(p => p.status === "response");
-  // "contacted" are those already handled — we show the ones still TO contact
-  
+  const selectedBakery = filterOptions.find((o) => o.id === selectedBakeryId && o.id !== null);
+
   return (
     <div className="space-y-6">
       {/* KPI Section */}
@@ -502,7 +536,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               >
                 Toutes les boulangeries
               </DropdownMenuItem>
-              {filterOptions.filter(o => o.id !== null).map((option) => (
+              {filterOptions.filter((o) => o.id !== null).map((option) => (
                 <DropdownMenuItem
                   key={option.id}
                   onClick={() => onBakeryChange(option.id)}
@@ -516,83 +550,79 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
         </div>
 
         {/* KPI Cards */}
-        {(() => {
-          const kpis = getDashboardKpis(selectedBakeryId, selectedPeriod);
-          return (
-            <div className="space-y-3">
-              {/* Zone 1 — White clickable KPI cards */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => onKpiSheetChange("responses")}
-                  className="flex items-center rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-success bg-success/5"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-2xl font-bold text-foreground">{kpis.responses}</p>
-                    <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Réponses reçues</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-success rotate-[-90deg] flex-shrink-0" />
-                </button>
-
-                <button
-                  onClick={() => onKpiSheetChange("contacted")}
-                  className="flex items-center rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-amber-accent bg-[hsl(var(--amber-accent)/0.05)]"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-2xl font-bold text-foreground">{toContactProspects.length}</p>
-                    <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Encore à contacter</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-amber-accent rotate-[-90deg] flex-shrink-0" />
-                </button>
+        <div className="space-y-3">
+          {/* Zone 1 — Clickable KPI cards */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => onKpiSheetChange("responses")}
+              className="flex items-center rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-success bg-success/5"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-2xl font-bold text-foreground">{kpis.responses}</p>
+                <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Réponses reçues</p>
               </div>
+              <ChevronDown className="h-4 w-4 text-success rotate-[-90deg] flex-shrink-0" />
+            </button>
 
-              {/* Zone 2 — Blue card */}
-              <div className="bg-primary rounded-xl px-2 py-3 text-primary-foreground -mx-1">
-                <div className="flex items-stretch justify-between">
-                  <div className="flex flex-col items-center justify-center flex-1">
-                    <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Nouveaux prospects</span>
-                    <span className="text-[28px] leading-tight font-bold">{kpis.prospects}</span>
-                  </div>
-                  <div className="w-px bg-primary-foreground/30 self-stretch" />
-                  <div className="flex flex-col items-center justify-center flex-1">
-                    <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Emails envoyés</span>
-                    <span className="text-[28px] leading-tight font-bold">{kpis.emails}</span>
-                  </div>
-                  <div className="w-px bg-primary-foreground/30 self-stretch" />
-                  <div className="flex flex-col items-center justify-center flex-1">
-                    <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Relances</span>
-                    <span className="text-[28px] leading-tight font-bold">{kpis.relances}</span>
-                  </div>
-                </div>
+            <button
+              onClick={() => onKpiSheetChange("contacted")}
+              className="flex items-center rounded-xl border border-border shadow-sm p-4 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer group border-l-4 border-l-amber-accent bg-[hsl(var(--amber-accent)/0.05)]"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-2xl font-bold text-foreground">{kpis.toContact}</p>
+                <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Encore à contacter</p>
+              </div>
+              <ChevronDown className="h-4 w-4 text-amber-accent rotate-[-90deg] flex-shrink-0" />
+            </button>
+          </div>
+
+          {/* Zone 2 — Blue card */}
+          <div className="bg-primary rounded-xl px-2 py-3 text-primary-foreground -mx-1">
+            <div className="flex items-stretch justify-between">
+              <div className="flex flex-col items-center justify-center flex-1">
+                <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Nouveaux prospects</span>
+                <span className="text-[28px] leading-tight font-bold">{kpis.prospects}</span>
+              </div>
+              <div className="w-px bg-primary-foreground/30 self-stretch" />
+              <div className="flex flex-col items-center justify-center flex-1">
+                <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Emails envoyés</span>
+                <span className="text-[28px] leading-tight font-bold">{kpis.emails}</span>
+              </div>
+              <div className="w-px bg-primary-foreground/30 self-stretch" />
+              <div className="flex flex-col items-center justify-center flex-1">
+                <span className="text-[11px] text-primary-foreground/70 whitespace-nowrap mb-0.5">Relances</span>
+                <span className="text-[28px] leading-tight font-bold">{kpis.relances}</span>
               </div>
             </div>
-          );
-        })()}
+          </div>
+        </div>
       </div>
 
       {/* === Desktop: 2-column grid / Mobile: single column === */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
         <div className="md:col-span-7 space-y-5">
           {/* Top Responding Categories */}
-          {data.topCategories.length > 0 && (
+          {topCategories.length > 0 && (
             <div className="bg-card rounded-xl shadow-sm border border-border p-4">
               <h3 className="font-medium text-foreground mb-3 text-sm">Catégories qui ont le plus répondu</h3>
               <div className="space-y-3">
-                {data.topCategories.map((category) => {
-                  const maxResponses = Math.max(...data.topCategories.map(c => c.responses));
+                {topCategories.map((category) => {
+                  const maxResponses = Math.max(...topCategories.map((c) => c.responses));
                   const barWidth = maxResponses > 0 ? (category.responses / maxResponses) * 100 : 0;
                   return (
                     <div key={category.name} className="space-y-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          {(() => { const CatIcon = categoryLucideMap[category.name]; return CatIcon ? <CatIcon className="h-3.5 w-3.5 text-muted-foreground" /> : null; })()}
+                          {(() => {
+                            const CatIcon = categoryLucideMap[category.name];
+                            return CatIcon ? <CatIcon className="h-3.5 w-3.5 text-muted-foreground" /> : null;
+                          })()}
                           <span className="text-sm text-foreground">{category.name}</span>
                         </div>
-                        <span className="text-sm font-semibold text-foreground">
-                          {category.responses}
-                        </span>
+                        <span className="text-sm font-semibold text-foreground">{category.responses}</span>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden ml-[18px]">
-                        <div 
+                        <div
                           className="h-full rounded-full transition-all duration-500 bg-primary"
                           style={{ width: `${barWidth}%` }}
                         />
@@ -611,11 +641,11 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
               <Store className="h-3.5 w-3.5" />
-              {data.totalBakeries} boulangerie{data.totalBakeries > 1 ? 's' : ''}
+              {totalBakeries} boulangerie{totalBakeries > 1 ? 's' : ''}
             </span>
-            {data.activeCampaigns > 0 ? (
+            {activeCampaigns > 0 ? (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success/10 text-success">
-                {data.activeCampaigns} campagne{data.activeCampaigns > 1 ? 's' : ''} active{data.activeCampaigns > 1 ? 's' : ''}
+                {activeCampaigns} campagne{activeCampaigns > 1 ? 's' : ''} active{activeCampaigns > 1 ? 's' : ''}
               </span>
             ) : (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
@@ -624,7 +654,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
             )}
           </div>
 
-          {data.offers.length > 0 && (
+          {offers.length > 0 && (
             <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
               <button
                 onClick={onToggleOffers}
@@ -637,10 +667,10 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 )}
               </button>
-              
+
               {isOffersOpen && (
                 <div className="px-4 pb-3 space-y-2">
-                  {data.offers.map((offer) => (
+                  {offers.map((offer) => (
                     <button
                       key={offer}
                       onClick={() => onBasketClick(offer)}
@@ -653,7 +683,7 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
                       <ChevronDown className="h-4 w-4 text-primary/60 -rotate-90 transition-transform group-hover:translate-x-0.5" />
                     </button>
                   ))}
-                  
+
                   {/* Contact Hogust CTA */}
                   <div className="pt-2 border-t border-border mt-2">
                     <button className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-primary hover:bg-primary/5 transition-colors">
@@ -687,8 +717,15 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
               context={prospect.context}
               offers={prospect.offers}
               lastSentDate={prospect.lastSentDate}
-              isNew={(() => { if (!prospect.responseReceivedAt) return false; const d = new Date(prospect.responseReceivedAt); return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000; })()}
-              onClick={() => { onKpiSheetChange(null); onProspectClick(prospect); }}
+              isNew={(() => {
+                if (!prospect.responseReceivedAt) return false;
+                const d = new Date(prospect.responseReceivedAt);
+                return Date.now() - d.getTime() < 7 * 24 * 60 * 60 * 1000;
+              })()}
+              onClick={() => {
+                onKpiSheetChange(null);
+                onProspectClick(prospect);
+              }}
             />
           ))}
           {(kpiSheetType === "responses" ? responseProspects : toContactProspects).length === 0 && (
@@ -699,21 +736,6 @@ const ActiveDashboard: React.FC<ActiveDashboardProps> = ({
     </div>
   );
 };
-
-// KPI Card Component
-interface KpiCardProps {
-  value: string;
-  label: string;
-  icon: React.ElementType;
-}
-
-const KpiCard: React.FC<KpiCardProps> = ({ value, label, icon: Icon }) => (
-  <div className="bg-card rounded-xl p-4 shadow-sm border border-border text-center">
-    <Icon className="h-5 w-5 text-primary mx-auto mb-2" />
-    <p className="text-xl font-bold text-foreground">{value}</p>
-    <p className="text-xs text-muted-foreground leading-tight">{label}</p>
-  </div>
-);
 
 // Basket Detail Content
 const BasketDetailContent: React.FC<{ basket: BasketDetail }> = ({ basket }) => {
@@ -731,19 +753,23 @@ const BasketDetailContent: React.FC<{ basket: BasketDetail }> = ({ basket }) => 
       </div>
 
       {/* Items */}
-      <div className="space-y-0 border border-border rounded-xl overflow-hidden">
-        {basket.items.map((item, i) => (
-          <div
-            key={item.name}
-            className={cn(
-              "px-3 py-2.5 text-sm",
-              i % 2 === 0 ? "bg-card" : "bg-muted/20"
-            )}
-          >
-            <span className="text-foreground font-medium">{item.name}</span>
-          </div>
-        ))}
-      </div>
+      {basket.items.length > 0 ? (
+        <div className="space-y-0 border border-border rounded-xl overflow-hidden">
+          {basket.items.map((item, i) => (
+            <div
+              key={item.name}
+              className={cn(
+                "px-3 py-2.5 text-sm",
+                i % 2 === 0 ? "bg-card" : "bg-muted/20"
+              )}
+            >
+              <span className="text-foreground font-medium">{item.name}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">Détails du panier non disponibles.</p>
+      )}
     </div>
   );
 };
