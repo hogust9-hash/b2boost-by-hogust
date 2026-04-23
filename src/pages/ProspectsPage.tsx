@@ -360,7 +360,7 @@ const ProspectsPage = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[160px]">
               <DropdownMenuItem onClick={() => setCardFilter("all")} className={cn("cursor-pointer text-sm", cardFilter === "all" && "bg-primary/10 text-primary font-medium")}>
-                Toutes mes cfichs
+                Toutes mes fiches
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setCardFilter("todo")} className={cn("cursor-pointer text-sm", cardFilter === "todo" && "bg-primary/10 text-primary font-medium")}>
                 Ma to-do
