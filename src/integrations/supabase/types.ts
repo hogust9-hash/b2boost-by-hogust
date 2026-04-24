@@ -506,6 +506,51 @@ export type Database = {
         }
         Relationships: []
       }
+      prospect_messages: {
+        Row: {
+          body: string | null
+          campaign_id: string | null
+          created_at: string | null
+          id: string
+          prospect_id: string | null
+          step_number: number
+          subject: string | null
+        }
+        Insert: {
+          body?: string | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string
+          prospect_id?: string | null
+          step_number: number
+          subject?: string | null
+        }
+        Update: {
+          body?: string | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string
+          prospect_id?: string | null
+          step_number?: number
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_messages_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospect_messages_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prospects: {
         Row: {
           address: string | null
