@@ -199,6 +199,7 @@ const ProspectsPage = () => {
     const detail: ProspectDetail = {
       id: prospect.id,
       campaignId: prospect.campaignId,
+      prospectId: prospect.prospectId,
       name: prospect.name,
       category: prospect.category,
       categoryLabel: prospect.categoryLabel,
@@ -206,6 +207,7 @@ const ProspectsPage = () => {
       currentStage: prospect.stage,
       currentStageDate: prospect.lastSentDate,
       totalStages: 5,
+      currentStep: prospect.campaignCurrentStep,
       completedStages: prospect.status === "finished" ? 5 : 
                        prospect.stage.includes("3") ? 4 :
                        prospect.stage.includes("2") ? 3 :
