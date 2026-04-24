@@ -7,6 +7,7 @@ import type { StageType } from "@/components/ProspectCard";
 
 export interface CampaignProspect {
   id: string;
+  campaignId: string;
   name: string;
   category: CategoryType;
   categoryLabel: string;
@@ -76,7 +77,7 @@ export const useCampaignProspects = () => {
       const { data, error } = await supabase
         .from("campaign_prospects")
         .select(`
-          id, status, current_step, last_sent_at, replied_at,
+          id, campaign_id, status, current_step, last_sent_at, replied_at,
           campaign:campaigns ( bakery_id ),
           prospect:prospects ( name, city, offer, category_id, category:prospect_categories(name) )
         `);
@@ -100,6 +101,7 @@ export const useCampaignProspects = () => {
         const bakeryId = row.campaign?.bakery_id ?? null;
         return {
           id: row.id,
+          campaignId: row.campaign_id,
           name: p?.name ?? "Prospect",
           category: cat.id,
           categoryLabel: cat.label,
