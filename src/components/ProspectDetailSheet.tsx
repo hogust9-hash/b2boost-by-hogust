@@ -1,9 +1,10 @@
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BottomSheet } from "./ui/bottom-sheet";
 import { BadgeCategory, CategoryType } from "./ui/badge-category";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Mail,
   ExternalLink, 
@@ -25,6 +26,7 @@ interface EmailHistoryItem {
 
 interface ProspectDetail {
   id: string;
+  campaignId: string;
   name: string;
   category: CategoryType;
   categoryLabel: string;
@@ -36,6 +38,12 @@ interface ProspectDetail {
   emailHistory: EmailHistoryItem[];
 }
 
+interface CampaignMessage {
+  step_number: number;
+  subject: string | null;
+  body: string | null;
+}
+
 interface ProspectDetailSheetProps {
   isOpen: boolean;
   onClose: () => void;
@@ -44,49 +52,15 @@ interface ProspectDetailSheetProps {
   onToggleCalled?: () => void;
 }
 
-// Full email sequence template — step 1 = email initial, steps 2-5 = relances 1-4
-const allEmails: EmailHistoryItem[] = [
-  {
-    id: "1",
-    date: "13/01/2026",
-    type: "Email initial",
-    subject: "Partenariat boulanger pour votre établissement",
-    body: `Bonjour,\n\nJe suis artisan boulanger à Paris 11 et je propose un service de livraison quotidienne de pain frais pour les professionnels du quartier.\n\nNotre boulangerie utilise des farines locales et des méthodes traditionnelles pour te garantir un pain de qualité.\n\nJe serais ravi d'échanger avec toi sur tes besoins.\n\nCordialement,\nJean Dupont\nBoulangerie du Centre`,
-    sent: true,
-  },
-  {
-    id: "2",
-    date: "20/01/2026",
-    type: "Relance 1",
-    subject: "Du pain frais pour ton établissement ?",
-    body: `Bonjour,\n\nJe me permets de te recontacter suite à mon premier email concernant notre service de livraison de pain artisanal.\n\nNous travaillons avec plusieurs établissements de ton quartier et serions ravis de te compter parmi nos partenaires.\n\nÀ bientôt,\nTon boulanger`,
-    sent: true,
-  },
-  {
-    id: "3",
-    date: "27/01/2026",
-    type: "Relance 2",
-    subject: "Une dégustation gratuite pour ton équipe ?",
-    body: `Bonjour,\n\nSuite à mon précédent message, je souhaitais te proposer une dégustation gratuite de nos produits pour ton équipe.\n\nNotre gamme comprend des viennoiseries fraîches, du pain bio et des spécialités régionales.\n\nN'hésite pas à me contacter pour organiser cette dégustation.\n\nBien cordialement,\nTon boulanger`,
-    sent: true,
-  },
-  {
-    id: "4",
-    date: "03/02/2026",
-    type: "Relance 3",
-    subject: "Toujours partant pour du pain frais ?",
-    body: `Bonjour,\n\nJe me permets de te recontacter concernant notre offre de pain artisanal pour ton établissement.\n\nNous proposons des livraisons quotidiennes avant 7h, avec une large gamme de pains traditionnels et spéciaux.\n\nSerais-tu disponible pour un essai gratuit cette semaine ?\n\nCordialement,\nTon boulanger de quartier`,
-    sent: true,
-  },
-  {
-    id: "5",
-    date: "10/02/2026",
-    type: "Relance 4",
-    subject: "On se rencontre pour en discuter ?",
-    body: `Bonjour,\n\nJe reviens vers toi une dernière fois pour te proposer un rendez-vous rapide.\n\nCordialement,\nTon boulanger`,
-    sent: true,
-  },
-];
+const formatFrDate = (iso: string | null | undefined): string => {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+};
+
+const getEmailType = (step: number | null): string => {
+  if (!step || step <= 1) return "Email initial";
+  return `Relance ${step - 1}`;
+};
 
 const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
   isOpen,
