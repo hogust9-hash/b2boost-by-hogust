@@ -178,6 +178,7 @@ interface BakeryRow {
 // Prospect for KPI BottomSheet
 interface DashboardProspect {
   id: string;
+  campaignId: string;
   name: string;
   category: CategoryType;
   categoryLabel: string;
@@ -306,6 +307,7 @@ const DashboardPage = () => {
     const city = cp.prospect?.city ?? "";
     return {
       id: cp.id,
+      campaignId: cp.campaign_id ?? "",
       name: cp.prospect?.name ?? "Prospect",
       category: cat.id,
       categoryLabel: cat.label,
@@ -396,6 +398,7 @@ const DashboardPage = () => {
             onProspectClick={(prospect) => {
               const detail: ProspectDetail = {
                 id: prospect.id,
+                campaignId: prospect.campaignId,
                 name: prospect.name,
                 category: prospect.category,
                 categoryLabel: prospect.categoryLabel,

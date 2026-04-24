@@ -198,6 +198,7 @@ const ProspectsPage = () => {
   const handleCardClick = (prospect: Prospect) => {
     const detail: ProspectDetail = {
       id: prospect.id,
+      campaignId: prospect.campaignId,
       name: prospect.name,
       category: prospect.category,
       categoryLabel: prospect.categoryLabel,
