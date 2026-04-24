@@ -311,12 +311,14 @@ const DashboardPage = () => {
     return {
       id: cp.id,
       campaignId: cp.campaign_id ?? "",
+      prospectId: cp.prospect_id ?? "",
       name: cp.prospect?.name ?? "Prospect",
       category: cat.id,
       categoryLabel: cat.label,
       stage: stageInfo.stage,
       stageType: stageInfo.stageType,
       currentStep: stageInfo.currentStep,
+      campaignCurrentStep: cp.current_step ?? 0,
       totalSteps: 5,
       context: city ? `${cat.label} — ${city}` : cat.label,
       offers: cp.prospect?.offer ? [cp.prospect.offer] : [],
@@ -402,6 +404,7 @@ const DashboardPage = () => {
               const detail: ProspectDetail = {
                 id: prospect.id,
                 campaignId: prospect.campaignId,
+                prospectId: prospect.prospectId,
                 name: prospect.name,
                 category: prospect.category,
                 categoryLabel: prospect.categoryLabel,
@@ -410,6 +413,7 @@ const DashboardPage = () => {
                 currentStageDate: prospect.lastSentDate,
                 totalStages: prospect.totalSteps,
                 completedStages: prospect.currentStep,
+                currentStep: prospect.campaignCurrentStep,
                 emailHistory: [],
               };
               setSelectedProspect(detail);
