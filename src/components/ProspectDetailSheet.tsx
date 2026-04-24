@@ -70,6 +70,47 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
   onToggleCalled,
 }) => {
   const [expandedEmails, setExpandedEmails] = useState<string[]>([]);
+  const [sentEmails, setSentEmails] = useState<EmailHistoryItem[]>([]);
+  const [nextMessage, setNextMessage] = useState<CampaignMessage | null>(null);
+
+  useEffect(() => {
+    if (!prospect || !isOpen) return;
+
+    let cancelled = false;
+    const loadProspectMessages = async () => {
+      const [{ data: events }, { data: nextMessage }] = await Promise.all([
+        supabase
+          .from("email_events")
+          .select("event_type, step_number, subject, occurred_at")
+          .eq("campaign_prospect_id", prospect.id)
+          .order("occurred_at", { ascending: true }),
+        supabase
+          .from("campaign_messages")
+          .select("step_number, subject, body")
+          .eq("campaign_id", prospect.campaignId)
+          .eq("step_number", prospect.completedStages + 1)
+          .single(),
+      ]);
+
+      if (cancelled) return;
+      setSentEmails(
+        (events ?? [])
+          .map((event: any, index) => ({
+            id: `${event.event_type}-${event.step_number ?? index}-${event.occurred_at}`,
+            date: formatFrDate(event.occurred_at),
+            type: getEmailType(event.step_number),
+            subject: event.subject ?? "Sans objet",
+            body: "",
+            sent: true,
+          }))
+          .reverse()
+      );
+      setNextMessage((nextMessage as CampaignMessage | null) ?? null);
+    };
+
+    loadProspectMessages();
+    return () => { cancelled = true; };
+  }, [isOpen, prospect]);
 
   if (!prospect) return null;
 
@@ -81,11 +122,14 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
     );
   };
 
-  // Dynamic split based on completedStages
-  // completedStages = number of emails sent (email initial counts as 1)
-  const sentEmails = allEmails.slice(0, prospect.completedStages).reverse(); // most recent first
-  const nextEmail = prospect.completedStages < prospect.totalStages
-    ? allEmails[prospect.completedStages]
+  const nextEmail = nextMessage
+    ? {
+        id: String(nextMessage.step_number),
+        type: getEmailType(nextMessage.step_number),
+        date: "date planifiée par la campagne",
+        subject: nextMessage.subject ?? "Sans objet",
+        body: nextMessage.body ?? "",
+      }
     : null;
 
   return (
