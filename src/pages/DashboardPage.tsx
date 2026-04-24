@@ -149,6 +149,7 @@ const getPeriodStart = (period: DashboardPeriodFilter): Date | null => {
 // Live row from Supabase
 interface CampaignProspectRow {
   id: string;
+  prospect_id?: string | null;
   status: string;
   current_step: number | null;
   created_at: string | null;
@@ -179,12 +180,14 @@ interface BakeryRow {
 interface DashboardProspect {
   id: string;
   campaignId: string;
+  prospectId: string;
   name: string;
   category: CategoryType;
   categoryLabel: string;
   stage: string;
   stageType: StageType;
   currentStep: number;
+  campaignCurrentStep: number;
   totalSteps: number;
   context: string;
   offers: string[];
@@ -228,7 +231,7 @@ const DashboardPage = () => {
         supabase
           .from("campaign_prospects")
           .select(`
-            id, status, current_step, created_at, last_sent_at, campaign_id,
+            id, prospect_id, status, current_step, created_at, last_sent_at, campaign_id,
             prospect:prospects ( name, city, offer, bakery_id, category:prospect_categories(name) )
           `),
         supabase.from("campaigns").select("id, status, instantly_campaign_id, bakery_id"),
