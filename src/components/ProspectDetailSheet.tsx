@@ -134,7 +134,7 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
-      <div className="px-4 pb-24">
+      <div className="px-4 pb-6">
         {/* Response Banner */}
         {prospect.hasResponse && (
           <div className="bg-success/10 border border-success/20 rounded-lg p-3 mb-4 flex items-center gap-2">
@@ -223,9 +223,6 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
           </div>
         )}
 
-        {/* Spacer for sticky button */}
-        {onToggleCalled && !prospect.hasResponse && <div className="h-20" />}
-
         {/* Next Email */}
         {nextEmail && (
           <div className="mb-6">
@@ -268,7 +265,7 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
 
         {/* Sent Emails Timeline */}
         {sentEmails.length > 0 && (
-          <div>
+          <div className="mb-6">
             <h3 className="font-semibold text-foreground mb-4">Emails envoyés</h3>
             
             <div className="relative">
@@ -330,49 +327,49 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
             </div>
           </div>
         )}
-      </div>
 
-      {/* Fixed CTA for responses */}
-      {prospect.hasResponse && (
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 pb-safe">
-          <Button fullWidth size="lg">
-            <ExternalLink className="h-5 w-5" />
-            Consulter la réponse dans ma boîte mail
-          </Button>
-        </div>
-      )}
+        {/* CTA for responses */}
+        {prospect.hasResponse && (
+          <div className="sticky bottom-0 -mx-4 mt-6 bg-card border-t border-border p-4 pb-safe">
+            <Button fullWidth size="lg">
+              <ExternalLink className="h-5 w-5" />
+              Consulter la réponse dans ma boîte mail
+            </Button>
+          </div>
+        )}
 
-      {/* Sticky called button */}
-      {onToggleCalled && !prospect.hasResponse && (
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 pb-safe">
-          <button
-            onClick={onToggleCalled}
-            className={cn(
-              "w-full flex flex-col items-center gap-1 py-3.5 rounded-full border-2 transition-all",
-              isCalled
-                ? "bg-success/10 border-success text-success"
-                : "bg-card border-primary text-primary hover:bg-primary/5"
-            )}
-          >
-            <span className="flex items-center gap-2 text-sm font-medium">
-              {isCalled ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4" />
-                  Contacté et répondu ✓
-                </>
-              ) : (
-              <>
-                <Square className="h-4 w-4" />
-                J'ai été contacté et j'ai bien répondu
-              </>
+        {/* Called button */}
+        {onToggleCalled && !prospect.hasResponse && (
+          <div className="sticky bottom-0 -mx-4 mt-6 bg-card border-t border-border p-4 pb-safe">
+            <button
+              onClick={onToggleCalled}
+              className={cn(
+                "w-full flex flex-col items-center gap-1 py-3.5 rounded-full border-2 transition-all",
+                isCalled
+                  ? "bg-success/10 border-success text-success"
+                  : "bg-card border-primary text-primary hover:bg-primary/5"
               )}
-            </span>
-            {!isCalled && (
-              <span className="text-xs text-muted-foreground">Le prospect passera dans "Réponses reçues"</span>
-            )}
-          </button>
-        </div>
-      )}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium">
+                {isCalled ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    Contacté et répondu ✓
+                  </>
+                ) : (
+                  <>
+                    <Square className="h-4 w-4" />
+                    J'ai été contacté et j'ai bien répondu
+                  </>
+                )}
+              </span>
+              {!isCalled && (
+                <span className="text-xs text-muted-foreground">Le prospect passera dans "Réponses reçues"</span>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
     </BottomSheet>
   );
 };
