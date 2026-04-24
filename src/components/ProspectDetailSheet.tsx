@@ -60,7 +60,8 @@ const formatFrDate = (iso: string | null | undefined): string => {
 };
 
 const getEmailType = (step: number | null): string => {
-  if (!step || step <= 1) return "Email initial";
+  if (!step || step <= 1) return "Premier contact";
+  if (step === 5) return "Dernier message";
   return `Relance ${step - 1}`;
 };
 
