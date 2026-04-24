@@ -27,6 +27,7 @@ interface EmailHistoryItem {
 interface ProspectDetail {
   id: string;
   campaignId: string;
+  prospectId: string;
   name: string;
   category: CategoryType;
   categoryLabel: string;
@@ -35,10 +36,11 @@ interface ProspectDetail {
   currentStageDate: string;
   totalStages: number;
   completedStages: number;
+  currentStep: number;
   emailHistory: EmailHistoryItem[];
 }
 
-interface CampaignMessage {
+interface ProspectMessage {
   step_number: number;
   subject: string | null;
   body: string | null;
@@ -71,7 +73,7 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
 }) => {
   const [expandedEmails, setExpandedEmails] = useState<string[]>([]);
   const [sentEmails, setSentEmails] = useState<EmailHistoryItem[]>([]);
-  const [nextMessage, setNextMessage] = useState<CampaignMessage | null>(null);
+  const [nextMessage, setNextMessage] = useState<ProspectMessage | null>(null);
 
   useEffect(() => {
     if (!prospect || !isOpen) return;
@@ -85,18 +87,20 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
           .eq("campaign_prospect_id", prospect.id)
           .order("occurred_at", { ascending: true }),
         supabase
-          .from("campaign_messages")
+          .from("prospect_messages")
           .select("step_number, subject, body")
+          .eq("prospect_id", prospect.prospectId)
           .eq("campaign_id", prospect.campaignId)
           .order("step_number", { ascending: true }),
       ]);
 
       if (cancelled) return;
-      const campaignMessages = (messages ?? []) as CampaignMessage[];
+      const prospectMessages = (messages ?? []) as ProspectMessage[];
       setSentEmails(
         (events ?? [])
           .map((event: any, index) => {
-            const message = campaignMessages.find((m) => m.step_number === event.step_number);
+            const messageStep = event.step_number ?? 0;
+            const message = prospectMessages.find((m) => m.step_number === messageStep);
             return {
               id: `${event.event_type}-${event.step_number ?? index}-${event.occurred_at}`,
               date: formatFrDate(event.occurred_at),
@@ -108,7 +112,7 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
           })
           .reverse()
       );
-      setNextMessage(campaignMessages.find((message) => message.step_number === prospect.completedStages + 1) ?? null);
+      setNextMessage(prospectMessages.find((message) => message.step_number === prospect.currentStep + 1) ?? null);
     };
 
     loadProspectMessages();
