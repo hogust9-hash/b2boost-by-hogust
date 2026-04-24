@@ -78,7 +78,7 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
 
     let cancelled = false;
     const loadProspectMessages = async () => {
-      const [{ data: events }, { data: nextMessage }] = await Promise.all([
+      const [{ data: events }, { data: messages }] = await Promise.all([
         supabase
           .from("email_events")
           .select("event_type, step_number, subject, occurred_at")
@@ -88,24 +88,27 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
           .from("campaign_messages")
           .select("step_number, subject, body")
           .eq("campaign_id", prospect.campaignId)
-          .eq("step_number", prospect.completedStages + 1)
-          .single(),
+          .order("step_number", { ascending: true }),
       ]);
 
       if (cancelled) return;
+      const campaignMessages = (messages ?? []) as CampaignMessage[];
       setSentEmails(
         (events ?? [])
-          .map((event: any, index) => ({
-            id: `${event.event_type}-${event.step_number ?? index}-${event.occurred_at}`,
-            date: formatFrDate(event.occurred_at),
-            type: getEmailType(event.step_number),
-            subject: event.subject ?? "Sans objet",
-            body: "",
-            sent: true,
-          }))
+          .map((event: any, index) => {
+            const message = campaignMessages.find((m) => m.step_number === event.step_number);
+            return {
+              id: `${event.event_type}-${event.step_number ?? index}-${event.occurred_at}`,
+              date: formatFrDate(event.occurred_at),
+              type: getEmailType(event.step_number),
+              subject: event.subject ?? message?.subject ?? "Sans objet",
+              body: message?.body ?? "",
+              sent: true,
+            };
+          })
           .reverse()
       );
-      setNextMessage((nextMessage as CampaignMessage | null) ?? null);
+      setNextMessage(campaignMessages.find((message) => message.step_number === prospect.completedStages + 1) ?? null);
     };
 
     loadProspectMessages();
