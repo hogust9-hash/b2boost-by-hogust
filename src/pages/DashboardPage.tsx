@@ -198,14 +198,22 @@ interface DashboardProspect {
 
 const buildStage = (status: string, currentStep: number | null): { stage: string; stageType: StageType; currentStep: number } => {
   const step = currentStep ?? 0;
+  const stepLabels: Record<number, string> = {
+    0: "Premier contact",
+    1: "Premier contact",
+    2: "Relance 1",
+    3: "Relance 2",
+    4: "Relance 3",
+    5: "Dernier message",
+  };
   if (status === "replied") {
     return { stage: "Réponse reçue", stageType: "response", currentStep: Math.max(step, 1) };
   }
   if (status === "completed_no_reply" || status === "finished") {
     return { stage: "Terminé", stageType: "finished", currentStep: 5 };
   }
-  if (step === 0) return { stage: "Email initial", stageType: "initial", currentStep: 1 };
-  return { stage: `Relance ${step}/5`, stageType: "relance", currentStep: step };
+  if (step <= 1) return { stage: stepLabels[step], stageType: "initial", currentStep: 1 };
+  return { stage: stepLabels[step] ?? `Relance ${step - 1}`, stageType: "relance", currentStep: step };
 };
 
 const DashboardPage = () => {
