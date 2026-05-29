@@ -198,7 +198,7 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
             <Mail className={cn("h-5 w-5", prospect.hasResponse ? "text-success" : "text-primary")} />
             <div>
               <p className="font-medium text-foreground">
-                {prospect.hasResponse ? "Réponse reçue !!" : getSentStageLabel(prospect.currentStage)}
+                {prospect.hasResponse ? "Réponse reçue !" : getSentStageLabel(prospect.currentStage)}
               </p>
               <p className="text-sm text-muted-foreground">le {prospect.currentStageDate}</p>
             </div>
