@@ -229,7 +229,9 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
                 <p className="text-xs text-muted-foreground mb-1">De : {prospect.name}</p>
                 <p className="text-sm text-foreground font-medium mb-2">Re: {sentEmails.length > 0 ? sentEmails[0].subject : "Partenariat boulanger"}</p>
                 <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
-                  Bonjour,{"\n\n"}Merci pour votre proposition, cela m'intéresse beaucoup ! Pourriez-vous passer cette semaine pour qu'on en discute autour d'un café ?{"\n\n"}Je suis disponible mardi et jeudi matin.{"\n\n"}Cordialement,{"\n"}{prospect.name}
+                  {prospect.name === "Maison Specht"
+                    ? `Merci beaucoup pour cette invitation, c'est une super idée de créer du lien entre voisins professionnels !\n\nMalheureusement, nous ne serons pas disponibles demain vendredi 29 mai.\n\nJ'espère que nous aurons l'occasion de faire connaissance une prochaine fois et de découvrir vos fameuses Bulles d'Ange.\n\nTrès bonne journée et belle réussite pour votre Fête des voisins,\n\n\nSébastien SPECHT\n\n+33 (0)1 48 10 80 40\n\n2 rue Costes et Bellonte 78200 Mantes-la-Jolie`
+                    : `Bonjour,\n\nMerci pour votre proposition, cela m'intéresse beaucoup ! Pourriez-vous passer cette semaine pour qu'on en discute autour d'un café ?\n\nJe suis disponible mardi et jeudi matin.\n\nCordialement,\n${prospect.name}`}
                 </p>
               </div>
             )}
