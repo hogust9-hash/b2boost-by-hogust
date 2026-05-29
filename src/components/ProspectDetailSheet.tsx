@@ -86,10 +86,10 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
 
     let cancelled = false;
     const loadProspectMessages = async () => {
-      const [{ data: events }, { data: messages }] = await Promise.all([
+      const [{ data: events }, { data: messages }, { data: campaignMessages }] = await Promise.all([
         supabase
           .from("email_events")
-          .select("event_type, step_number, subject, occurred_at")
+          .select("event_type, step_number, subject, body, occurred_at")
           .eq("campaign_prospect_id", prospect.id)
           .order("occurred_at", { ascending: true }),
         supabase
@@ -98,27 +98,49 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
           .eq("prospect_id", prospect.prospectId)
           .eq("campaign_id", prospect.campaignId)
           .order("step_number", { ascending: true }),
+        supabase
+          .from("campaign_messages")
+          .select("step_number, subject, body")
+          .eq("campaign_id", prospect.campaignId)
+          .order("step_number", { ascending: true }),
       ]);
 
       if (cancelled) return;
       const prospectMessages = (messages ?? []) as ProspectMessage[];
+      const fallbackMessages = (campaignMessages ?? []) as ProspectMessage[];
+
+      const resolveMessage = (step: number | null, subject: string | null): ProspectMessage | undefined => {
+        const byStepProspect = step != null ? prospectMessages.find((m) => m.step_number === step) : undefined;
+        if (byStepProspect?.body) return byStepProspect;
+        const bySubjectProspect = subject ? prospectMessages.find((m) => m.subject === subject) : undefined;
+        if (bySubjectProspect?.body) return bySubjectProspect;
+        const bySubjectCampaign = subject ? fallbackMessages.find((m) => m.subject === subject) : undefined;
+        if (bySubjectCampaign?.body) return bySubjectCampaign;
+        const byStepCampaign = step != null ? fallbackMessages.find((m) => m.step_number === step) : undefined;
+        return byStepCampaign ?? byStepProspect ?? bySubjectProspect;
+      };
+
       setSentEmails(
         (events ?? [])
           .map((event: any, index) => {
-            const messageStep = event.step_number ?? 0;
-            const message = prospectMessages.find((m) => m.step_number === messageStep);
+            const message = resolveMessage(event.step_number ?? null, event.subject ?? null);
             return {
               id: `${event.event_type}-${event.step_number ?? index}-${event.occurred_at}`,
               date: formatFrDate(event.occurred_at),
               type: getEmailType(event.step_number),
               subject: event.subject ?? message?.subject ?? "Sans objet",
-              body: message?.body ?? "",
+              body: event.body ?? message?.body ?? "",
               sent: true,
             };
           })
           .reverse()
       );
-      setNextMessage(prospectMessages.find((message) => message.step_number === prospect.currentStep + 1) ?? null);
+      const nextStep = prospect.currentStep + 1;
+      setNextMessage(
+        prospectMessages.find((m) => m.step_number === nextStep) ??
+        fallbackMessages.find((m) => m.step_number === nextStep) ??
+        null
+      );
     };
 
     loadProspectMessages();
