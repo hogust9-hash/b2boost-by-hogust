@@ -88,22 +88,29 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
 
     let cancelled = false;
     const loadProspectMessages = async () => {
+      const cpIds = prospect.allCampaignProspectIds && prospect.allCampaignProspectIds.length > 0
+        ? prospect.allCampaignProspectIds
+        : [prospect.id];
+      const campaignIds = prospect.allCampaignIds && prospect.allCampaignIds.length > 0
+        ? prospect.allCampaignIds
+        : [prospect.campaignId];
+
       const [{ data: events }, { data: messages }, { data: campaignMessages }] = await Promise.all([
         supabase
           .from("email_events")
           .select("event_type, step_number, subject, body, occurred_at")
-          .eq("campaign_prospect_id", prospect.id)
+          .in("campaign_prospect_id", cpIds)
           .order("occurred_at", { ascending: true }),
         supabase
           .from("prospect_messages")
-          .select("step_number, subject, body")
+          .select("step_number, subject, body, campaign_id")
           .eq("prospect_id", prospect.prospectId)
-          .eq("campaign_id", prospect.campaignId)
+          .in("campaign_id", campaignIds)
           .order("step_number", { ascending: true }),
         supabase
           .from("campaign_messages")
           .select("step_number, subject, body")
-          .eq("campaign_id", prospect.campaignId)
+          .in("campaign_id", campaignIds)
           .order("step_number", { ascending: true }),
       ]);
 
