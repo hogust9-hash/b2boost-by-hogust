@@ -9,6 +9,8 @@ export interface CampaignProspect {
   id: string;
   campaignId: string;
   prospectId: string;
+  allCampaignProspectIds: string[];
+  allCampaignIds: string[];
   name: string;
   category: CategoryType;
   categoryLabel: string;
