@@ -9,6 +9,8 @@ export interface CampaignProspect {
   id: string;
   campaignId: string;
   prospectId: string;
+  allCampaignProspectIds: string[];
+  allCampaignIds: string[];
   name: string;
   category: CategoryType;
   categoryLabel: string;
@@ -103,16 +105,60 @@ export const useCampaignProspects = () => {
         return;
       }
 
-      const mapped: CampaignProspect[] = (data ?? []).map((row: any) => {
+      const rawRows: any[] = data ?? [];
+
+      // Group by prospect_id to merge duplicates (same prospect across multiple campaigns/waves)
+      const groups = new Map<string, any[]>();
+      for (const row of rawRows) {
+        const key = row.prospect_id;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key)!.push(row);
+      }
+
+      const statusPriority = (s: string): number => {
+        if (s === "replied") return 0;
+        if (s === "in_progress") return 1;
+        if (s === "completed_no_reply") return 2;
+        return 3; // finished/completed
+      };
+
+      const mapped: CampaignProspect[] = Array.from(groups.values()).map((rows) => {
+        // Pick representative: highest status priority, then most recent last_sent_at, then highest current_step
+        const sorted = [...rows].sort((a, b) => {
+          const sp = statusPriority(a.status) - statusPriority(b.status);
+          if (sp !== 0) return sp;
+          const ta = a.last_sent_at ? new Date(a.last_sent_at).getTime() : 0;
+          const tb = b.last_sent_at ? new Date(b.last_sent_at).getTime() : 0;
+          if (tb !== ta) return tb - ta;
+          return (b.current_step ?? 0) - (a.current_step ?? 0);
+        });
+        const row = sorted[0];
+
+        // Aggregate: latest last_sent_at across all rows, max current_step, any replied
+        const latestSentAt = rows
+          .map((r) => (r.last_sent_at ? new Date(r.last_sent_at).getTime() : 0))
+          .reduce((m, t) => Math.max(m, t), 0);
+        const lastSentAt = latestSentAt ? new Date(latestSentAt).toISOString() : null;
+        const maxStep = rows.reduce((m, r) => Math.max(m, r.current_step ?? 0), 0);
+        const anyReplied = rows.some((r) => r.status === "replied");
+        const anyInProgress = rows.some((r) => r.status === "in_progress");
+        const aggregatedStatus = anyReplied
+          ? "replied"
+          : anyInProgress
+          ? "in_progress"
+          : row.status;
+
         const p = row.prospect ?? {};
         const cat = mapCategory(p?.category?.name);
-        const stageInfo = buildStage(row.status, row.current_step);
+        const stageInfo = buildStage(aggregatedStatus, maxStep);
         const city = p?.city ?? "";
         const bakeryId = row.campaign?.bakery_id ?? null;
         return {
           id: row.id,
           campaignId: row.campaign_id,
           prospectId: row.prospect_id,
+          allCampaignProspectIds: rows.map((r) => r.id),
+          allCampaignIds: Array.from(new Set(rows.map((r) => r.campaign_id))),
           name: p?.name ?? "Prospect",
           category: cat.id,
           categoryLabel: cat.label,
@@ -122,15 +168,15 @@ export const useCampaignProspects = () => {
           stage: stageInfo.stage,
           stageType: stageInfo.stageType,
           currentStep: stageInfo.currentStep,
-          campaignCurrentStep: row.current_step ?? 0,
+          campaignCurrentStep: maxStep,
           totalSteps: 5,
           context: city ? `${cat.label} — ${city}` : cat.label,
           offers: p?.offer ? [p.offer] : [],
           offer: p?.offer ?? null,
-          lastSentDate: formatFrDate(row.last_sent_at),
-          lastSentAt: row.last_sent_at ?? null,
-          responseReceivedAt: row.replied_at,
-          status: mapStatus(row.status),
+          lastSentDate: formatFrDate(lastSentAt),
+          lastSentAt,
+          responseReceivedAt: rows.find((r) => r.replied_at)?.replied_at ?? null,
+          status: mapStatus(aggregatedStatus),
         };
       });
 

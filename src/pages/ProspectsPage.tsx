@@ -200,6 +200,8 @@ const ProspectsPage = () => {
       id: prospect.id,
       campaignId: prospect.campaignId,
       prospectId: prospect.prospectId,
+      allCampaignProspectIds: prospect.allCampaignProspectIds,
+      allCampaignIds: prospect.allCampaignIds,
       name: prospect.name,
       category: prospect.category,
       categoryLabel: prospect.categoryLabel,
