@@ -28,6 +28,8 @@ interface ProspectDetail {
   id: string;
   campaignId: string;
   prospectId: string;
+  allCampaignProspectIds?: string[];
+  allCampaignIds?: string[];
   name: string;
   category: CategoryType;
   categoryLabel: string;
