@@ -152,7 +152,8 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
       setSentEmails(
         (events ?? [])
           .map((event: any, index) => {
-            const message = resolveMessage(event.step_number ?? null, event.subject ?? null);
+            const eventCampaignId = event.campaign_prospect?.campaign_id ?? null;
+            const message = resolveMessage(event.step_number ?? null, event.subject ?? null, eventCampaignId);
             return {
               id: `${event.event_type}-${event.step_number ?? index}-${event.occurred_at}`,
               date: formatFrDate(event.occurred_at),
