@@ -99,7 +99,7 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
       const [{ data: events }, { data: messages }, { data: campaignMessages }] = await Promise.all([
         supabase
           .from("email_events")
-          .select("event_type, step_number, subject, body, occurred_at")
+          .select("event_type, step_number, subject, body, occurred_at, campaign_prospect_id, campaign_prospect:campaign_prospects(campaign_id)")
           .in("campaign_prospect_id", cpIds)
           .order("occurred_at", { ascending: true }),
         supabase
@@ -110,7 +110,7 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
           .order("step_number", { ascending: true }),
         supabase
           .from("campaign_messages")
-          .select("step_number, subject, body")
+          .select("step_number, subject, body, campaign_id")
           .in("campaign_id", campaignIds)
           .order("step_number", { ascending: true }),
       ]);
@@ -119,13 +119,32 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
       const prospectMessages = (messages ?? []) as ProspectMessage[];
       const fallbackMessages = (campaignMessages ?? []) as ProspectMessage[];
 
-      const resolveMessage = (step: number | null, subject: string | null): ProspectMessage | undefined => {
-        const byStepProspect = step != null ? prospectMessages.find((m) => m.step_number === step) : undefined;
-        if (byStepProspect?.body) return byStepProspect;
+      const resolveMessage = (
+        step: number | null,
+        subject: string | null,
+        campaignId: string | null,
+      ): ProspectMessage | undefined => {
+        // 1. Strict match: prospect_id + campaign_id + step_number
+        if (campaignId != null && step != null) {
+          const strict = prospectMessages.find(
+            (m) => m.campaign_id === campaignId && m.step_number === step,
+          );
+          if (strict?.body) return strict;
+        }
+        // 2. Campaign fallback: campaign_id + step_number in campaign_messages
+        if (campaignId != null && step != null) {
+          const strictCampaign = fallbackMessages.find(
+            (m) => m.campaign_id === campaignId && m.step_number === step,
+          );
+          if (strictCampaign?.body) return strictCampaign;
+        }
+        // 3. Looser fallbacks (subject / step only) as last resort
         const bySubjectProspect = subject ? prospectMessages.find((m) => m.subject === subject) : undefined;
         if (bySubjectProspect?.body) return bySubjectProspect;
         const bySubjectCampaign = subject ? fallbackMessages.find((m) => m.subject === subject) : undefined;
         if (bySubjectCampaign?.body) return bySubjectCampaign;
+        const byStepProspect = step != null ? prospectMessages.find((m) => m.step_number === step) : undefined;
+        if (byStepProspect?.body) return byStepProspect;
         const byStepCampaign = step != null ? fallbackMessages.find((m) => m.step_number === step) : undefined;
         return byStepCampaign ?? byStepProspect ?? bySubjectProspect;
       };
