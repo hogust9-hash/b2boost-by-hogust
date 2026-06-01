@@ -46,6 +46,7 @@ interface ProspectMessage {
   step_number: number;
   subject: string | null;
   body: string | null;
+  campaign_id?: string | null;
 }
 
 interface ProspectDetailSheetProps {
