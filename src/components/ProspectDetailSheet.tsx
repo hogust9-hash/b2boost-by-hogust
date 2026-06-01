@@ -124,29 +124,41 @@ const ProspectDetailSheet: React.FC<ProspectDetailSheetProps> = ({
         subject: string | null,
         campaignId: string | null,
       ): ProspectMessage | undefined => {
-        // 1. Strict match: prospect_id + campaign_id + step_number
+        // 1. Best match: subject + campaign_id + step
+        if (subject && campaignId != null && step != null) {
+          const exact = prospectMessages.find(
+            (m) => m.subject === subject && m.campaign_id === campaignId && m.step_number === step,
+          );
+          if (exact?.body) return exact;
+        }
+        // 2. Subject is authoritative (event subject = actual email sent).
+        // After cp consolidation, campaign_id on events may not match the
+        // prospect_messages campaign_id, so subject match must win over campaign+step.
+        if (subject) {
+          const bySubjectProspect = prospectMessages.find((m) => m.subject === subject);
+          if (bySubjectProspect?.body) return bySubjectProspect;
+          const bySubjectCampaign = fallbackMessages.find((m) => m.subject === subject);
+          if (bySubjectCampaign?.body) return bySubjectCampaign;
+        }
+        // 3. Strict match: campaign_id + step in prospect_messages
         if (campaignId != null && step != null) {
           const strict = prospectMessages.find(
             (m) => m.campaign_id === campaignId && m.step_number === step,
           );
           if (strict?.body) return strict;
         }
-        // 2. Campaign fallback: campaign_id + step_number in campaign_messages
+        // 4. Strict match: campaign_id + step in campaign_messages
         if (campaignId != null && step != null) {
           const strictCampaign = fallbackMessages.find(
             (m) => m.campaign_id === campaignId && m.step_number === step,
           );
           if (strictCampaign?.body) return strictCampaign;
         }
-        // 3. Looser fallbacks (subject / step only) as last resort
-        const bySubjectProspect = subject ? prospectMessages.find((m) => m.subject === subject) : undefined;
-        if (bySubjectProspect?.body) return bySubjectProspect;
-        const bySubjectCampaign = subject ? fallbackMessages.find((m) => m.subject === subject) : undefined;
-        if (bySubjectCampaign?.body) return bySubjectCampaign;
+        // 5. Last resort: step only
         const byStepProspect = step != null ? prospectMessages.find((m) => m.step_number === step) : undefined;
         if (byStepProspect?.body) return byStepProspect;
         const byStepCampaign = step != null ? fallbackMessages.find((m) => m.step_number === step) : undefined;
-        return byStepCampaign ?? byStepProspect ?? bySubjectProspect;
+        return byStepCampaign ?? byStepProspect;
       };
 
       setSentEmails(
