@@ -7,10 +7,9 @@ import { ProspectDetailSheet, ProspectDetail } from "@/components/ProspectDetail
 import { ProspectCardSkeleton } from "@/components/ui/skeleton-card";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useCustomToast } from "@/components/ui/custom-toast";
-import { CategoryType } from "@/components/ui/badge-category";
 import { useCampaignProspects, CampaignProspect } from "@/hooks/useCampaignProspects";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter, CalendarDays, LayoutGrid, SlidersHorizontal, UtensilsCrossed, Bed, GraduationCap, Building2, Landmark, type LucideIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, Send, Clock, X, Filter, CalendarDays, LayoutGrid, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -31,15 +30,19 @@ const isWithinOneWeek = (dateStr: string | null | undefined): boolean => {
 
 type Prospect = CampaignProspect;
 
-type CategoryFilterType = CategoryType;
+type StepFilter = 1 | 2 | 3 | 4 | 5;
 
-const categoryOptions: { id: CategoryFilterType; label: string; icon: LucideIcon }[] = [
-  { id: "restauration", label: "Restauration", icon: UtensilsCrossed },
-  { id: "hebergement", label: "Hébergement", icon: Bed },
-  { id: "education", label: "Éducation", icon: GraduationCap },
-  { id: "entreprises", label: "Entreprises", icon: Building2 },
-  { id: "collectivites", label: "Collectivités", icon: Landmark },
+const stepOptions: { step: StepFilter; label: string }[] = [
+  { step: 1, label: "Premier contact" },
+  { step: 2, label: "Relance 1" },
+  { step: 3, label: "Relance 2" },
+  { step: 4, label: "Relance 3" },
+  { step: 5, label: "Dernier message" },
 ];
+
+// Map a prospect's current step (0-5+) to a filterable step bucket (1-5)
+const stepBucket = (step: number): StepFilter =>
+  Math.min(Math.max(step, 1), 5) as StepFilter;
 
 type PeriodFilter = "all" | "week" | "month" | "quarter";
 
@@ -73,7 +76,7 @@ const ProspectsPage = () => {
   const { prospects: liveProspects, loading: prospectsLoading } = useCampaignProspects();
   const [bakeries, setBakeries] = useState<{ id: string; label: string }[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>("all");
-  const [selectedCategories, setSelectedCategories] = useState<CategoryFilterType[]>([]);
+  const [selectedSteps, setSelectedSteps] = useState<StepFilter[]>([]);
   const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
   const [selectedBakeries, setSelectedBakeries] = useState<string[]>([]);
   const [cardFilter, setCardFilter] = useState<"all" | "todo">("all");
@@ -114,9 +117,9 @@ const ProspectsPage = () => {
   }, [liveProspects]);
 
 
-  const toggleCategory = (cat: CategoryFilterType) => {
-    setSelectedCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+  const toggleStep = (step: StepFilter) => {
+    setSelectedSteps((prev) =>
+      prev.includes(step) ? prev.filter((s) => s !== step) : [...prev, step]
     );
   };
 
@@ -133,14 +136,14 @@ const ProspectsPage = () => {
   };
 
   const clearAllFilters = () => {
-    setSelectedCategories([]);
+    setSelectedSteps([]);
     setSelectedOffers([]);
     setSelectedBakeries([]);
     setSelectedPeriod("all");
     setCardFilter("all");
   };
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedOffers.length > 0 || selectedBakeries.length > 0 || cardFilter !== "all" || selectedPeriod !== "all";
+  const hasActiveFilters = selectedSteps.length > 0 || selectedOffers.length > 0 || selectedBakeries.length > 0 || cardFilter !== "all" || selectedPeriod !== "all";
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -233,7 +236,8 @@ const ProspectsPage = () => {
   // Filter prospects (cumulative: category + offer + bakery + period)
   const periodStart = useMemo(() => getPeriodStart(selectedPeriod), [selectedPeriod]);
   const filteredProspects = liveProspects.filter((p) => {
-    const catMatch = selectedCategories.length === 0 || selectedCategories.includes(p.category);
+    const stepMatch =
+      selectedSteps.length === 0 || selectedSteps.includes(stepBucket(p.currentStep));
     const offerMatch =
       selectedOffers.length === 0 || (p.offer ? selectedOffers.includes(p.offer) : false);
     const bakeryMatch =
@@ -241,7 +245,7 @@ const ProspectsPage = () => {
     const periodMatch =
       !periodStart ||
       (p.lastSentAt ? new Date(p.lastSentAt).getTime() >= periodStart.getTime() : false);
-    return catMatch && offerMatch && bakeryMatch && periodMatch;
+    return stepMatch && offerMatch && bakeryMatch && periodMatch;
   });
 
   // Sort by date (most recent first), then by stage order
@@ -375,29 +379,28 @@ const ProspectsPage = () => {
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
               "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
-              (selectedOffers.length > 0 || selectedCategories.length > 0)
+              (selectedOffers.length > 0 || selectedSteps.length > 0)
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-foreground hover:bg-muted/80"
             )}>
               <SlidersHorizontal className="h-3 w-3" />
               + Filtres
-              {(selectedOffers.length + selectedCategories.length) > 0 && (
+              {(selectedOffers.length + selectedSteps.length) > 0 && (
                 <span className="bg-primary-foreground text-primary rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none">
-                  {selectedOffers.length + selectedCategories.length}
+                  {selectedOffers.length + selectedSteps.length}
                 </span>
               )}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[220px] max-h-[320px] overflow-y-auto">
-              <div className="px-2 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Catégorie</div>
-              {categoryOptions.map((cat) => (
+              <div className="px-2 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Étape</div>
+              {stepOptions.map((opt) => (
                 <DropdownMenuCheckboxItem
-                  key={cat.id}
-                  checked={selectedCategories.includes(cat.id)}
-                  onCheckedChange={() => toggleCategory(cat.id)}
+                  key={opt.step}
+                  checked={selectedSteps.includes(opt.step)}
+                  onCheckedChange={() => toggleStep(opt.step)}
                   onSelect={(e) => e.preventDefault()}
                 >
-                  <cat.icon className="h-3.5 w-3.5 mr-1.5" />
-                  {cat.label}
+                  {opt.label}
                 </DropdownMenuCheckboxItem>
               ))}
               <div className="px-2 py-1.5 mt-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider border-t border-border">Panier</div>
