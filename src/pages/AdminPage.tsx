@@ -1,14 +1,27 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
-  Loader2, Lock, Users, MailCheck, Send, Clock, LogIn, Activity, RefreshCw, EyeOff, Eye,
+  Loader2, Lock, Users, MailCheck, Send, Clock, LogIn, Activity, RefreshCw, EyeOff, Eye, Info,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+
+// Small info bullet with an explanatory tooltip
+const InfoTip: React.FC<{ text: string }> = ({ text }) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <button type="button" aria-label="Info" className="text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+        <Info className="h-3 w-3" />
+      </button>
+    </TooltipTrigger>
+    <TooltipContent className="max-w-[230px] text-xs leading-snug font-normal">{text}</TooltipContent>
+  </Tooltip>
+);
 
 interface ClientOverview {
   bakery_id: string;
@@ -32,13 +45,13 @@ interface ClientOverview {
   last_activity: string | null;
 }
 
-const STEP_FIELDS: { key: keyof ClientOverview; label: string; color: string }[] = [
-  { key: "not_started", label: "Non démarré", color: "bg-muted text-muted-foreground" },
-  { key: "step1", label: "Premier contact", color: "bg-primary/10 text-primary" },
-  { key: "step2", label: "Relance 1", color: "bg-primary/15 text-primary" },
-  { key: "step3", label: "Relance 2", color: "bg-primary/20 text-primary" },
-  { key: "step4", label: "Relance 3", color: "bg-primary/25 text-primary" },
-  { key: "step5", label: "Dernier message", color: "bg-primary/30 text-primary" },
+const STEP_FIELDS: { key: keyof ClientOverview; label: string; color: string; info: string }[] = [
+  { key: "not_started", label: "Non démarré", color: "bg-muted text-muted-foreground", info: "Prospects importés mais pas encore contactés (aucun email envoyé)." },
+  { key: "step1", label: "Premier contact", color: "bg-primary/10 text-primary", info: "Dernier email envoyé = le 1er contact. En attente de la 1re relance." },
+  { key: "step2", label: "Relance 1", color: "bg-primary/15 text-primary", info: "Dernier email envoyé = la 1re relance." },
+  { key: "step3", label: "Relance 2", color: "bg-primary/20 text-primary", info: "Dernier email envoyé = la 2e relance." },
+  { key: "step4", label: "Relance 3", color: "bg-primary/25 text-primary", info: "Dernier email envoyé = la 3e relance." },
+  { key: "step5", label: "Dernier message", color: "bg-primary/30 text-primary", info: "Dernier email de la séquence (message de clôture) envoyé." },
 ];
 
 const relative = (iso: string | null): string =>
@@ -54,8 +67,9 @@ const AdminPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ClientOverview[]>([]);
   const [hideEmpty, setHideEmpty] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const fetchOverview = async (pinValue: string) => {
+  const fetchOverview = useCallback(async (pinValue: string) => {
     setLoading(true);
     setError(null);
     const { data: res, error: err } = await (supabase.rpc as any)("admin_overview", { pin: pinValue });
@@ -69,9 +83,17 @@ const AdminPage = () => {
       return false;
     }
     setData(res as ClientOverview[]);
+    setLastUpdated(new Date());
     setAuthed(true);
     return true;
-  };
+  }, []);
+
+  // Auto-refresh every 60s while the dashboard is open
+  useEffect(() => {
+    if (!authed) return;
+    const id = setInterval(() => fetchOverview(pin), 60000);
+    return () => clearInterval(id);
+  }, [authed, pin, fetchOverview]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,7 +155,12 @@ const AdminPage = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-primary">Dashboard Admin</h1>
-            <p className="text-sm text-muted-foreground">Vue cumulée de tous les clients</p>
+            <p className="text-sm text-muted-foreground">
+              Vue cumulée de tous les clients
+              {lastUpdated && (
+                <span className="ml-1">· mis à jour à {lastUpdated.toLocaleTimeString("fr-FR")} <span className="text-muted-foreground/70">(auto toutes les 60 s)</span></span>
+              )}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -158,10 +185,14 @@ const AdminPage = () => {
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 space-y-6">
         {/* Global summary */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <SummaryCard icon={<Users className="h-5 w-5" />} label="Clients actifs" value={totals.clients} />
-          <SummaryCard icon={<Send className="h-5 w-5" />} label="Prospects totaux" value={totals.prospects} />
-          <SummaryCard icon={<MailCheck className="h-5 w-5" />} label="Réponses" value={totals.replied} accent="success" />
-          <SummaryCard icon={<Clock className="h-5 w-5" />} label="En cours" value={totals.inProgress} />
+          <SummaryCard icon={<Users className="h-5 w-5" />} label="Clients actifs" value={totals.clients}
+            info="Nombre de clients ayant au moins 1 prospect importé (les comptes vides ne sont pas comptés)." />
+          <SummaryCard icon={<Send className="h-5 w-5" />} label="Prospects totaux" value={totals.prospects}
+            info="Somme de tous les prospects de tous les clients, contactés ou non." />
+          <SummaryCard icon={<MailCheck className="h-5 w-5" />} label="Réponses" value={totals.replied} accent="success"
+            info="Total des prospects ayant répondu à un email, tous clients confondus (les bounces ne comptent pas)." />
+          <SummaryCard icon={<Clock className="h-5 w-5" />} label="En cours" value={totals.inProgress}
+            info="Prospects encore dans une séquence active (relances en cours), sans réponse." />
         </div>
 
         {/* Client cards */}
@@ -194,23 +225,29 @@ const AdminPage = () => {
 
                 {/* KPIs */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                  <MiniStat label="Prospects" value={c.total_prospects} />
-                  <MiniStat label="Contactés" value={c.contacted} />
-                  <MiniStat label="Réponses" value={`${c.replied} (${responseRate}%)`} accent="success" />
-                  <MiniStat label="En cours" value={c.in_progress} />
+                  <MiniStat label="Prospects" value={c.total_prospects} info="Nombre total de prospects importés pour ce client." />
+                  <MiniStat label="Contactés" value={c.contacted} info="Prospects ayant reçu au moins 1 email (au moins le premier contact)." />
+                  <MiniStat label="Réponses" value={`${c.replied} (${responseRate}%)`} accent="success" info="Prospects ayant répondu. Le taux = réponses ÷ contactés." />
+                  <MiniStat label="En cours" value={c.in_progress} info="Prospects en séquence active (relances en cours), sans réponse ni clôture." />
                 </div>
 
                 {/* Step breakdown */}
                 <div className="mt-4">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
                     Répartition par étape
+                    <InfoTip text="Où en est chaque prospect dans la séquence, selon son dernier email envoyé. La somme des 6 cases = total des prospects." />
                   </p>
                   <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                     {STEP_FIELDS.map((s) => (
-                      <div key={s.key} className={cn("rounded-lg px-2 py-2 text-center", s.color)}>
-                        <div className="text-lg font-bold leading-none">{c[s.key] as number}</div>
-                        <div className="text-[10px] mt-1 leading-tight">{s.label}</div>
-                      </div>
+                      <Tooltip key={s.key}>
+                        <TooltipTrigger asChild>
+                          <div className={cn("rounded-lg px-2 py-2 text-center cursor-help", s.color)}>
+                            <div className="text-lg font-bold leading-none">{c[s.key] as number}</div>
+                            <div className="text-[10px] mt-1 leading-tight">{s.label}</div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[230px] text-xs leading-snug font-normal">{s.info}</TooltipContent>
+                      </Tooltip>
                     ))}
                   </div>
                 </div>
@@ -226,21 +263,25 @@ const AdminPage = () => {
   );
 };
 
-const SummaryCard: React.FC<{ icon: React.ReactNode; label: string; value: number; accent?: "success" }> = ({
-  icon, label, value, accent,
+const SummaryCard: React.FC<{ icon: React.ReactNode; label: string; value: number; accent?: "success"; info?: string }> = ({
+  icon, label, value, accent, info,
 }) => (
   <div className="bg-card border border-border rounded-xl p-4">
     <div className={cn("flex items-center gap-1.5 text-xs font-medium", accent === "success" ? "text-success" : "text-muted-foreground")}>
       {icon}
       {label}
+      {info && <InfoTip text={info} />}
     </div>
     <div className="text-2xl font-bold text-foreground mt-1">{value}</div>
   </div>
 );
 
-const MiniStat: React.FC<{ label: string; value: React.ReactNode; accent?: "success" }> = ({ label, value, accent }) => (
+const MiniStat: React.FC<{ label: string; value: React.ReactNode; accent?: "success"; info?: string }> = ({ label, value, accent, info }) => (
   <div className="rounded-lg bg-muted/50 px-3 py-2">
-    <div className="text-[11px] text-muted-foreground">{label}</div>
+    <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+      {label}
+      {info && <InfoTip text={info} />}
+    </div>
     <div className={cn("text-base font-bold", accent === "success" ? "text-success" : "text-foreground")}>{value}</div>
   </div>
 );
