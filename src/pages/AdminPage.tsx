@@ -192,7 +192,7 @@ const AdminPage = () => {
           <SummaryCard icon={<MailCheck className="h-5 w-5" />} label="Réponses" value={totals.replied} accent="success"
             info="Total des prospects ayant répondu à un email, tous clients confondus (les bounces ne comptent pas)." />
           <SummaryCard icon={<Clock className="h-5 w-5" />} label="En cours" value={totals.inProgress}
-            info="Prospects encore dans une séquence active (relances en cours), sans réponse." />
+            info="Prospects encore relancés : séquence pas terminée et toujours sans réponse (tous clients confondus)." />
         </div>
 
         {/* Client cards */}
@@ -225,10 +225,10 @@ const AdminPage = () => {
 
                 {/* KPIs */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                  <MiniStat label="Prospects" value={c.total_prospects} info="Nombre total de prospects importés pour ce client." />
-                  <MiniStat label="Contactés" value={c.contacted} info="Prospects ayant reçu au moins 1 email (au moins le premier contact)." />
-                  <MiniStat label="Réponses" value={`${c.replied} (${responseRate}%)`} accent="success" info="Prospects ayant répondu. Le taux = réponses ÷ contactés." />
-                  <MiniStat label="En cours" value={c.in_progress} info="Prospects en séquence active (relances en cours), sans réponse ni clôture." />
+                  <MiniStat label="Prospects" value={c.total_prospects} info="Total de prospects importés. Se décompose en : Non démarrés + En cours + Réponses + Terminés." />
+                  <MiniStat label="En cours" value={c.in_progress} info="Au moins 1 email envoyé, séquence pas encore terminée et toujours sans réponse — la relance continue." />
+                  <MiniStat label="Réponses" value={`${c.replied} (${responseRate}%)`} accent="success" info="Prospects ayant répondu (les bounces ne comptent pas). Taux = réponses ÷ prospects contactés." />
+                  <MiniStat label="Terminés" value={c.finished} info="Toutes les relances ont été envoyées sans aucune réponse : la séquence est close." />
                 </div>
 
                 {/* Step breakdown */}
