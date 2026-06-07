@@ -11,6 +11,7 @@ import OnboardingPage from "./pages/OnboardingPage";
 import CampaignConfigPage from "./pages/CampaignConfigPage";
 import StrategyPage from "./pages/StrategyPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/campaign/config" element={<CampaignConfigPage />} />
               <Route path="/campaign/strategy" element={<StrategyPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/admin" element={<AdminPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
