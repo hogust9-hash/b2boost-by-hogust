@@ -13,6 +13,7 @@ import StrategyPage from "./pages/StrategyPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
+import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 
