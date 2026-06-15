@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import { Sparkles, Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,7 +19,9 @@ interface StepWelcomeProps {
 }
 
 const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const name = user?.user_metadata?.full_name || "Pierre";
 
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -90,13 +93,9 @@ const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
         Commencer
       </Button>
 
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="text-sm text-muted-foreground hover:text-primary transition-colors underline underline-offset-4"
-      >
-        Déjà inscrit(e) ? Se connecter
-      </button>
+      <Button variant="secondary" onClick={() => setOpen(true)} fullWidth className="max-w-xs">
+        Voir votre campagne en cours
+      </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
