@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import { Sparkles, Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
