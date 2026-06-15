@@ -83,7 +83,7 @@ const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
       </div>
 
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">Bienvenue, {name} !</h2>
+        <h2 className="text-2xl font-bold text-foreground">Bienvenue !</h2>
         <p className="text-muted-foreground max-w-sm">Configurons ensemble ta campagne de prospection B2B.
 
         </p>

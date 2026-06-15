@@ -261,6 +261,42 @@ export type Database = {
           },
         ]
       }
+      email_events_backup_ange: {
+        Row: {
+          body: string | null
+          campaign_prospect_id: string | null
+          created_at: string | null
+          event_type: string | null
+          id: number | null
+          occurred_at: string | null
+          raw: Json | null
+          step_number: number | null
+          subject: string | null
+        }
+        Insert: {
+          body?: string | null
+          campaign_prospect_id?: string | null
+          created_at?: string | null
+          event_type?: string | null
+          id?: number | null
+          occurred_at?: string | null
+          raw?: Json | null
+          step_number?: number | null
+          subject?: string | null
+        }
+        Update: {
+          body?: string | null
+          campaign_prospect_id?: string | null
+          created_at?: string | null
+          event_type?: string | null
+          id?: number | null
+          occurred_at?: string | null
+          raw?: Json | null
+          step_number?: number | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           bakery_id: string
@@ -622,7 +658,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_overview: { Args: { pin: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
