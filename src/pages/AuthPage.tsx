@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface FormErrors {
   email?: string;
@@ -17,27 +16,18 @@ interface FormErrors {
 
 const AuthPage = () => {
   const navigate = useNavigate();
-  const { user, profile, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!authLoading && user) {
-      if (profile && !profile.onboarding_completed) {
-        navigate("/onboarding", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
-    }
-  }, [user, profile, authLoading, navigate]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setResetSent(false);
 
     const newErrors: FormErrors = {};
     if (!loginForm.email) newErrors.email = "L'email est requis";
@@ -55,7 +45,29 @@ const AuthPage = () => {
 
     if (error) {
       setErrors({ general: "Email ou mot de passe incorrect" });
+      return;
     }
+
+    navigate("/prospects", { replace: true });
+  };
+
+  const handleForgotPassword = async () => {
+    setErrors({});
+    setResetSent(false);
+    if (!loginForm.email) {
+      setErrors({ email: "Entre ton email d'abord pour recevoir le lien" });
+      return;
+    }
+    setResetLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(loginForm.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResetLoading(false);
+    if (error) {
+      setErrors({ general: error.message });
+      return;
+    }
+    setResetSent(true);
   };
 
   return (
@@ -105,6 +117,23 @@ const AuthPage = () => {
             <Button type="submit" fullWidth disabled={isLoading}>
               {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Connexion...</> : "Se connecter"}
             </Button>
+
+            {resetSent && (
+              <div className="p-3 bg-success/10 border border-success/20 rounded-lg">
+                <p className="text-sm text-success text-center">
+                  Email envoyé ! Vérifie ta boîte de réception.
+                </p>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={resetLoading}
+              className="w-full text-center text-sm text-primary hover:underline disabled:opacity-50"
+            >
+              {resetLoading ? "Envoi..." : "Mot de passe oublié ?"}
+            </button>
           </form>
         </div>
 
