@@ -18,9 +18,7 @@ interface StepWelcomeProps {
 }
 
 const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const name = user?.user_metadata?.full_name || "Pierre";
 
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
