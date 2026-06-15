@@ -90,9 +90,13 @@ const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
         Commencer
       </Button>
 
-      <Button variant="secondary" onClick={() => setOpen(true)} fullWidth className="max-w-xs">
-        Voir votre campagne en cours
-      </Button>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="text-sm text-muted-foreground hover:text-primary transition-colors underline underline-offset-4"
+      >
+        Déjà inscrit(e) ? Se connecter
+      </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
