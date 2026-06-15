@@ -97,6 +97,17 @@ const StepWelcome: React.FC<StepWelcomeProps> = ({ onNext }) => {
         Voir votre campagne en cours
       </Button>
 
+      <p className="text-sm text-muted-foreground">
+        Déjà inscrit ?{" "}
+        <button
+          type="button"
+          onClick={() => navigate("/login")}
+          className="text-primary hover:underline font-medium"
+        >
+          Se connecter
+        </button>
+      </p>
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
