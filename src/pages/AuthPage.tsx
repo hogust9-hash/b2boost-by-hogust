@@ -17,27 +17,18 @@ interface FormErrors {
 
 const AuthPage = () => {
   const navigate = useNavigate();
-  const { user, profile, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!authLoading && user) {
-      if (profile && !profile.onboarding_completed) {
-        navigate("/onboarding", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
-    }
-  }, [user, profile, authLoading, navigate]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setResetSent(false);
 
     const newErrors: FormErrors = {};
     if (!loginForm.email) newErrors.email = "L'email est requis";
@@ -55,7 +46,29 @@ const AuthPage = () => {
 
     if (error) {
       setErrors({ general: "Email ou mot de passe incorrect" });
+      return;
     }
+
+    navigate("/prospects", { replace: true });
+  };
+
+  const handleForgotPassword = async () => {
+    setErrors({});
+    setResetSent(false);
+    if (!loginForm.email) {
+      setErrors({ email: "Entre ton email d'abord pour recevoir le lien" });
+      return;
+    }
+    setResetLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(loginForm.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResetLoading(false);
+    if (error) {
+      setErrors({ general: error.message });
+      return;
+    }
+    setResetSent(true);
   };
 
   return (
