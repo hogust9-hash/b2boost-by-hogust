@@ -118,6 +118,23 @@ const AuthPage = () => {
             <Button type="submit" fullWidth disabled={isLoading}>
               {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Connexion...</> : "Se connecter"}
             </Button>
+
+            {resetSent && (
+              <div className="p-3 bg-success/10 border border-success/20 rounded-lg">
+                <p className="text-sm text-success text-center">
+                  Email envoyé ! Vérifie ta boîte de réception.
+                </p>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={resetLoading}
+              className="w-full text-center text-sm text-primary hover:underline disabled:opacity-50"
+            >
+              {resetLoading ? "Envoi..." : "Mot de passe oublié ?"}
+            </button>
           </form>
         </div>
 
